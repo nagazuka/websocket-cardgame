@@ -2,6 +2,10 @@ import tornado.ioloop
 import tornado.web
 import tornado.websocket
 
+import json
+
+from game import CardGame
+
 class MainHandler(tornado.web.RequestHandler):
   def get(self):
     self.render("index.html")
@@ -9,10 +13,22 @@ class MainHandler(tornado.web.RequestHandler):
 class SocketHandler(tornado.websocket.WebSocketHandler):
   def open(self):
     print "Websocket opened"
+    self.cardGame = CardGame()
 
   def on_message(self, message):
-    print "Message received: " + message
-    self.write_message("Hello, you too!")
+    json = tornado.escape.json_decode(message) 
+    print "Message received: %s" % json
+  
+    jsonResponse = {}
+    if (json['command'] == 'startGame'):
+      self.cardGame.decideOrder()
+      players = []
+      for player in self.cardGame.players:
+        players.append({'name' : player.name}) 
+      jsonResponse['startingPlayerIndex'] = self.cardGame.startingPlayerIndex
+      jsonResponse['players'] = players
+
+    self.write_message("%s" % jsonResponse)
 
   def on_close(self):
     print "Websocket closed"
