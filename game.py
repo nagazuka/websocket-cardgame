@@ -32,10 +32,10 @@ class ScoreKeeper:
 
 class CardGame:
   
-  def __init__(self):
+  def __init__(self, players):
     self.id = uuid.uuid1()
     self.deck = self.createDeck()
-    self.players = self.createPlayers()
+    self.players = players
     self.startingPlayerIndex = 0
     self.scores = ScoreKeeper(self.players)
     self.state = "INITIALIZED"
@@ -45,13 +45,6 @@ class CardGame:
     deck.shuffle()
     return deck 
   
-  def createPlayers(self, playerName="John Doe"):
-    p1 = HumanPlayer(playerName, "A")
-    p2 = Player("Elvis Presley","A")
-    p3 = Player("Bob Marley", "B")
-    p4 = Player("Amy Winehouse", "B")
-    return [p1,p3,p2,p4]
-
   def getHighestCard(self, cards):
     def getHigherCard(card1, card2):
       if card1.rank > card2.rank:
@@ -118,7 +111,6 @@ class CardGame:
    playingOrder =  [ (self.startingPlayerIndex + i) % numPlayers for i in range(0, numPlayers) ]
    for i in playingOrder:
      yield self.players[i]
-
   
   def loop(self):
     self.state = "INITIALIZED"
