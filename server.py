@@ -19,18 +19,18 @@ class GameServer():
     return [p1,p3,p2,p4]
 
   def startGame(self, playerName):
-    jsonResponse = {}
+    jsonResponse = {'response' : 'startGame'}
     try:
       self.players = self.createPlayers(playerName)
       self.cardGame = CardGame(self.players)
 
       jsonResponse['resultCode'] = 'SUCCESS'
-      
+
       self.cardGame.decideOrder()
      
       playersList = []
       i = 0
-      for player in self.cardGame.getPlayersInOrder():
+      for player in self.cardGame.getPlayers():
         playersList.append( {'index' : i, 'name': player.name} )
         i = i + 1
 

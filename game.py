@@ -1,5 +1,5 @@
 import uuid
-from player import Player, HumanPlayer, AIPlayer
+from player import Player
 from cards import Card, Deck, HandInfo, PlayerMove
 
 class ScoreKeeper:
@@ -105,6 +105,9 @@ class CardGame:
 
     if self.scores.isGameDecided() or self.players[0].getNumberOfCards() == 0:
       self.state = "FINISHED"
+
+  def getPlayers(self):
+    return self.players
 
   def getPlayersInOrder(self):
    numPlayers = len(self.players)
