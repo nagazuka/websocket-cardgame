@@ -8,6 +8,7 @@ class ScoreKeeper:
     self.teamScore = {}
     self.playerScore = {}
     for player in players:
+      print player
       self.playerScore[player.name] = 0
       self.teamScore[player.team] = 0
 
@@ -32,7 +33,7 @@ class ScoreKeeper:
 
 class CardGame:
   
-  def __init__(self, players):
+  def __init__(self, players=None):
     self.id = uuid.uuid1()
     self.deck = self.createDeck()
     self.players = players
@@ -67,11 +68,14 @@ class CardGame:
     print "Starting player is: %s\n" % self.getStartingPlayer()
 
     self.state = "ORDER_DECIDED"
-  
-  def chooseTrump(self):
+
+  def dealFirstCards(self):
     for player in self.getPlayersInOrder():
       firstCards = self.deck.removeCards(5)
       player.addCards(firstCards)
+  
+  def chooseTrump(self):
+    self.dealFirstCards()
 
     firstPlayer = self.getStartingPlayer()
     self.trumpSuit = firstPlayer.selectTrump()
@@ -109,10 +113,13 @@ class CardGame:
   def getPlayers(self):
     return self.players
 
-  def getPlayersInOrder(self):
+  def getOrder(self):
    numPlayers = len(self.players)
    playingOrder =  [ (self.startingPlayerIndex + i) % numPlayers for i in range(0, numPlayers) ]
-   for i in playingOrder:
+   return playingOrder
+
+  def getPlayersInOrder(self):
+   for i in self.getOrder():
      yield self.players[i]
   
   def loop(self):

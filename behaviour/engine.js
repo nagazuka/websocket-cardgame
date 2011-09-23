@@ -15,8 +15,6 @@ function initGame() {
   ws.onmessage = function (evt) {
     handleMessage(evt.data);
   };
-
-  return ws;
 }
 
 function sendMessage(msg) {
@@ -27,12 +25,14 @@ function sendMessage(msg) {
 
 function handleMessage(msg) {
     $("#warningBlock").html(msg);
-
     json = JSON.parse(msg);
     response = json.response;
     switch (response) {
       case 'startGame':
         handleStartGameResponse(json);
+        break;
+      case 'dealFirstCards':
+        handleDealFirstCardsResponse(json);
         break;
       default:
         alert('Unknown response: ' + response);
@@ -44,10 +44,16 @@ function handleStartGameResponse(response) {
   for(i=0; i<playerList.length; i++) {
     drawPlayer(playerList[i].index, playerList[i].name);
   }
+
+  dealFirstCards();
+}
+
+function handleDealFirstCardsResponse(response) {
+  alert(response);
 }
 
 function drawPlayer(index, name) {
-    var padding = 5;
+    var padding = 10;
     var size = 100;
     var middleHeight = (HEIGHT / 2) - (size / 2);
     var middleWidth = (WIDTH / 2) - (size / 2);
@@ -59,13 +65,23 @@ function drawPlayer(index, name) {
 
     var x = xLoc[i]
     var y = yLoc[i]
-    var table = paper.image("images/avatars/A0" + (index+1) + ".png", x, y, size, size);
+    var table = paper.image("images/avatars/O0" + (index+1) + ".png", x, y, size, size);
     var name = paper.text(x + size / 2, y + size + padding, name);
     name.attr({'fill' : '#fff', 'font-size' : '14', 'font-family' : 'Helvetica', 'font-weight' : 'bold', 'fill-opacity' : '50%'});
 }
 
 function startGame() {
     message = { "command" : "startGame", 'playerName' : 'Shanny Anoep'};
+    sendMessage(this, message);
+}
+
+function dealFirstCards() {
+    message = { "command" : "dealFirstCards", 'playerIndex' : 0};
+    sendMessage(this, message);
+}
+
+function chooseTrump() {
+    message = { "command" : "chooseTrump" };
     sendMessage(this, message);
 }
 
@@ -80,9 +96,18 @@ $(document).ready(function() {
     var TABLE_Y = (HEIGHT - TABLE_HEIGHT) / 2
     var table = paper.image("images/green_poker_skin.png", TABLE_X, TABLE_Y, TABLE_WIDTH, TABLE_HEIGHT);
 
+    var CARD_WIDTH = 45;
+    var CARD_HEIGHT = 70;
     for (i=2; i < 10; i++) {
-    var card = paper.image("images/cards/simple_c_" + i + ".svg.png", i*20, TABLE_Y + TABLE_HEIGHT - 50, 45, 70);
+      var card = paper.image("images/cards/simple_c_" + i + ".svg.png", i*20, TABLE_Y + TABLE_HEIGHT - 50, CARD_WIDTH, CARD_HEIGHT);
+      card.mouseover(function (event) {
+        this.attr({'height': CARD_HEIGHT * 2, 'width': CARD_WIDTH * 2});
+      });
+      card.mouseout(function (event) {
+        this.attr({'height': CARD_HEIGHT, 'width': CARD_WIDTH});
+      });
+      
     }
 
-    var ws = initGame();
+    initGame();
 });
