@@ -10,4 +10,12 @@ $(document).ready(function() {
       var card = paper.image("images/cards/simple_c_" + i + ".svg.png", 100 + i*20, 320, 45, 70);
     }
 
+    var ws = new WebSocket("ws://localhost:8888/websocket");
+    ws.onopen = function() {
+      alert('Websocket opened');
+      ws.send("Hello, world");
+    };
+    ws.onmessage = function (evt) {
+      alert(evt.data);
+    };
 });
