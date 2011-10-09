@@ -1,11 +1,18 @@
 var WIDTH = 650
-var HEIGHT = 500
+var HEIGHT = 600
+
 var TABLE_WIDTH = 500;
 var TABLE_HEIGHT = 350;
-var TABLE_X = (WIDTH - TABLE_WIDTH) / 2
-var TABLE_Y = (HEIGHT - TABLE_HEIGHT) / 2
+
 var CARD_WIDTH = 45;
 var CARD_HEIGHT = 70;
+
+var CARD_AREA_WIDTH = TABLE_WIDTH
+var CARD_AREA_HEIGHT = CARD_WIDTH * 2
+var CARD_AREA_Y = HEIGHT - CARD_AREA_HEIGHT
+
+var TABLE_X = (WIDTH - TABLE_WIDTH) / 2
+var TABLE_Y = (HEIGHT - TABLE_HEIGHT - CARD_AREA_HEIGHT) / 2
 
 var SUIT_TRANSLATION_TABLE = new Array()
   SUIT_TRANSLATION_TABLE["DIAMONDS"] = "d"
@@ -46,6 +53,9 @@ function handleMessage(msg) {
       case 'dealFirstCards':
         handleDealFirstCardsResponse(json);
         break;
+      case 'allCards':
+        handleAllCardsResponse(json);
+        break;
       default:
         alert('Unknown response: ' + response);
     }
@@ -65,13 +75,18 @@ function handleDealFirstCardsResponse(response) {
   drawCards(cards)
 }
 
+function handleAllCardsResponse(response) {
+  cards = response.cards
+  drawCards(cards)
+}
+
 function getCardImageFileName(card) {
   return "images/cards/simple_" + SUIT_TRANSLATION_TABLE[card.suit] + "_" + RANK_TRANSLATION_TABLE[card.rank] + ".png"
 }
 
 function drawCards(cards) {
     for (i=0; i < cards.length; i++) {
-      var cardImage = paper.image(getCardImageFileName(cards[i]), i*CARD_WIDTH + 200, TABLE_Y + TABLE_HEIGHT/2 - 50, CARD_WIDTH, CARD_HEIGHT);
+      var cardImage = paper.image(getCardImageFileName(cards[i]), i*CARD_WIDTH + 200, CARD_AREA_Y + 10, CARD_WIDTH, CARD_HEIGHT);
       cardImage.card = cards[i] 
 
       cardImage.mouseover(function (event) {
@@ -90,10 +105,10 @@ function drawCards(cards) {
 function drawPlayer(index, name) {
     var padding = 10;
     var size = 100;
-    var middleHeight = (HEIGHT / 2) - (size / 2);
+    var middleHeight = (CARD_AREA_Y / 2) - (size / 2);
     var middleWidth = (WIDTH / 2) - (size / 2);
     var endWidth = WIDTH - size - padding;
-    var endHeight = HEIGHT - size - (4 * padding);
+    var endHeight = CARD_AREA_Y - size - (4 * padding);
 
     var xLoc = [middleWidth, padding, middleWidth, endWidth]; 
     var yLoc = [padding, middleHeight, endHeight, middleHeight]; 
@@ -128,19 +143,7 @@ $(document).ready(function() {
     bg.attr({fill: "45-#000-#555"});
 
     var table = paper.image("images/green_poker_skin.png", TABLE_X, TABLE_Y, TABLE_WIDTH, TABLE_HEIGHT);
-
-    /*
-    for (i=2; i < 10; i++) {
-      var card = paper.image("images/cards/simple_c_" + i + ".svg.png", i*20, TABLE_Y + TABLE_HEIGHT - 50, CARD_WIDTH, CARD_HEIGHT);
-      card.mouseover(function (event) {
-        this.attr({'height': CARD_HEIGHT * 2, 'width': CARD_WIDTH * 2});
-      });
-      card.mouseout(function (event) {
-        this.attr({'height': CARD_HEIGHT, 'width': CARD_WIDTH});
-      });
-      
-    }
-    */
-
+    var cardArea = paper.rect(0, CARD_AREA_Y, WIDTH, CARD_AREA_HEIGHT);
+    cardArea.attr({"fill": "90-#161:5-#000:95","fill-opacity": 0.5, "stroke-width": 0, "opacity": 0.1});
     initGame();
 });
