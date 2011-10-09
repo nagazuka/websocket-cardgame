@@ -74,14 +74,9 @@ class CardGame:
       firstCards = self.deck.removeCards(5)
       player.addCards(firstCards)
   
-  def chooseTrump(self):
-    self.dealFirstCards()
-
-    firstPlayer = self.getStartingPlayer()
-    self.trumpSuit = firstPlayer.selectTrump()
-  
+  def chooseTrump(self, trumpSuit):
+    self.trumpSuit = trumpSuit
     print "Trump is chosen as %s" % self.trumpSuit
-    
     self.state = "TRUMP_CHOSEN"
 
   def dealCards(self):
@@ -122,26 +117,5 @@ class CardGame:
    for i in self.getOrder():
      yield self.players[i]
   
-  def loop(self):
-    self.state = "INITIALIZED"
-    print "Game started..."
-    while self.state != "FINISHED":
-      if self.state == "INITIALIZED":
-        self.decideOrder()
-      if self.state == "ORDER_DECIDED":
-        self.chooseTrump()
-      if self.state == "TRUMP_CHOSEN":
-        self.dealCards()
-      elif self.state == "DEALT":
-        self.playHand()
-    
-    print "Game finished...\n"
-    print self.scores.getScores()
-
-  def start(self):
-    self.loop()
-
 if __name__ == "__main__":
   game = CardGame()
-  game.start()
-

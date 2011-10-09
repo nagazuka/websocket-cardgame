@@ -63,6 +63,23 @@ class GameServer():
       raise
 
     self.socket.write_message(jsonResponse)
+  
+  def chooseTrump(self, jsonReq):
+    jsonResponse = {'response' : 'allCards'}
+    try:
+      index = int(jsonReq['playerIndex'])
+      trumpSuit = jsonReq['suit']
+      self.cardGame.chooseTrump(trumpSuit)
+      self.cardGame.dealCards() 
+
+      allCards = self.cardGame.players[index].getCards()
+      jsonResponse['cards'] = [{'rank' : card.rank, 'suit' : card.suit} for card in allCards]
+
+    except Exception as ex:
+      self.writeError(ex)
+      raise
+
+    self.socket.write_message(jsonResponse)
 
 class MainHandler(tornado.web.RequestHandler):
   def get(self):
@@ -81,6 +98,8 @@ class SocketHandler(tornado.websocket.WebSocketHandler):
       self.gameServer.startGame(json['playerName'])
     elif (json['command'] == 'dealFirstCards'):
       self.gameServer.dealFirstCards(json)
+    elif (json['command'] == 'chooseTrump'):
+      self.gameServer.chooseTrump(json)
 
   def on_close(self):
     print "Websocket closed"

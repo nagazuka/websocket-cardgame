@@ -16,7 +16,7 @@ class Deck:
     self.cards = self.createDeck()  
 
   def createDeck(self):
-    numbers = range(1,14)
+    numbers = range(2,14)
     values = numbers 
     types = ["SPADES","CLUBS","HEARTS","DIAMONDS"]
   
