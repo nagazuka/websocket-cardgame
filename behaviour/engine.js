@@ -7,12 +7,16 @@ var TABLE_HEIGHT = 350;
 var CARD_WIDTH = 45;
 var CARD_HEIGHT = 70;
 
-var CARD_AREA_WIDTH = TABLE_WIDTH
+var CARD_AREA_WIDTH = WIDTH
 var CARD_AREA_HEIGHT = CARD_WIDTH * 2
 var CARD_AREA_Y = HEIGHT - CARD_AREA_HEIGHT
+var CARD_AREA_PADDING = 10
 
 var TABLE_X = (WIDTH - TABLE_WIDTH) / 2
 var TABLE_Y = (HEIGHT - TABLE_HEIGHT - CARD_AREA_HEIGHT) / 2
+
+var PLAYER_PADDING = 10;
+var PLAYER_SIZE = 100;
 
 var SUIT_TRANSLATION_TABLE = new Array()
   SUIT_TRANSLATION_TABLE["DIAMONDS"] = "d"
@@ -22,7 +26,9 @@ var SUIT_TRANSLATION_TABLE = new Array()
 
 var RANK_TRANSLATION_TABLE = [undefined, undefined,"2","3","4","5","6","7","8","9","j","q","k","a"]
 
-var ws = new WebSocket("ws://localhost:8888/websocket");
+var wsURL = "ws://" + conf.network.hostName + ":" + conf.network.portNumber + "/websocket";
+var ws = new WebSocket(wsURL);
+
 var paper;
 
 function initGame() {
@@ -85,8 +91,13 @@ function getCardImageFileName(card) {
 }
 
 function drawCards(cards) {
+    var offset = 2 * CARD_AREA_PADDING;
+    var stepSize = (CARD_AREA_WIDTH - offset) / cards.length;
+    alert(offset);
+    alert(stepSize);
     for (i=0; i < cards.length; i++) {
-      var cardImage = paper.image(getCardImageFileName(cards[i]), i*CARD_WIDTH + 200, CARD_AREA_Y + 10, CARD_WIDTH, CARD_HEIGHT);
+
+      var cardImage = paper.image(getCardImageFileName(cards[i]), i*stepSize + offset, CARD_AREA_Y + CARD_AREA_PADDING, CARD_WIDTH, CARD_HEIGHT);
       cardImage.card = cards[i] 
 
       cardImage.mouseover(function (event) {
@@ -103,20 +114,18 @@ function drawCards(cards) {
 }
 
 function drawPlayer(index, name) {
-    var padding = 10;
-    var size = 100;
-    var middleHeight = (CARD_AREA_Y / 2) - (size / 2);
-    var middleWidth = (WIDTH / 2) - (size / 2);
-    var endWidth = WIDTH - size - padding;
-    var endHeight = CARD_AREA_Y - size - (4 * padding);
+    var middleHeight = (CARD_AREA_Y / 2) - (PLAYER_SIZE / 2);
+    var middleWidth = (WIDTH / 2) - (PLAYER_SIZE / 2);
+    var endWidth = WIDTH - PLAYER_SIZE - PLAYER_PADDING;
+    var endHeight = CARD_AREA_Y - PLAYER_SIZE - (4 * PLAYER_PADDING);
 
-    var xLoc = [middleWidth, padding, middleWidth, endWidth]; 
-    var yLoc = [padding, middleHeight, endHeight, middleHeight]; 
+    var xLoc = [middleWidth, PLAYER_PADDING, middleWidth, endWidth]; 
+    var yLoc = [PLAYER_PADDING, middleHeight, endHeight, middleHeight]; 
 
     var x = xLoc[i]
     var y = yLoc[i]
-    var table = paper.image("images/avatars/O0" + (index+1) + ".png", x, y, size, size);
-    var name = paper.text(x + size / 2, y + size + padding, name);
+    var table = paper.image("images/avatars/O0" + (index+1) + ".png", x, y, PLAYER_SIZE, PLAYER_SIZE);
+    var name = paper.text(x + PLAYER_SIZE / 2, y + PLAYER_SIZE + PLAYER_PADDING, name);
     name.attr({'fill' : '#fff', 'font-size' : '14', 'font-family' : 'Helvetica', 'font-weight' : 'bold', 'fill-opacity' : '50%'});
 }
 
