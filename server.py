@@ -109,6 +109,7 @@ application = tornado.web.Application([
   (r"/websocket", SocketHandler),
   (r"/presentation/(.*)", tornado.web.StaticFileHandler, {"path": "presentation"}),
   (r"/behaviour/(.*)", tornado.web.StaticFileHandler, {"path": "behaviour"}),
+  (r"/config/(.*)", tornado.web.StaticFileHandler, {"path": "config"}),
   (r"/images/(.*)", tornado.web.StaticFileHandler, {"path": "images"}),
   ], debug=True)
 
