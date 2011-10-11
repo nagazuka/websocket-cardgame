@@ -1,5 +1,5 @@
-var WIDTH = 650
-var HEIGHT = 600
+var WIDTH = 650;
+var HEIGHT = 600;
 
 var TABLE_WIDTH = 500;
 var TABLE_HEIGHT = 350;
@@ -7,35 +7,51 @@ var TABLE_HEIGHT = 350;
 var CARD_WIDTH = 45;
 var CARD_HEIGHT = 70;
 
-var CARD_AREA_WIDTH = WIDTH
-var CARD_AREA_HEIGHT = CARD_WIDTH * 2
-var CARD_AREA_Y = HEIGHT - CARD_AREA_HEIGHT
-var CARD_AREA_PADDING = 10
+var CARD_AREA_WIDTH = WIDTH;
+var CARD_AREA_HEIGHT = CARD_WIDTH * 2;
+var CARD_AREA_Y = HEIGHT - CARD_AREA_HEIGHT;
+var CARD_AREA_PADDING = 10;
 
-var TABLE_X = (WIDTH - TABLE_WIDTH) / 2
-var TABLE_Y = (HEIGHT - TABLE_HEIGHT - CARD_AREA_HEIGHT) / 2
+var TABLE_X = (WIDTH - TABLE_WIDTH) / 2;
+var TABLE_Y = (HEIGHT - TABLE_HEIGHT - CARD_AREA_HEIGHT) / 2;
 
 var PLAYER_PADDING = 10;
 var PLAYER_SIZE = 100;
 
-var SUIT_TRANSLATION_TABLE = new Array()
-  SUIT_TRANSLATION_TABLE["DIAMONDS"] = "d"
-  SUIT_TRANSLATION_TABLE["CLUBS"] = "c"
-  SUIT_TRANSLATION_TABLE["SPADES"] = "s"
-  SUIT_TRANSLATION_TABLE["HEARTS"] = "h"
+var SUIT_TRANSLATION_TABLE = [];
+SUIT_TRANSLATION_TABLE["DIAMONDS"] = "d";
+SUIT_TRANSLATION_TABLE["CLUBS"] = "c";
+SUIT_TRANSLATION_TABLE["SPADES"] = "s";
+SUIT_TRANSLATION_TABLE["HEARTS"] = "h";
 
-var RANK_TRANSLATION_TABLE = [undefined, undefined,"2","3","4","5","6","7","8","9","j","q","k","a"]
+var RANK_TRANSLATION_TABLE = [undefined, undefined,"2","3","4","5","6","7","8","9","j","q","k","a"];
 
 var wsURL = "ws://" + conf.network.hostName + ":" + conf.network.portNumber + "/websocket";
 var ws = new WebSocket(wsURL);
 
 var paper;
+var game;
 
 function getCardImageFileName(rank, suit) {
   return "images/cards/simple_" + SUIT_TRANSLATION_TABLE[suit] + "_" + RANK_TRANSLATION_TABLE[rank] + ".png"
 }
 
+function Game() {
+  this.cards = new Array(); 
+}
+
+Game.prototype.addCard = function(card) {
+  this.cards.push(card);
+}
+
+Game.prototype.clearCards = function() {
+  for(i=0; i < this.cards.length; i++) {
+    this.cards[i].remove();
+  }
+}
+
 function Card(rank, suit) {
+
   this.rank = rank;
   this.suit = suit;
 }
@@ -56,6 +72,11 @@ Card.prototype.draw = function(x, y, width, height) {
   });
 }
 
+Card.prototype.remove = function() {
+  this.cardImage.remove();
+}
+
+
 function initGame() {
 
   ws.onopen = function() {
@@ -68,7 +89,7 @@ function initGame() {
 }
 
 function sendMessage(msg) {
-    messageStr = JSON.stringify(message)
+    messageStr = JSON.stringify(message);
     $("#infoBlock").html(messageStr);
     ws.send(messageStr);
 }
@@ -102,11 +123,12 @@ function handleStartGameResponse(response) {
 }
 
 function handleDealFirstCardsResponse(response) {
-  drawCards(response.cards)
+  drawCards(response.cards);
 }
 
 function handleAllCardsResponse(response) {
-  cards = response.cards
+  cards = response.cards;
+  game.clearCards();
   drawCards(cards)
 }
 
@@ -115,10 +137,9 @@ function drawCards(cards) {
     var offset = 2 * CARD_AREA_PADDING;
     var stepSize = (CARD_AREA_WIDTH - offset) / cards.length;
     for (i=0; i < cards.length; i++) {
-
       var card = new Card(cards[i].rank, cards[i].suit); 
+      game.addCard(card);
       card.draw(i*stepSize + offset, CARD_AREA_Y + CARD_AREA_PADDING, CARD_WIDTH, CARD_HEIGHT);
-
     }
 }
 
@@ -155,6 +176,7 @@ function chooseTrump(suit) {
 
 $(document).ready(function() {
     paper = Raphael("canvas", WIDTH, HEIGHT);
+    game = new Game();
 
     // rectangle with rounded corrners
     var bg = paper.rect(0, 0, WIDTH, HEIGHT);
