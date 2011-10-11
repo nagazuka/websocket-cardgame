@@ -1,3 +1,4 @@
+"use strict";
 var WIDTH = 650;
 var HEIGHT = 600;
 
@@ -19,12 +20,12 @@ var PLAYER_PADDING = 10;
 var PLAYER_SIZE = 100;
 
 var SUIT_TRANSLATION_TABLE = [];
-SUIT_TRANSLATION_TABLE["DIAMONDS"] = "d";
-SUIT_TRANSLATION_TABLE["CLUBS"] = "c";
-SUIT_TRANSLATION_TABLE["SPADES"] = "s";
-SUIT_TRANSLATION_TABLE["HEARTS"] = "h";
+SUIT_TRANSLATION_TABLE.DIAMONDS = "d";
+SUIT_TRANSLATION_TABLE.CLUBS = "c";
+SUIT_TRANSLATION_TABLE.SPADES = "s";
+SUIT_TRANSLATION_TABLE.HEARTS = "h";
 
-var RANK_TRANSLATION_TABLE = [undefined, undefined,"2","3","4","5","6","7","8","9","j","q","k","a"];
+var RANK_TRANSLATION_TABLE = [undefined, undefined, "2", "3", "4", "5", "6", "7", "8", "9", "j", "q", "k", "a"];
 
 var wsURL = "ws://" + conf.network.hostName + ":" + conf.network.portNumber + "/websocket";
 var ws = new WebSocket(wsURL);
@@ -45,7 +46,7 @@ Game.prototype.addCard = function(card) {
 }
 
 Game.prototype.clearCards = function() {
-  for(i=0; i < this.cards.length; i++) {
+  for(var i=0; i < this.cards.length; i++) {
     this.cards[i].remove();
   }
 }
@@ -89,15 +90,15 @@ function initGame() {
 }
 
 function sendMessage(msg) {
-    messageStr = JSON.stringify(message);
+    var messageStr = JSON.stringify(msg);
     $("#infoBlock").html(messageStr);
     ws.send(messageStr);
 }
 
 function handleMessage(msg) {
     $("#warningBlock").html(msg);
-    json = JSON.parse(msg);
-    response = json.response;
+    var json = JSON.parse(msg);
+    var response = json.response;
     switch (response) {
       case 'startGame':
         handleStartGameResponse(json);
@@ -114,8 +115,8 @@ function handleMessage(msg) {
 }
 
 function handleStartGameResponse(response) {
-  playerList = response.players;
-  for(i=0; i<playerList.length; i++) {
+  var playerList = response.players;
+  for(var i=0; i<playerList.length; i++) {
     drawPlayer(playerList[i].index, playerList[i].name);
   }
 
@@ -127,7 +128,7 @@ function handleDealFirstCardsResponse(response) {
 }
 
 function handleAllCardsResponse(response) {
-  cards = response.cards;
+  var cards = response.cards;
   game.clearCards();
   drawCards(cards)
 }
@@ -136,7 +137,7 @@ function handleAllCardsResponse(response) {
 function drawCards(cards) {
     var offset = 2 * CARD_AREA_PADDING;
     var stepSize = (CARD_AREA_WIDTH - offset) / cards.length;
-    for (i=0; i < cards.length; i++) {
+    for (var i=0; i < cards.length; i++) {
       var card = new Card(cards[i].rank, cards[i].suit); 
       game.addCard(card);
       card.draw(i*stepSize + offset, CARD_AREA_Y + CARD_AREA_PADDING, CARD_WIDTH, CARD_HEIGHT);
@@ -152,26 +153,26 @@ function drawPlayer(index, name) {
     var xLoc = [middleWidth, PLAYER_PADDING, middleWidth, endWidth]; 
     var yLoc = [PLAYER_PADDING, middleHeight, endHeight, middleHeight]; 
 
-    var x = xLoc[i]
-    var y = yLoc[i]
+    var x = xLoc[index]
+    var y = yLoc[index]
     var table = paper.image("images/avatars/O0" + (index+1) + ".png", x, y, PLAYER_SIZE, PLAYER_SIZE);
     var name = paper.text(x + PLAYER_SIZE / 2, y + PLAYER_SIZE + PLAYER_PADDING, name);
     name.attr({'fill' : '#fff', 'font-size' : '14', 'font-family' : 'Helvetica', 'font-weight' : 'bold', 'fill-opacity' : '50%'});
 }
 
 function startGame() {
-    message = { "command" : "startGame", 'playerName' : 'Shanny Anoep'};
-    sendMessage(this, message);
+    var message = { "command" : "startGame", 'playerName' : 'Shanny Anoep'};
+    sendMessage(message);
 }
 
 function dealFirstCards() {
-    message = { "command" : "dealFirstCards", 'playerIndex' : 0};
-    sendMessage(this, message);
+    var message = { "command" : "dealFirstCards", 'playerIndex' : 0};
+    sendMessage(message);
 }
 
 function chooseTrump(suit) {
-    message = { "command" : "chooseTrump", "suit": suit, 'playerIndex' : 0};
-    sendMessage(this, message);
+    var message = { "command" : "chooseTrump", "suit": suit, 'playerIndex' : 0};
+    sendMessage(message);
 }
 
 $(document).ready(function() {
