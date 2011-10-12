@@ -26,6 +26,7 @@ function Game() {
     this.cards = [];
     this.ws = new WebSocket(conf.network.wsURL);
     this.canvas = Raphael('canvas', WIDTH, HEIGHT);
+    this.handler = new MessageHandler();
 }
 
 Game.prototype = {
@@ -36,15 +37,20 @@ Game.prototype = {
   },
 
   setupWebSocket: function() {
+    var self = this;
 
     this.ws.onopen = function() {
-        startGame();
+        self.start();
     };
 
     this.ws.onmessage = function(evt) {
-        handleMessage(evt.data);
+        self.handler.handleMessage(evt.data);
     };
 
+  },
+
+  start : function() {
+    this.sendMessage({'command' : 'startGame', 'playerName' : 'Shanny Anoep'});
   },
 
   setupCanvas: function() {
@@ -139,46 +145,51 @@ Player.prototype = {
   }
 };
 
-function handleMessage(msg) {
+function MessageHandler() {
+}
+
+MessageHandler.prototype = {
+
+  handleMessage : function(msg) {
     $('#warningBlock').html(msg);
     var json = JSON.parse(msg);
     var response = json.response;
     switch (response) {
       case 'startGame':
-        handleStartGameResponse(json);
+        this.handleStartGameResponse(json);
         break;
       case 'dealFirstCards':
-        handleDealFirstCardsResponse(json);
+        this.handleDealFirstCardsResponse(json);
         break;
       case 'allCards':
-        handleAllCardsResponse(json);
+        this.handleAllCardsResponse(json);
         break;
       default:
         alert('Unknown response: ' + response);
     }
-}
+  },
+  
+  handleStartGameResponse : function (response) {
+    var playerList = response.players;
+    var i;
+    for (i = 0; i < playerList.length; i += 1) {
+      var player = new Player(playerList[i].index, playerList[i].name);
+      player.draw();
+    }
+    dealFirstCards();
+  },
 
-function handleStartGameResponse(response) {
-  var playerList = response.players;
-  var i;
-  for (i = 0; i < playerList.length; i += 1) {
-    var player = new Player(playerList[i].index, playerList[i].name);
-    player.draw();
+  handleDealFirstCardsResponse : function (response) {
+    drawCards(response.cards);
+  },
+
+  handleAllCardsResponse : function (response) {
+    var cards = response.cards;
+    game.clearCards();
+    drawCards(cards);
   }
 
-  dealFirstCards();
-}
-
-function handleDealFirstCardsResponse(response) {
-  drawCards(response.cards);
-}
-
-function handleAllCardsResponse(response) {
-  var cards = response.cards;
-  game.clearCards();
-  drawCards(cards);
-}
-
+};
 
 function drawCards(cards) {
     var offset = 2 * CARD_AREA_PADDING;
@@ -192,11 +203,6 @@ function drawCards(cards) {
 }
 
 
-function startGame() {
-    var message = { 'command' : 'startGame', 'playerName' : 'Shanny Anoep'};
-    game.sendMessage(message);
-}
-
 function dealFirstCards() {
     var message = { 'command' : 'dealFirstCards', 'playerIndex' : 0};
     game.sendMessage(message);
@@ -208,7 +214,6 @@ function chooseTrump(suit) {
 }
 
 $(document).ready(function() {
-    
     game = new Game();
     game.init();
 });
