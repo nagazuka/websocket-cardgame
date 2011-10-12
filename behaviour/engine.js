@@ -112,6 +112,33 @@ Card.prototype = {
   }
 };
 
+function Player(index, name) {
+  this.index = index;
+  this.name = name;
+}
+
+Player.prototype = {
+  draw : function() {
+    var middleHeight = (CARD_AREA_Y / 2) - (PLAYER_SIZE / 2);
+    var middleWidth = (WIDTH / 2) - (PLAYER_SIZE / 2);
+    var endWidth = WIDTH - PLAYER_SIZE - PLAYER_PADDING;
+    var endHeight = CARD_AREA_Y - PLAYER_SIZE - (4 * PLAYER_PADDING);
+
+    var xLoc = [middleWidth, PLAYER_PADDING, middleWidth, endWidth];
+    var yLoc = [PLAYER_PADDING, middleHeight, endHeight, middleHeight];
+
+    var x = xLoc[this.index];
+    var y = yLoc[this.index];
+    var table = game.getCanvas().image(this.getPlayerImage(), x, y, PLAYER_SIZE, PLAYER_SIZE);
+    var nameTxt = game.getCanvas().text(x + PLAYER_SIZE / 2, y + PLAYER_SIZE + PLAYER_PADDING, this.name);
+    nameTxt.attr({'fill' : '#fff', 'font-size' : '14', 'font-family' : 'Helvetica', 'font-weight' : 'bold', 'fill-opacity' : '50%'});
+  },
+
+  getPlayerImage : function() {
+    return 'images/avatars/O0' + (this.index + 1) + '.png';
+  }
+};
+
 function handleMessage(msg) {
     $('#warningBlock').html(msg);
     var json = JSON.parse(msg);
@@ -135,7 +162,8 @@ function handleStartGameResponse(response) {
   var playerList = response.players;
   var i;
   for (i = 0; i < playerList.length; i += 1) {
-    drawPlayer(playerList[i].index, playerList[i].name);
+    var player = new Player(playerList[i].index, playerList[i].name);
+    player.draw();
   }
 
   dealFirstCards();
@@ -163,21 +191,6 @@ function drawCards(cards) {
     }
 }
 
-function drawPlayer(index, name) {
-    var middleHeight = (CARD_AREA_Y / 2) - (PLAYER_SIZE / 2);
-    var middleWidth = (WIDTH / 2) - (PLAYER_SIZE / 2);
-    var endWidth = WIDTH - PLAYER_SIZE - PLAYER_PADDING;
-    var endHeight = CARD_AREA_Y - PLAYER_SIZE - (4 * PLAYER_PADDING);
-
-    var xLoc = [middleWidth, PLAYER_PADDING, middleWidth, endWidth];
-    var yLoc = [PLAYER_PADDING, middleHeight, endHeight, middleHeight];
-
-    var x = xLoc[index];
-    var y = yLoc[index];
-    var table = game.getCanvas().image('images/avatars/O0' + (index + 1) + '.png', x, y, PLAYER_SIZE, PLAYER_SIZE);
-    var name = game.getCanvas().text(x + PLAYER_SIZE / 2, y + PLAYER_SIZE + PLAYER_PADDING, name);
-    name.attr({'fill' : '#fff', 'font-size' : '14', 'font-family' : 'Helvetica', 'font-weight' : 'bold', 'fill-opacity' : '50%'});
-}
 
 function startGame() {
     var message = { 'command' : 'startGame', 'playerName' : 'Shanny Anoep'};
