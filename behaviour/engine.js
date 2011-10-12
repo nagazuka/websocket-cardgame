@@ -34,59 +34,58 @@ var paper;
 var game;
 
 function getCardImageFileName(rank, suit) {
-  return "images/cards/simple_" + SUIT_TRANSLATION_TABLE[suit] + "_" + RANK_TRANSLATION_TABLE[rank] + ".png"
+    return "images/cards/simple_" + SUIT_TRANSLATION_TABLE[suit] + "_" + RANK_TRANSLATION_TABLE[rank] + ".png";
 }
 
 function Game() {
-  this.cards = new Array(); 
+    this.cards = [];
 }
 
-Game.prototype.addCard = function(card) {
-  this.cards.push(card);
-}
+Game.prototype.addCard = function (card) {
+    this.cards.push(card);
+};
 
-Game.prototype.clearCards = function() {
-  for(var i=0; i < this.cards.length; i++) {
-    this.cards[i].remove();
-  }
-}
+Game.prototype.clearCards = function () {
+    var i;
+    for (i = 0; i < this.cards.length; i += 1) {
+        this.cards[i].remove();
+    }
+};
 
 function Card(rank, suit) {
-
-  this.rank = rank;
-  this.suit = suit;
+    this.rank = rank;
+    this.suit = suit;
 }
 
-Card.prototype.draw = function(x, y, width, height) {
-  var self = this;
+Card.prototype.draw = function (x, y, width, height) {
+    var self = this;
 
-  this.cardImage = paper.image(getCardImageFileName(this.rank, this.suit), x, y, width, height);
+    this.cardImage = paper.image(getCardImageFileName(this.rank, this.suit), x, y, width, height);
 
-  this.cardImage.mouseover(function (event) {
-    this.attr({'height': CARD_HEIGHT * 2, 'width': CARD_WIDTH * 2});
-  });
-  this.cardImage.mouseout(function (event) {
-    this.attr({'height': CARD_HEIGHT, 'width': CARD_WIDTH});
-  });
-  this.cardImage.click(function (event) {
-    chooseTrump(self.suit);
-  });
-}
+    this.cardImage.mouseover(function (event) {
+        this.attr({'height': CARD_HEIGHT * 2, 'width': CARD_WIDTH * 2});
+    });
+    this.cardImage.mouseout(function (event) {
+        this.attr({'height': CARD_HEIGHT, 'width': CARD_WIDTH});
+    });
+    this.cardImage.click(function (event) {
+        chooseTrump(self.suit);
+    });
+};
 
-Card.prototype.remove = function() {
-  this.cardImage.remove();
-}
+Card.prototype.remove = function () {
+    this.cardImage.remove();
+};
 
 
 function initGame() {
+    ws.onopen = function () {
+        startGame();
+    };
 
-  ws.onopen = function() {
-    startGame();
-  };
-
-  ws.onmessage = function (evt) {
-    handleMessage(evt.data);
-  };
+    ws.onmessage = function (evt) {
+        handleMessage(evt.data);
+    };
 }
 
 function sendMessage(msg) {
@@ -116,7 +115,8 @@ function handleMessage(msg) {
 
 function handleStartGameResponse(response) {
   var playerList = response.players;
-  for(var i=0; i<playerList.length; i++) {
+  var i;
+  for(i = 0; i < playerList.length; i += 1) {
     drawPlayer(playerList[i].index, playerList[i].name);
   }
 
@@ -137,7 +137,8 @@ function handleAllCardsResponse(response) {
 function drawCards(cards) {
     var offset = 2 * CARD_AREA_PADDING;
     var stepSize = (CARD_AREA_WIDTH - offset) / cards.length;
-    for (var i=0; i < cards.length; i++) {
+    var i;
+    for (i = 0; i < cards.length; i += 1) {
       var card = new Card(cards[i].rank, cards[i].suit); 
       game.addCard(card);
       card.draw(i*stepSize + offset, CARD_AREA_Y + CARD_AREA_PADDING, CARD_WIDTH, CARD_HEIGHT);
@@ -175,7 +176,7 @@ function chooseTrump(suit) {
     sendMessage(message);
 }
 
-$(document).ready(function() {
+$(document).ready(function () {
     paper = Raphael("canvas", WIDTH, HEIGHT);
     game = new Game();
 
