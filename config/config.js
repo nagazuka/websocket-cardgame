@@ -20,8 +20,7 @@ var conf = {
 	},
 
 	network: {
-		hostName: 'localhost',
-		portNumber: 8888
+    wsURL : 'ws://localhost:8888/websocket'
 	},
 	
 	// my skins
