@@ -24,7 +24,6 @@ var game;
 
 function Game() {
     this.cards = [];
-    this.ws = new WebSocket(conf.network.wsURL);
     this.canvas = Raphael('canvas', WIDTH, HEIGHT);
     this.handler = new MessageHandler();
 }
@@ -38,6 +37,15 @@ Game.prototype = {
 
   setupWebSocket: function() {
     var self = this;
+   
+    if (window.WebSocket) {
+      this.ws = new WebSocket(conf.network.wsURL);
+    }
+    else if (window.MozWebSocket) { 
+      this.ws = new MozWebSocket(conf.network.wsURL);
+    } else {
+      alert('No WebSocket support');
+    }
 
     this.ws.onopen = function() {
         self.start();
@@ -51,6 +59,14 @@ Game.prototype = {
 
   start : function() {
     this.sendMessage({'command' : 'startGame', 'playerName' : 'Shanny Anoep'});
+  },
+
+  dealFirstCards : function() {
+    this.sendMessage({ 'command' : 'dealFirstCards', 'playerIndex' : 0});
+  },
+
+  chooseTrump : function (suit) {
+    this.sendMessage({'command' : 'chooseTrump', 'suit': suit, 'playerIndex' : 0});
   },
 
   setupCanvas: function() {
@@ -105,7 +121,7 @@ Card.prototype = {
         this.attr({'height': CARD_HEIGHT, 'width': CARD_WIDTH});
     });
     this.cardImage.click(function(event) {
-        chooseTrump(self.suit);
+        game.chooseTrump(self.suit);
     });
   },
 
@@ -176,7 +192,7 @@ MessageHandler.prototype = {
       var player = new Player(playerList[i].index, playerList[i].name);
       player.draw();
     }
-    dealFirstCards();
+    game.dealFirstCards();
   },
 
   handleDealFirstCardsResponse : function (response) {
@@ -202,16 +218,6 @@ function drawCards(cards) {
     }
 }
 
-
-function dealFirstCards() {
-    var message = { 'command' : 'dealFirstCards', 'playerIndex' : 0};
-    game.sendMessage(message);
-}
-
-function chooseTrump(suit) {
-    var message = { 'command' : 'chooseTrump', 'suit': suit, 'playerIndex' : 0};
-    game.sendMessage(message);
-}
 
 $(document).ready(function() {
     game = new Game();
