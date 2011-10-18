@@ -28,7 +28,7 @@ class Player:
   def getNumberOfCards(self):
     return len(self.cards)
 
-  def getNextMove(self):
+  def getNextMove(self, hand):
     choice = random.choice(self.cards)
     self.cards.remove(choice)
     return choice
@@ -37,6 +37,18 @@ class Player:
     return "Player %s (%s)" % (self.name, self.team)
 
 class HumanPlayer(Player):
+ 
+  def __init__(self, name=None, team=None, handler=None):
+    self.name = name
+    self.team = team
+    self.cards = []
+    self.handler = None
+
+  def getNextMove(self, hand):
+    choice = random.choice(self.cards)
+    self.cards.remove(choice)
+    return choice
+
   pass
 
 class AIPlayer(Player):

@@ -5,20 +5,38 @@ import tornado.websocket
 import json
 
 from game import CardGame
+from cards import Card, Deck, HandInfo, PlayerMove
 from player import HumanPlayer, Player
 
-class GameServer():
+class MessageHandler():
   def __init__(self, socket):
     self.socket = socket
 
-  def writeError(self, exception):
+  def convert_to_builtin_type(self, obj):
+    print 'default(', repr(obj), ')'
+    # Convert objects to a dictionary of their representation
+    d = { '__class__':obj.__class__.__name__, 
+          '__module__':obj.__module__,
+          }
+    d.update(obj.__dict__)
+    return d
+
+  def sendMessage(self, message):
+    self.socket.write_message(json.dumps(message, default=self.convert_to_builtin_type))
+  
+  def sendError(self, exception):
     jsonResponse = {}
     jsonResponse['resultCode'] = 'FAILURE' 
     jsonResponse['resultMessage'] = str(exception)
-    self.socket.write_message(jsonResponse)
+    self.socket.sendMessage(jsonResponse)
+
+class GameServer():
+  def __init__(self, handler):
+    self.handler = handler
+
   
   def createPlayers(self, playerName="John Doe"):
-    p1 = Player(playerName, "A")
+    p1 = HumanPlayer(playerName, "A", self.handler)
     p2 = Player("Elvis Presley","A")
     p3 = Player("Bob Marley", "B")
     p4 = Player("Amy Winehouse", "B")
@@ -45,10 +63,10 @@ class GameServer():
       jsonResponse['gameId'] = str(self.cardGame.id)
 
     except Exception as ex:
-      self.writeError(ex)
+      self.handler.sendError(ex)
       raise
 
-    self.socket.write_message(jsonResponse)
+    self.handler.sendMessage(jsonResponse)
 
   def dealFirstCards(self, jsonReq):
     jsonResponse = {'response' : 'dealFirstCards'}
@@ -59,10 +77,10 @@ class GameServer():
       
       jsonResponse['cards'] = [{'rank' : card.rank, 'suit' : card.suit} for card in firstCards]
     except Exception as ex:
-      self.writeError(ex)
+      self.handler.sendError(ex)
       raise
 
-    self.socket.write_message(jsonResponse)
+    self.handler.sendMessage(jsonResponse)
   
   def chooseTrump(self, jsonReq):
     jsonResponse = {'response' : 'allCards'}
@@ -76,10 +94,35 @@ class GameServer():
       jsonResponse['cards'] = [{'rank' : card.rank, 'suit' : card.suit} for card in allCards]
 
     except Exception as ex:
-      self.writeError(ex)
+      self.handler.sendError(ex)
       raise
 
-    self.socket.write_message(jsonResponse)
+    self.handler.sendMessage(jsonResponse)
+  
+  def registerReady(self, jsonReq):
+    jsonResponse = {'response' : 'handPlayed'}
+    try:
+      hand = HandInfo()
+      for player in self.cardGame.getPlayersInOrder():
+        card = player.getNextMove(hand)
+        hand.addPlayerMove(PlayerMove(player, card))
+        print "%s played %s" % (player.name,card)
+        
+      winningMove = hand.decideWinner(self.cardGame.trumpSuit)
+      winningPlayer = winningMove.getPlayer()
+
+      self.cardGame.scores.registerWin(winningPlayer)
+      self.cardGame.startingPlayerIndex = self.players.index(winningPlayer)
+      
+      jsonResponse['hand'] = hand
+      jsonResponse['winningCard'] = winningMove.card
+      jsonResponse['winningPlayer'] = winningPlayer.name
+
+    except Exception as ex:
+      self.handler.sendError(ex)
+      raise
+
+    self.handler.sendMessage(jsonResponse)
 
 class MainHandler(tornado.web.RequestHandler):
   def get(self):
@@ -88,7 +131,8 @@ class MainHandler(tornado.web.RequestHandler):
 class SocketHandler(tornado.websocket.WebSocketHandler):
   def open(self):
     print "Websocket opened"
-    self.gameServer = GameServer(self)
+    messageHandler = MessageHandler(self)
+    self.gameServer = GameServer(messageHandler)
 
   def on_message(self, message):
     json = tornado.escape.json_decode(message) 
@@ -100,6 +144,8 @@ class SocketHandler(tornado.websocket.WebSocketHandler):
       self.gameServer.dealFirstCards(json)
     elif (json['command'] == 'chooseTrump'):
       self.gameServer.chooseTrump(json)
+    elif (json['command'] == 'isReady'):
+      self.gameServer.registerReady(json)
 
   def on_close(self):
     print "Websocket closed"
