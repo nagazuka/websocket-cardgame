@@ -2,7 +2,8 @@ import random
 
 class Player:
  
-  def __init__(self, name=None, team=None):
+  def __init__(self, id=1, name=None, team=None):
+    self.id = id
     self.name = name
     self.team = team
     self.cards = []
@@ -38,7 +39,8 @@ class Player:
 
 class HumanPlayer(Player):
  
-  def __init__(self, name=None, team=None, handler=None):
+  def __init__(self, id=0, name=None, team=None, handler=None):
+    self.id = id
     self.name = name
     self.team = team
     self.cards = []

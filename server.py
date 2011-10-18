@@ -8,12 +8,18 @@ from game import CardGame
 from cards import Card, Deck, HandInfo, PlayerMove
 from player import HumanPlayer, Player
 
-class MessageHandler():
-  def __init__(self, socket):
-    self.socket = socket
+class MessageEncoder(json.JSONEncoder):
+
+  def default(self, obj):
+    if isinstance(obj, Card):
+      return {'rank' : obj.rank, 'suit' : obj.suit}
+    elif isinstance(obj, HandInfo):
+      moves = [ {'card' : self.default(move.card), 'player' : move.player.id } for move in obj.playerMoves]
+      return moves
+
+    return self.convert_to_builtin_type(obj)
 
   def convert_to_builtin_type(self, obj):
-    print 'default(', repr(obj), ')'
     # Convert objects to a dictionary of their representation
     d = { '__class__':obj.__class__.__name__, 
           '__module__':obj.__module__,
@@ -21,25 +27,28 @@ class MessageHandler():
     d.update(obj.__dict__)
     return d
 
+class MessageWriter():
+  def __init__(self, socket):
+    self.socket = socket
+
   def sendMessage(self, message):
-    self.socket.write_message(json.dumps(message, default=self.convert_to_builtin_type))
+    self.socket.write_message(json.dumps(message, cls=MessageEncoder))
   
   def sendError(self, exception):
     jsonResponse = {}
     jsonResponse['resultCode'] = 'FAILURE' 
     jsonResponse['resultMessage'] = str(exception)
-    self.socket.sendMessage(jsonResponse)
+    self.socket.write_message(jsonResponse)
 
 class GameServer():
   def __init__(self, handler):
     self.handler = handler
-
   
   def createPlayers(self, playerName="John Doe"):
-    p1 = HumanPlayer(playerName, "A", self.handler)
-    p2 = Player("Elvis Presley","A")
-    p3 = Player("Bob Marley", "B")
-    p4 = Player("Amy Winehouse", "B")
+    p1 = HumanPlayer(1, playerName, "A", self.handler)
+    p2 = Player(2, "Elvis Presley","A")
+    p3 = Player(3, "Bob Marley", "B")
+    p4 = Player(4, "Amy Winehouse", "B")
     return [p1,p3,p2,p4]
 
   def startGame(self, playerName):
@@ -116,7 +125,7 @@ class GameServer():
       
       jsonResponse['hand'] = hand
       jsonResponse['winningCard'] = winningMove.card
-      jsonResponse['winningPlayer'] = winningPlayer.name
+      jsonResponse['winningPlayer'] = winningPlayer.id
 
     except Exception as ex:
       self.handler.sendError(ex)
@@ -131,8 +140,8 @@ class MainHandler(tornado.web.RequestHandler):
 class SocketHandler(tornado.websocket.WebSocketHandler):
   def open(self):
     print "Websocket opened"
-    messageHandler = MessageHandler(self)
-    self.gameServer = GameServer(messageHandler)
+    writer = MessageWriter(self)
+    self.gameServer = GameServer(writer)
 
   def on_message(self, message):
     json = tornado.escape.json_decode(message) 
