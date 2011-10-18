@@ -69,6 +69,10 @@ Game.prototype = {
     this.sendMessage({'command' : 'chooseTrump', 'suit': suit, 'playerIndex' : 0});
   },
 
+  sendReady : function() {
+    this.sendMessage({'command' : 'isReady'});
+  },
+
   setupCanvas: function() {
     var bg = this.canvas.rect(0, 0, WIDTH, HEIGHT);
     bg.attr({fill: '45-#000-#555'});
@@ -203,6 +207,7 @@ MessageHandler.prototype = {
     var cards = response.cards;
     game.clearCards();
     drawCards(cards);
+    game.sendReady();
   }
 
 };
