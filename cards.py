@@ -69,6 +69,12 @@ class HandInfo:
   def getMove(self, index=0):
     return self.playerMoves[index] 
 
+  def isComplete(self):
+    return len(self.playerMoves) == 4
+  
+  def getStep(self):
+    return len(self.playerMoves)
+
   def decideWinner(self, trumpSuit):
     winningMove  = self.playerMoves[0]
     for otherMove in self.playerMoves[1:]:

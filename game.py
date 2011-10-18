@@ -57,6 +57,10 @@ class CardGame:
   def getStartingPlayer(self):
     return self.players[self.startingPlayerIndex]
   
+  def getNextPlayer(self, step):
+    index = self.playingOrder[step]
+    return self.players[index]
+ 
   def decideOrder(self):
     cards = self.deck.sample(len(self.players))
     
@@ -66,7 +70,8 @@ class CardGame:
     highestCard = self.getHighestCard(cards)
     self.startingPlayerIndex = cards.index(highestCard)
     print "Starting player is: %s\n" % self.getStartingPlayer()
-
+    self.setPlayingOrder()
+  
     self.state = "ORDER_DECIDED"
 
   def dealFirstCards(self):
@@ -109,13 +114,15 @@ class CardGame:
     return self.players
 
   def getOrder(self):
-   numPlayers = len(self.players)
-   playingOrder =  [ (self.startingPlayerIndex + i) % numPlayers for i in range(0, numPlayers) ]
-   return playingOrder
+   return self.playingOrder
+
+  def setPlayingOrder(self):
+    numPlayers = len(self.players)
+    self.playingOrder =  [ (self.startingPlayerIndex + i) % numPlayers for i in range(0, numPlayers) ]
 
   def getPlayersInOrder(self):
-   for i in self.getOrder():
-     yield self.players[i]
+    for i in self.getOrder():
+      yield self.players[i]
   
 if __name__ == "__main__":
   game = CardGame()
