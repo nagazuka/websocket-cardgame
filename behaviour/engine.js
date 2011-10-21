@@ -73,7 +73,12 @@ Game.prototype = {
   
   askMove : function (card) {
     this.sendMessage({'command' : 'askMove', 'rank' : card.rank, 'suit': card.suit, 'playerIndex' : 0});
-    this.cardClickHandler = this.askMove;
+    this.removeCard(card);
+    this.cardClickHandler = this.noAction;
+  },
+
+  noAction : function (card) {
+    alert('No action possible right now. Chill for a bit amigo...');
   },
 
   sendReady : function() {
@@ -92,10 +97,31 @@ Game.prototype = {
     this.cards.push(card);
   },
 
+  removeCard: function(card) {
+    card.clear();
+    var index = this.cards._indexOf(this.cards, card);
+    if (index != -1) {
+      this.cards.splice(index,1);
+    }
+   },
+
   clearCards: function() {
     var i;
     for (i = 0; i < this.cards.length; i += 1) {
-        this.cards[i].remove();
+        this.cards[i].clear();
+    }
+    this.cards.length = 0;
+  },
+
+  drawCards : function() {
+    if (this.cards.length > 0) {
+      var offset = 2 * CARD_AREA_PADDING;
+      var stepSize = (CARD_AREA_WIDTH - offset) / this.cards.length;
+      var i;
+      for (i = 0; i < this.cards.length; i += 1) {
+        var card = this.cards[i];
+        card.draw(i * stepSize + offset, CARD_AREA_Y + CARD_AREA_PADDING, CARD_WIDTH, CARD_HEIGHT);
+      }
     }
   },
 
@@ -141,7 +167,7 @@ Card.prototype = {
     });
   },
 
-  remove: function() {
+  clear: function() {
     this.cardImage.remove();
   },
   
@@ -215,13 +241,24 @@ MessageHandler.prototype = {
   },
 
   handleDealFirstCardsResponse : function (response) {
-    drawCards(response.cards);
+    var cards = response.cards;
+    var i;
+    for (i = 0; i < cards.length; i += 1) {
+      var card = new Card(cards[i].rank, cards[i].suit);
+      game.addCard(card);
+    }
+    game.drawCards();
   },
 
   handleAllCardsResponse : function (response) {
     var cards = response.cards;
+    var i;
     game.clearCards();
-    drawCards(cards);
+    for (i = 0; i < response.cards.length; i += 1) {
+      var card = new Card(response.cards[i].rank, response.cards[i].suit);
+      game.addCard(card);
+    }
+    game.drawCards();
     game.sendReady();
   },
 
@@ -231,16 +268,6 @@ MessageHandler.prototype = {
 
 };
 
-function drawCards(cards) {
-    var offset = 2 * CARD_AREA_PADDING;
-    var stepSize = (CARD_AREA_WIDTH - offset) / cards.length;
-    var i;
-    for (i = 0; i < cards.length; i += 1) {
-      var card = new Card(cards[i].rank, cards[i].suit);
-      game.addCard(card);
-      card.draw(i * stepSize + offset, CARD_AREA_Y + CARD_AREA_PADDING, CARD_WIDTH, CARD_HEIGHT);
-    }
-}
 
 
 $(document).ready(function() {
