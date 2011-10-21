@@ -63,10 +63,17 @@ Game.prototype = {
 
   dealFirstCards : function() {
     this.sendMessage({ 'command' : 'dealFirstCards', 'playerIndex' : 0});
+    this.cardClickHandler = this.chooseTrump;
   },
 
-  chooseTrump : function (suit) {
-    this.sendMessage({'command' : 'chooseTrump', 'suit': suit, 'playerIndex' : 0});
+  chooseTrump : function (card) {
+    this.sendMessage({'command' : 'chooseTrump', 'suit': card.suit, 'playerIndex' : 0});
+    this.cardClickHandler = this.askMove;
+  },
+  
+  askMove : function (card) {
+    this.sendMessage({'command' : 'askMove', 'rank' : card.rank, 'suit': card.suit, 'playerIndex' : 0});
+    this.cardClickHandler = this.askMove;
   },
 
   sendReady : function() {
@@ -100,7 +107,11 @@ Game.prototype = {
 
   getCanvas: function() {
     return this.canvas;
-  }
+  },
+
+  handleCardClicked : function(card) {
+    this.cardClickHandler(card);
+  },
 };
 
 function Card(rank, suit) {
@@ -125,7 +136,8 @@ Card.prototype = {
         this.attr({'height': CARD_HEIGHT, 'width': CARD_WIDTH});
     });
     this.cardImage.click(function(event) {
-        game.chooseTrump(self.suit);
+        //game.chooseTrump(self.suit);
+        game.handleCardClicked(self);
     });
   },
 
@@ -184,6 +196,9 @@ MessageHandler.prototype = {
       case 'allCards':
         this.handleAllCardsResponse(json);
         break;
+      case 'askMove':
+        this.handleAskMoveResponse(json);
+        break;
       default:
         alert('Unknown response: ' + response);
     }
@@ -208,6 +223,10 @@ MessageHandler.prototype = {
     game.clearCards();
     drawCards(cards);
     game.sendReady();
+  },
+
+  handleAskMoveResponse : function (response) {
+
   }
 
 };
