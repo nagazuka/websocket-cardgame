@@ -106,10 +106,7 @@ Game.prototype = {
    },
 
   clearCards: function() {
-    var i;
-    for (i = 0; i < this.cards.length; i += 1) {
-        this.cards[i].clear();
-    }
+    _.each(this.cards, function(c) { c.clear(); });
     this.cards.length = 0;
   },
 
@@ -241,34 +238,27 @@ MessageHandler.prototype = {
   },
 
   handleDealFirstCardsResponse : function (response) {
-    var cards = response.cards;
-    var i;
-    for (i = 0; i < cards.length; i += 1) {
-      var card = new Card(cards[i].rank, cards[i].suit);
-      game.addCard(card);
-    }
+    var cards = this.transformCards(response.cards);
+    _.each(cards, function (c) { game.addCard(c); });
     game.drawCards();
   },
 
   handleAllCardsResponse : function (response) {
-    var cards = response.cards;
-    var i;
+    var cards = this.transformCards(response.cards);
     game.clearCards();
-    for (i = 0; i < response.cards.length; i += 1) {
-      var card = new Card(response.cards[i].rank, response.cards[i].suit);
-      game.addCard(card);
-    }
+    _.each(cards, function (c) { game.addCard(c); });
     game.drawCards();
     game.sendReady();
   },
 
   handleAskMoveResponse : function (response) {
 
+  },
+
+  transformCards : function (cards) {
+    return _.map(cards, function (c) { return  new Card(c.rank, c.suit); });
   }
-
 };
-
-
 
 $(document).ready(function() {
     game = new Game();
