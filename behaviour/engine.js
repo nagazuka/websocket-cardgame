@@ -144,7 +144,6 @@ function Card(rank, suit) {
 
 Card.prototype = {
   SUIT_TRANSLATION_TABLE : { 'DIAMONDS' : 'd', 'CLUBS' : 'c', 'SPADES' : 's', 'HEARTS' : 'h'},
-
   RANK_TRANSLATION_TABLE : [undefined, undefined, '2', '3', '4', '5', '6', '7', '8', '9', 'j', 'q', 'k', 'a'],
 
   draw: function(x, y, width, height) {
@@ -159,7 +158,6 @@ Card.prototype = {
         this.attr({'height': CARD_HEIGHT, 'width': CARD_WIDTH});
     });
     this.cardImage.click(function(event) {
-        //game.chooseTrump(self.suit);
         game.handleCardClicked(self);
     });
   },
@@ -229,11 +227,12 @@ MessageHandler.prototype = {
   
   handleStartGameResponse : function (response) {
     var playerList = response.players;
-    var i;
-    for (i = 0; i < playerList.length; i += 1) {
-      var player = new Player(playerList[i].index, playerList[i].name);
+
+    _.each(response.players, function (p) {
+      var player = new Player(p.index, p.name);
       player.draw();
-    }
+    });
+
     game.dealFirstCards();
   },
 
