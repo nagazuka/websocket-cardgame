@@ -167,7 +167,10 @@ Player.prototype = {
   },
 
   getPlayerImage : function() {
-    return 'images/avatars/O0' + (this.index + 1) + '.png';
+    var charCode = Math.floor(Math.random() * 15) + 65;
+    var letter = String.fromCharCode(charCode);
+    var number = Math.floor(Math.random() * 5) + 1;
+    return 'images/avatars/' + letter + '0' + number + '.png';
   }
 };
 
