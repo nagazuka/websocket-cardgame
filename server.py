@@ -49,7 +49,7 @@ class GameServer():
     p1 = HumanPlayer(1, playerName, "A", self.handler)
     p2 = Player(2, "Elvis Presley","A")
     p3 = Player(3, "Bob Marley", "B")
-    p4 = Player(4, "Amy Winehouse", "B")
+    p4 = Player(4, "Jimi Hendrix", "B")
     return [p1,p3,p2,p4]
 
   def startGame(self, playerName):
@@ -68,7 +68,7 @@ class GameServer():
       playersList = []
       i = 0
       for player in self.cardGame.getPlayers():
-        playersList.append( {'index' : i, 'name': player.name, 'id' : player.id} )
+        playersList.append( {'index' : i, 'name': player.name, 'id' : player.id, 'isHuman' : isinstance(player, HumanPlayer)} )
         i = i + 1
 
       jsonResponse['players'] = playersList
@@ -138,7 +138,7 @@ class GameServer():
 
         jsonResponse['hand'] = self.hand
         jsonResponse['winningCard'] = winningMove.card
-        jsonResponse['winningPlayer'] = winningPlayer.id
+        jsonResponse['winningPlayerId'] = winningPlayer.id
         self.handler.sendMessage(jsonResponse)
 
   def madeMove(self, req):

@@ -77,10 +77,15 @@ Game.prototype = {
   },
   
   addPlayer: function(player) {
-    if (player.id == 1) {
+    if (player.isHuman) {
       this.humanPlayer = player;
     }
     this.players.push(player);
+  },
+
+  getPlayerById: function(id) {
+    var player = _.find(this.players, function (p) { return p.id == id;});
+    return player;
   },
 
   removeCard: function(card) {
@@ -163,10 +168,11 @@ Card.prototype = {
   }
 };
 
-function Player(id, index, name) {
+function Player(id, index, name, isHuman) {
   this.index = index;
   this.id = id;
   this.name = name;
+  this.isHuman = Boolean(isHuman);
 }
 
 Player.prototype = {
@@ -246,6 +252,9 @@ MessageHandler.prototype = {
       case 'askMove':
         this.handleAskMoveResponse(json);
         break;
+      case 'handPlayed':
+        this.handleHandPlayedResponse(json);
+        break;
       default:
         alert('Unknown response: ' + response);
     }
@@ -255,7 +264,7 @@ MessageHandler.prototype = {
     var playerList = response.players;
 
     _.each(response.players, function (p) {
-      var player = new Player(p.id, p.index, p.name);
+      var player = new Player(p.id, p.index, p.name, p.isHuman);
       game.addPlayer(player);
       player.draw();
     });
@@ -276,11 +285,20 @@ MessageHandler.prototype = {
     _.each(cards, function (c) { game.addCard(c); });
     game.drawCards();
     game.sendReady();
-    game.drawText("Jij bent aan de beurt!");
+    game.drawText("Je bent aan de beurt...");
   },
 
   handleAskMoveResponse : function (response) {
 
+  },
+
+  handleHandPlayedResponse : function (response) {
+    var winningPlayer = game.getPlayerById(response.winningPlayerId);
+    if (winningPlayer.id == game.humanPlayer.id) {
+      game.drawText("Je hebt deze hand gemaakt!");
+    } else {
+      game.drawText(winningPlayer.name + " heeft deze hand gemaakt!");
+    }
   },
 
   transformCards : function (cards) {
