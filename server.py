@@ -32,6 +32,7 @@ class MessageWriter():
     self.socket = socket
 
   def sendMessage(self, message):
+    print "Sending message: %s" % message
     self.socket.write_message(json.dumps(message, cls=MessageEncoder))
   
   def sendError(self, exception):
@@ -110,39 +111,53 @@ class GameServer():
       raise
 
     self.handler.sendMessage(jsonResponse)
-  
-  def playHand(self, jsonReq):
-    jsonResponse = {'response' : 'handPlayed'}
-    try:
-      hand = HandInfo()
 
-      while not hand.isComplete():
-        player = self.cardGame.getNextPlayer(hand.getStep())
+  def askPlayers(self, req):
+    while not self.hand.isComplete():
+      player = self.cardGame.getNextPlayer(self.hand.getStep())
 
         # asynchronous via websocket
-        if isinstance(player, HumanPlayer):
+      if isinstance(player, HumanPlayer):
           message = {}
           message['response'] = 'askMove'
-          message['hand'] = hand
+          message['hand'] = self.hand
           self.handler.sendMessage(message)
           break
-        else:
+      else:
           card = player.getNextMove(hand)
-          hand.addPlayerMove(PlayerMove(player, card))
+          self.hand.addPlayerMove(PlayerMove(player, card))
           print "%s played %s" % (player.name,card)
-       
-      if hand.isComplete():
-        winningMove = hand.decideWinner(self.cardGame.trumpSuit)
+
+      if self.hand.isComplete():
+        winningMove = self.hand.decideWinner(self.cardGame.trumpSuit)
         winningPlayer = winningMove.getPlayer()
 
         self.cardGame.scores.registerWin(winningPlayer)
         self.cardGame.startingPlayerIndex = self.players.index(winningPlayer)
-      
+
         jsonResponse['hand'] = hand
         jsonResponse['winningCard'] = winningMove.card
         jsonResponse['winningPlayer'] = winningPlayer.id
         self.handler.sendMessage(jsonResponse)
 
+  def madeMove(self, req):
+    jsonResponse = {'response' : 'handPlayed'}
+
+    player = self.cardGame.getPlayerById(req.id) 
+    playedCard = Card(req.suit, req.rank)
+
+    try:
+      self.hand.append(PlayerMove(player, card))
+      self.askPlayers(req)
+    except Exception as ex:
+      self.handler.sendError(ex)
+      raise
+  
+  def playHand(self, req):
+    jsonResponse = {'response' : 'handPlayed'}
+    try:
+      self.hand = HandInfo()
+      self.askPlayers(req)
     except Exception as ex:
       self.handler.sendError(ex)
       raise
@@ -169,6 +184,8 @@ class SocketHandler(tornado.websocket.WebSocketHandler):
       self.gameServer.chooseTrump(json)
     elif (json['command'] == 'isReady'):
       self.gameServer.playHand(json)
+    elif (json['command'] == 'madeMove'):
+      self.gameServer.madeMove(json)
 
   def on_close(self):
     print "Websocket closed"
