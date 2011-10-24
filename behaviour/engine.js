@@ -56,7 +56,7 @@ Game.prototype = {
   },
 
   noAction : function (card) {
-    alert('No action possible right now. Chill for a bit amigo...');
+    this.drawText('No action possible right now.\nChill for a bit amigo...');
   },
 
   sendReady : function() {
@@ -100,6 +100,12 @@ Game.prototype = {
     }
   },
 
+  drawText : function(content) {
+    var x = WIDTH / 2;
+    var y = HEIGHT / 2;
+    var text = this.canvas.text(x, y, content);
+    text.attr({'fill' : '#fff', 'font-size' : '24', 'font-family' : 'Helvetica', 'font-weight' : 'bold', 'fill-opacity' : '100%', 'stroke' : '#000', 'stroke-width' : '3', 'stroke-opacity' : '50%'});
+  },
 
   getCanvas: function() {
     return this.canvas;
