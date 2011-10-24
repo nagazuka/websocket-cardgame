@@ -113,6 +113,9 @@ Game.prototype = {
     }
   },
 
+  drawMoves : function(hand) {
+  },
+
   drawText : function(content) {
     var x = WIDTH / 2;
     var y = HEIGHT / 2;
@@ -299,6 +302,15 @@ MessageHandler.prototype = {
     } else {
       game.drawText(winningPlayer.name + "\nheeft deze hand gemaakt!");
     }
+
+    var hand = response.hand;
+    var sorted = _.sortBy(hand, function(h) { return h.index; });
+    _.each(sorted, function(move) {
+        var jsonCard = move['card'];
+        var card = new Card(jsonCard['rank'], jsonCard['suit']);
+        card.draw(10 + 20*move.index, 10 + 20*move.index, CARD_WIDTH, CARD_HEIGHT);
+    });
+    game.drawMoves(hand);
   },
 
   transformCards : function (cards) {
