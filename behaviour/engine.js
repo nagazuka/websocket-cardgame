@@ -51,7 +51,7 @@ Game.prototype = {
   },
   
   makeMove : function (card) {
-    this.handler.sendMessage({'command' : 'makeMove', 'rank' : card.rank, 'suit': card.suit, 'playerIndex' : 0});
+    this.handler.sendMessage({'command' : 'makeMove', 'rank' : card.rank, 'suit': card.suit, 'playerIndex' : 0, 'playerId' : this.humanPlayer.id});
     this.removeCard(card);
     this.cardClickHandler = this.noAction;
   },
@@ -77,6 +77,9 @@ Game.prototype = {
   },
   
   addPlayer: function(player) {
+    if (player.id == 1) {
+      this.humanPlayer = player;
+    }
     this.players.push(player);
   },
 

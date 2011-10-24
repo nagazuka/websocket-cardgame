@@ -142,8 +142,7 @@ class GameServer():
 
   def madeMove(self, req):
     jsonResponse = {'response' : 'handPlayed'}
-
-    player = self.cardGame.getPlayerById(req.id) 
+    player = self.cardGame.getPlayerById(req['playerId']) 
     playedCard = Card(req.suit, req.rank)
 
     try:
