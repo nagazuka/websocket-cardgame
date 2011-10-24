@@ -122,7 +122,7 @@ Card.prototype = {
   draw: function(x, y, width, height) {
     var self = this;
 
-    this.cardImage = game.getCanvas().image(this.getCardImage(this.rank, this.suit), x, y, width, height);
+    this.cardImage = game.getCanvas().image(this.getCardImageFile(this.rank, this.suit), x, y, width, height);
 
     this.cardImage.mouseover(function(event) {
         this.attr({'height': CARD_HEIGHT * 2, 'width': CARD_WIDTH * 2});
@@ -139,7 +139,7 @@ Card.prototype = {
     this.cardImage.remove();
   },
   
-  getCardImage : function(rank, suit) {
+  getCardImageFile : function(rank, suit) {
     return 'images/cards/simple_' + this.SUIT_TRANSLATION_TABLE[suit] + '_' + this.RANK_TRANSLATION_TABLE[rank] + '.png';
   }
 };
@@ -161,12 +161,12 @@ Player.prototype = {
 
     var x = xLoc[this.index];
     var y = yLoc[this.index];
-    var table = game.getCanvas().image(this.getPlayerImage(), x, y, PLAYER_SIZE, PLAYER_SIZE);
+    var table = game.getCanvas().image(this.getPlayerImageFile(), x, y, PLAYER_SIZE, PLAYER_SIZE);
     var nameTxt = game.getCanvas().text(x + PLAYER_SIZE / 2, y + PLAYER_SIZE + PLAYER_PADDING, this.name);
     nameTxt.attr({'fill' : '#fff', 'font-size' : '14', 'font-family' : 'Helvetica', 'font-weight' : 'bold', 'fill-opacity' : '50%'});
   },
 
-  getPlayerImage : function() {
+  getPlayerImageFile : function() {
     var charCode = Math.floor(Math.random() * 15) + 65;
     var letter = String.fromCharCode(charCode);
     var number = Math.floor(Math.random() * 5) + 1;
