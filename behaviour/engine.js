@@ -24,6 +24,7 @@ var game;
 
 function Game() {
     this.cards = [];
+    this.players = [];
     this.canvas = Raphael('canvas', WIDTH, HEIGHT);
     this.handler = new MessageHandler();
 }
@@ -46,11 +47,11 @@ Game.prototype = {
 
   chooseTrump : function (card) {
     this.handler.sendMessage({'command' : 'chooseTrump', 'suit': card.suit, 'playerIndex' : 0});
-    this.cardClickHandler = this.askMove;
+    this.cardClickHandler = this.makeMove;
   },
   
-  madeMove : function (card) {
-    this.handler.sendMessage({'command' : 'madeMove', 'rank' : card.rank, 'suit': card.suit, 'playerIndex' : 0});
+  makeMove : function (card) {
+    this.handler.sendMessage({'command' : 'makeMove', 'rank' : card.rank, 'suit': card.suit, 'playerIndex' : 0});
     this.removeCard(card);
     this.cardClickHandler = this.noAction;
   },
@@ -73,6 +74,10 @@ Game.prototype = {
 
   addCard: function(card) {
     this.cards.push(card);
+  },
+  
+  addPlayer: function(player) {
+    this.players.push(player);
   },
 
   removeCard: function(card) {
@@ -103,8 +108,13 @@ Game.prototype = {
   drawText : function(content) {
     var x = WIDTH / 2;
     var y = HEIGHT / 2;
-    var text = this.canvas.text(x, y, content);
-    text.attr({'fill' : '#fff', 'font-size' : '24', 'font-family' : 'Helvetica', 'font-weight' : 'bold', 'fill-opacity' : '100%', 'stroke' : '#000', 'stroke-width' : '3', 'stroke-opacity' : '50%'});
+
+    if (this.text) {
+      this.text.remove();
+    }
+
+    this.text = this.canvas.text(x, y, content);
+    this.text.attr({'fill' : '#fff', 'font-size' : '24', 'font-family' : 'Helvetica', 'font-weight' : 'bold', 'fill-opacity' : '100%', 'stroke' : '#000', 'stroke-width' : '1', 'stroke-opacity' : '100%'});
   },
 
   getCanvas: function() {
@@ -150,8 +160,9 @@ Card.prototype = {
   }
 };
 
-function Player(index, name) {
+function Player(id, index, name) {
   this.index = index;
+  this.id = id;
   this.name = name;
 }
 
@@ -241,7 +252,8 @@ MessageHandler.prototype = {
     var playerList = response.players;
 
     _.each(response.players, function (p) {
-      var player = new Player(p.index, p.name);
+      var player = new Player(p.id, p.index, p.name);
+      game.addPlayer(player);
       player.draw();
     });
 
@@ -252,6 +264,7 @@ MessageHandler.prototype = {
     var cards = this.transformCards(response.cards);
     _.each(cards, function (c) { game.addCard(c); });
     game.drawCards();
+    game.drawText("Kies je troefkaart");
   },
 
   handleAllCardsResponse : function (response) {
@@ -260,6 +273,7 @@ MessageHandler.prototype = {
     _.each(cards, function (c) { game.addCard(c); });
     game.drawCards();
     game.sendReady();
+    game.drawText("Jij bent aan de beurt!");
   },
 
   handleAskMoveResponse : function (response) {

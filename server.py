@@ -68,7 +68,7 @@ class GameServer():
       playersList = []
       i = 0
       for player in self.cardGame.getPlayers():
-        playersList.append( {'index' : i, 'name': player.name} )
+        playersList.append( {'index' : i, 'name': player.name, 'id' : player.id} )
         i = i + 1
 
       jsonResponse['players'] = playersList
@@ -184,7 +184,7 @@ class SocketHandler(tornado.websocket.WebSocketHandler):
       self.gameServer.chooseTrump(json)
     elif (json['command'] == 'isReady'):
       self.gameServer.playHand(json)
-    elif (json['command'] == 'madeMove'):
+    elif (json['command'] == 'makeMove'):
       self.gameServer.madeMove(json)
 
   def on_close(self):
