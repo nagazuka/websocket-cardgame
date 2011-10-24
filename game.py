@@ -112,6 +112,10 @@ class CardGame:
 
   def getPlayers(self):
     return self.players
+  
+  def getPlayerById(self, id):
+    player = find(lambda p: p.id == id, self.players)
+    return player
 
   def getOrder(self):
    return self.playingOrder

@@ -68,11 +68,11 @@ Game.prototype = {
 
   chooseTrump : function (card) {
     this.sendMessage({'command' : 'chooseTrump', 'suit': card.suit, 'playerIndex' : 0});
-    this.cardClickHandler = this.askMove;
+    this.cardClickHandler = this.madeMove;
   },
   
-  askMove : function (card) {
-    this.sendMessage({'command' : 'askMove', 'rank' : card.rank, 'suit': card.suit, 'playerIndex' : 0});
+  madeMove : function (card) {
+    this.sendMessage({'command' : 'madeMove', 'rank' : card.rank, 'suit': card.suit, 'playerIndex' : 0});
     this.removeCard(card);
     this.cardClickHandler = this.noAction;
   },
