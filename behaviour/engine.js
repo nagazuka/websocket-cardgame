@@ -31,58 +31,36 @@ function Game() {
 Game.prototype = {
 
   init: function() {
-    this.setupWebSocket();
+    this.handler.init(this);
     this.setupCanvas();
   },
 
-  setupWebSocket: function() {
-    var self = this;
-   
-    if (window.WebSocket) {
-      this.ws = new WebSocket(conf.network.wsURL);
-    }
-    else if (window.MozWebSocket) { 
-      this.ws = new MozWebSocket(conf.network.wsURL);
-    } else {
-      alert('No WebSocket support');
-    }
-
-    this.ws.onopen = function() {
-        self.start();
-    };
-
-    this.ws.onmessage = function(evt) {
-        self.handler.handleMessage(evt.data);
-    };
-
-  },
-
   start : function() {
-    this.sendMessage({'command' : 'startGame', 'playerName' : 'Shanny Anoep'});
+    this.handler.sendMessage({'command' : 'startGame', 'playerName' : 'Shanny Anoep'});
   },
 
   dealFirstCards : function() {
-    this.sendMessage({ 'command' : 'dealFirstCards', 'playerIndex' : 0});
+    this.handler.sendMessage({ 'command' : 'dealFirstCards', 'playerIndex' : 0});
     this.cardClickHandler = this.chooseTrump;
   },
 
   chooseTrump : function (card) {
-    this.sendMessage({'command' : 'chooseTrump', 'suit': card.suit, 'playerIndex' : 0});
-    this.cardClickHandler = this.madeMove;
+    this.handler.sendMessage({'command' : 'chooseTrump', 'suit': card.suit, 'playerIndex' : 0});
+    this.cardClickHandler = this.askMove;
   },
   
   madeMove : function (card) {
-    this.sendMessage({'command' : 'madeMove', 'rank' : card.rank, 'suit': card.suit, 'playerIndex' : 0});
+    this.handler.sendMessage({'command' : 'madeMove', 'rank' : card.rank, 'suit': card.suit, 'playerIndex' : 0});
     this.removeCard(card);
     this.cardClickHandler = this.noAction;
   },
 
   noAction : function (card) {
-    alert('No action possible right now. Chill for a bit amigo...');
+    this.drawText('No action possible right now.\nChill for a bit amigo...');
   },
 
   sendReady : function() {
-    this.sendMessage({'command' : 'isReady'});
+    this.handler.sendMessage({'command' : 'isReady'});
   },
 
   setupCanvas: function() {
@@ -99,7 +77,7 @@ Game.prototype = {
 
   removeCard: function(card) {
     card.clear();
-    var index = this.cards._indexOf(this.cards, card);
+    var index = _.indexOf(this.cards, card);
     if (index != -1) {
       this.cards.splice(index,1);
     }
@@ -122,10 +100,11 @@ Game.prototype = {
     }
   },
 
-  sendMessage: function(msg) {
-    var messageStr = JSON.stringify(msg);
-    $('#infoBlock').html(messageStr);
-    this.ws.send(messageStr);
+  drawText : function(content) {
+    var x = WIDTH / 2;
+    var y = HEIGHT / 2;
+    var text = this.canvas.text(x, y, content);
+    text.attr({'fill' : '#fff', 'font-size' : '24', 'font-family' : 'Helvetica', 'font-weight' : 'bold', 'fill-opacity' : '100%', 'stroke' : '#000', 'stroke-width' : '3', 'stroke-opacity' : '50%'});
   },
 
   getCanvas: function() {
@@ -149,7 +128,7 @@ Card.prototype = {
   draw: function(x, y, width, height) {
     var self = this;
 
-    this.cardImage = game.getCanvas().image(this.getCardImage(this.rank, this.suit), x, y, width, height);
+    this.cardImage = game.getCanvas().image(this.getCardImageFile(this.rank, this.suit), x, y, width, height);
 
     this.cardImage.mouseover(function(event) {
         this.attr({'height': CARD_HEIGHT * 2, 'width': CARD_WIDTH * 2});
@@ -166,7 +145,7 @@ Card.prototype = {
     this.cardImage.remove();
   },
   
-  getCardImage : function(rank, suit) {
+  getCardImageFile : function(rank, suit) {
     return 'images/cards/simple_' + this.SUIT_TRANSLATION_TABLE[suit] + '_' + this.RANK_TRANSLATION_TABLE[rank] + '.png';
   }
 };
@@ -188,13 +167,16 @@ Player.prototype = {
 
     var x = xLoc[this.index];
     var y = yLoc[this.index];
-    var table = game.getCanvas().image(this.getPlayerImage(), x, y, PLAYER_SIZE, PLAYER_SIZE);
+    var table = game.getCanvas().image(this.getPlayerImageFile(), x, y, PLAYER_SIZE, PLAYER_SIZE);
     var nameTxt = game.getCanvas().text(x + PLAYER_SIZE / 2, y + PLAYER_SIZE + PLAYER_PADDING, this.name);
     nameTxt.attr({'fill' : '#fff', 'font-size' : '14', 'font-family' : 'Helvetica', 'font-weight' : 'bold', 'fill-opacity' : '50%'});
   },
 
-  getPlayerImage : function() {
-    return 'images/avatars/O0' + (this.index + 1) + '.png';
+  getPlayerImageFile : function() {
+    var charCode = Math.floor(Math.random() * 15) + 65;
+    var letter = String.fromCharCode(charCode);
+    var number = Math.floor(Math.random() * 5) + 1;
+    return 'images/avatars/' + letter + '0' + number + '.png';
   }
 };
 
@@ -203,7 +185,37 @@ function MessageHandler() {
 
 MessageHandler.prototype = {
 
-  handleMessage : function(msg) {
+  init: function(game) {
+    this.setupWebSocket(game);
+  },
+
+  setupWebSocket: function(game) {
+   
+    if (window.WebSocket) {
+      this.ws = new WebSocket(conf.network.wsURL);
+    }
+    else if (window.MozWebSocket) { 
+      this.ws = new MozWebSocket(conf.network.wsURL);
+    } else {
+      alert('No WebSocket support');
+    }
+
+    this.ws.onopen = function() {
+        game.start();
+    };
+
+    this.ws.onmessage = function(evt) {
+        game.handler.receiveMessage(evt.data);
+    };
+  },
+  
+  sendMessage: function(message) {
+    var messageStr = JSON.stringify(message);
+    $('#infoBlock').html(messageStr);
+    this.ws.send(messageStr);
+  },
+
+  receiveMessage : function(msg) {
     $('#warningBlock').html(msg);
     var json = JSON.parse(msg);
     var response = json.response;
