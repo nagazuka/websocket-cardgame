@@ -122,7 +122,7 @@ Game.prototype = {
     }
 
     this.text = this.canvas.text(x, y, content);
-    this.text.attr({'fill' : '#fff', 'font-size' : '24', 'font-family' : 'Helvetica', 'font-weight' : 'bold', 'fill-opacity' : '100%', 'stroke' : '#000', 'stroke-width' : '1', 'stroke-opacity' : '100%'});
+    this.text.attr({'fill' : '#fff', 'font-size' : '24', 'font-family' : 'Helvetica', 'font-weight' : 'bold', 'fill-opacity' : '100%', 'stroke' : '#aaa', 'stroke-width' : '1', 'stroke-opacity' : '100%'});
   },
 
   getCanvas: function() {
@@ -188,7 +188,7 @@ Player.prototype = {
     var x = xLoc[this.index];
     var y = yLoc[this.index];
     var table = game.getCanvas().image(this.getPlayerImageFile(), x, y, PLAYER_SIZE, PLAYER_SIZE);
-    var nameTxt = game.getCanvas().text(x + PLAYER_SIZE / 2, y + PLAYER_SIZE + PLAYER_PADDING, this.name);
+    var nameTxt = game.getCanvas().text(x + PLAYER_SIZE / 2, y + PLAYER_SIZE + PLAYER_PADDING, this.name + ' (' + this.id + ')');
     nameTxt.attr({'fill' : '#fff', 'font-size' : '14', 'font-family' : 'Helvetica', 'font-weight' : 'bold', 'fill-opacity' : '50%'});
   },
 
@@ -297,7 +297,7 @@ MessageHandler.prototype = {
     if (winningPlayer.id == game.humanPlayer.id) {
       game.drawText("Je hebt deze hand gemaakt!");
     } else {
-      game.drawText(winningPlayer.name + " heeft deze hand gemaakt!");
+      game.drawText(winningPlayer.name + "\nheeft deze hand gemaakt!");
     }
   },
 

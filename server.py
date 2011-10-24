@@ -14,7 +14,7 @@ class MessageEncoder(json.JSONEncoder):
     if isinstance(obj, Card):
       return {'rank' : obj.rank, 'suit' : obj.suit}
     elif isinstance(obj, HandInfo):
-      moves = [ {'card' : self.default(move.card), 'player' : move.player.id } for move in obj.playerMoves]
+      moves = [ {'index': move.index, 'card': self.default(move.card), 'player': move.player.id } for move in obj.playerMoves]
       return moves
 
     return self.convert_to_builtin_type(obj)

@@ -62,9 +62,12 @@ class PlayerMove:
 class HandInfo:
   def __init__(self):
     self.playerMoves = []
+    self.index = 0
 
   def addPlayerMove(self, move):
+    move.index = self.index
     self.playerMoves.append(move)
+    self.index = self.index + 1
 
   def getMove(self, index=0):
     return self.playerMoves[index] 
