@@ -113,6 +113,7 @@ class GameServer():
     self.handler.sendMessage(jsonResponse)
 
   def askPlayers(self, req):
+    jsonResponse = {'response' : 'handPlayed'}
     while not self.hand.isComplete():
       player = self.cardGame.getNextPlayer(self.hand.getStep())
 
@@ -124,7 +125,7 @@ class GameServer():
           self.handler.sendMessage(message)
           break
       else:
-          card = player.getNextMove(hand)
+          card = player.getNextMove(self.hand)
           self.hand.addPlayerMove(PlayerMove(player, card))
           print "%s played %s" % (player.name,card)
 
@@ -135,7 +136,7 @@ class GameServer():
         self.cardGame.scores.registerWin(winningPlayer)
         self.cardGame.startingPlayerIndex = self.players.index(winningPlayer)
 
-        jsonResponse['hand'] = hand
+        jsonResponse['hand'] = self.hand
         jsonResponse['winningCard'] = winningMove.card
         jsonResponse['winningPlayer'] = winningPlayer.id
         self.handler.sendMessage(jsonResponse)
@@ -143,10 +144,10 @@ class GameServer():
   def madeMove(self, req):
     jsonResponse = {'response' : 'handPlayed'}
     player = self.cardGame.getPlayerById(req['playerId']) 
-    playedCard = Card(req.suit, req.rank)
+    playedCard = Card(req['suit'], req['rank'])
 
     try:
-      self.hand.append(PlayerMove(player, card))
+      self.hand.addPlayerMove(PlayerMove(player, playedCard))
       self.askPlayers(req)
     except Exception as ex:
       self.handler.sendError(ex)
