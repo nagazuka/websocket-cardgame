@@ -42,12 +42,10 @@ Game.prototype = {
 
   dealFirstCards : function() {
     this.handler.sendMessage({ 'command' : 'dealFirstCards', 'playerIndex' : 0});
-    this.cardClickHandler = this.chooseTrump;
   },
 
   chooseTrump : function (card) {
     this.handler.sendMessage({'command' : 'chooseTrump', 'suit': card.suit, 'playerIndex' : 0});
-    this.cardClickHandler = this.makeMove;
   },
   
   makeMove : function (card) {
@@ -277,6 +275,7 @@ MessageHandler.prototype = {
     _.each(cards, function (c) { game.addCard(c); });
     game.drawCards();
     game.drawText("Kies je troefkaart");
+    game.cardClickHandler = game.chooseTrump;
   },
 
   handleAllCardsResponse : function (response) {
@@ -285,11 +284,11 @@ MessageHandler.prototype = {
     _.each(cards, function (c) { game.addCard(c); });
     game.drawCards();
     game.sendReady();
-    game.drawText("Je bent aan de beurt...");
   },
 
   handleAskMoveResponse : function (response) {
-
+    game.drawText("Je bent aan de beurt...");
+    game.cardClickHandler = game.makeMove;
   },
 
   handleHandPlayedResponse : function (response) {
@@ -299,6 +298,7 @@ MessageHandler.prototype = {
     } else {
       game.drawText(winningPlayer.name + "\nheeft deze hand gemaakt!");
     }
+    game.sendReady();
   },
 
   transformCards : function (cards) {
