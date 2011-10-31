@@ -75,9 +75,11 @@ class CardGame:
     self.state = "ORDER_DECIDED"
 
   def dealFirstCards(self):
+    print "Number of remaining cards: %s" % self.deck.size()
     for player in self.getPlayersInOrder():
       firstCards = self.deck.removeCards(5)
       player.addCards(firstCards)
+    print "Number of remaining cards: %s" % self.deck.size()
   
   def chooseTrump(self, trumpSuit):
     self.trumpSuit = trumpSuit
@@ -85,10 +87,12 @@ class CardGame:
     self.state = "TRUMP_CHOSEN"
 
   def dealCards(self):
+    print "Number of remaining cards: %s" % self.deck.size()
     while self.deck.hasNext():
       for player in self.players:
         nextCard = self.deck.removeCard()
         player.addCard(nextCard)
+    print "Number of remaining cards: %s" % self.deck.size()
     
     self.state = "DEALT"
   

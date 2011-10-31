@@ -87,6 +87,7 @@ class GameServer():
       self.cardGame.dealFirstCards()
       player = self.cardGame.getPlayerById(request['playerId']) 
       firstCards = player.getCards()
+      print "Total nr of cards: %s" % len(firstCards)
       
       response['cards'] = [{'rank' : card.rank, 'suit' : card.suit} for card in firstCards]
     except Exception as ex:
@@ -104,6 +105,7 @@ class GameServer():
 
       player = self.cardGame.getPlayerById(request['playerId']) 
       allCards = player.getCards()
+      print "Total nr of cards: %s" % len(allCards)
       jsonResponse['cards'] = [{'rank' : card.rank, 'suit' : card.suit} for card in allCards]
 
     except Exception as ex:

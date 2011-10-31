@@ -16,7 +16,7 @@ class Deck:
     self.cards = self.createDeck()  
 
   def createDeck(self):
-    numbers = range(2,14)
+    numbers = range(2,15)
     values = numbers 
     types = ["SPADES","CLUBS","HEARTS","DIAMONDS"]
   
@@ -31,6 +31,9 @@ class Deck:
 
   def shuffle(self):
     random.shuffle(self.cards)
+  
+  def size(self):
+    return len(self.cards)
 
   def removeCard(self):
     nextCard = self.cards.pop()
