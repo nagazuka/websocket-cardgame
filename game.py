@@ -92,23 +92,8 @@ class CardGame:
     
     self.state = "DEALT"
   
-  def playHand(self):
-    hand = HandInfo()
-
-    for player in self.getPlayersInOrder():
-      card = player.getNextMove()
-      hand.addPlayerMove(PlayerMove(player, card))
-      print "%s played %s" % (player.name,card)
-
-    winningMove = hand.decideWinner(self.trumpSuit)
-    winningPlayer = winningMove.getPlayer()
-    self.scores.registerWin(winningPlayer)
-    self.startingPlayerIndex = self.players.index(winningPlayer)
-
-    print "Winner is %s\n" % winningPlayer
-
-    if self.scores.isGameDecided() or self.players[0].getNumberOfCards() == 0:
-      self.state = "FINISHED"
+  def isDecided(self):
+    return self.scores.isGameDecided() or self.players[0].getNumberOfCards() == 0
 
   def getPlayers(self):
     return self.players

@@ -81,29 +81,29 @@ class GameServer():
 
     self.handler.sendMessage(jsonResponse)
 
-  def dealFirstCards(self, jsonReq):
-    jsonResponse = {'response' : 'dealFirstCards'}
+  def dealFirstCards(self, request):
+    response = {'response' : 'dealFirstCards'}
     try:
-      index = int(jsonReq['playerIndex'])
       self.cardGame.dealFirstCards()
-      firstCards = self.cardGame.players[index].getCards()
+      player = self.cardGame.getPlayerById(request['playerId']) 
+      firstCards = player.getCards()
       
-      jsonResponse['cards'] = [{'rank' : card.rank, 'suit' : card.suit} for card in firstCards]
+      response['cards'] = [{'rank' : card.rank, 'suit' : card.suit} for card in firstCards]
     except Exception as ex:
       self.handler.sendError(ex)
       raise
 
-    self.handler.sendMessage(jsonResponse)
+    self.handler.sendMessage(response)
   
-  def chooseTrump(self, jsonReq):
+  def chooseTrump(self, request):
     jsonResponse = {'response' : 'allCards'}
     try:
-      index = int(jsonReq['playerIndex'])
-      trumpSuit = jsonReq['suit']
+      trumpSuit = request['suit']
       self.cardGame.chooseTrump(trumpSuit)
       self.cardGame.dealCards() 
 
-      allCards = self.cardGame.players[index].getCards()
+      player = self.cardGame.getPlayerById(request['playerId']) 
+      allCards = player.getCards()
       jsonResponse['cards'] = [{'rank' : card.rank, 'suit' : card.suit} for card in allCards]
 
     except Exception as ex:
@@ -132,6 +132,8 @@ class GameServer():
       if self.hand.isComplete():
         winningMove = self.hand.decideWinner(self.cardGame.trumpSuit)
         winningPlayer = winningMove.getPlayer()
+    
+        print "Winner is %s\n" % winningPlayer
 
         self.cardGame.scores.registerWin(winningPlayer)
         self.cardGame.startingPlayerIndex = self.players.index(winningPlayer)
@@ -154,13 +156,18 @@ class GameServer():
       raise
   
   def playHand(self, req):
-    jsonResponse = {'response' : 'handPlayed'}
     try:
-      self.hand = HandInfo()
-      self.askPlayers(req)
+      if self.cardGame.isDecided():
+        response = {'response' : 'gameDecided'}
+        self.handler.sendMessage(response)
+      else:
+        self.hand = HandInfo()
+        self.askPlayers(req)
+
     except Exception as ex:
       self.handler.sendError(ex)
       raise
+    
 
 class MainHandler(tornado.web.RequestHandler):
   def get(self):

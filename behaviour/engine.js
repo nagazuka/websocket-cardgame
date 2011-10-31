@@ -41,11 +41,11 @@ Game.prototype = {
   },
 
   dealFirstCards : function() {
-    this.handler.sendMessage({ 'command' : 'dealFirstCards', 'playerIndex' : 0});
+    this.handler.sendMessage({ 'command' : 'dealFirstCards', 'playerId' : this.humanPlayer.id});
   },
 
   chooseTrump : function (card) {
-    this.handler.sendMessage({'command' : 'chooseTrump', 'suit': card.suit, 'playerIndex' : 0});
+    this.handler.sendMessage({'command' : 'chooseTrump', 'suit': card.suit, 'playerId' : this.humanPlayer.id});
   },
   
   makeMove : function (card) {
@@ -129,7 +129,7 @@ Game.prototype = {
 
   handleCardClicked : function(card) {
     this.cardClickHandler(card);
-  },
+  }
 };
 
 function Card(rank, suit) {
@@ -234,7 +234,7 @@ MessageHandler.prototype = {
   },
 
   receiveMessage : function(msg) {
-    $('#warningBlock').html(msg);
+    $('#debug-content').html(msg);
     var json = JSON.parse(msg);
     var response = json.response;
     switch (response) {
@@ -253,8 +253,12 @@ MessageHandler.prototype = {
       case 'handPlayed':
         this.handleHandPlayedResponse(json);
         break;
+      case 'gameDecided':
+        this.handleGameDecidedResponse(json);
+        break;
       default:
         alert('Unknown response: ' + response);
+        break;
     }
   },
   
@@ -299,6 +303,11 @@ MessageHandler.prototype = {
       game.drawText(winningPlayer.name + "\nheeft deze hand gemaakt!");
     }
     game.sendReady();
+  },
+  
+  handleGameDecidedResponse : function (response) {
+    var winningTeam = response.winningTeam;
+    game.drawText("Hand is afgelopen.\n Winaar is " + winningTeam);
   },
 
   transformCards : function (cards) {
