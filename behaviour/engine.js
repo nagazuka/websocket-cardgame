@@ -229,12 +229,12 @@ MessageHandler.prototype = {
   
   sendMessage: function(message) {
     var messageStr = JSON.stringify(message);
-    $('#infoBlock').html(messageStr);
+    $('#debug-content').append('<p>' + messageStr + '</p>');
     this.ws.send(messageStr);
   },
 
   receiveMessage : function(msg) {
-    $('#debug-content').html(msg);
+    $('#debug-content').append(msg);
     var json = JSON.parse(msg);
     var response = json.response;
     switch (response) {
