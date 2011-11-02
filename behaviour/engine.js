@@ -41,13 +41,11 @@ Game.prototype = {
   },
 
   dealFirstCards : function() {
-    this.handler.sendMessage({ 'command' : 'dealFirstCards', 'playerIndex' : 0});
-    this.cardClickHandler = this.chooseTrump;
+    this.handler.sendMessage({ 'command' : 'dealFirstCards', 'playerId' : this.humanPlayer.id});
   },
 
   chooseTrump : function (card) {
-    this.handler.sendMessage({'command' : 'chooseTrump', 'suit': card.suit, 'playerIndex' : 0});
-    this.cardClickHandler = this.makeMove;
+    this.handler.sendMessage({'command' : 'chooseTrump', 'suit': card.suit, 'playerId' : this.humanPlayer.id});
   },
   
   makeMove : function (card) {
@@ -57,7 +55,7 @@ Game.prototype = {
   },
 
   noAction : function (card) {
-    this.drawText('No action possible right now.\nChill for a bit amigo...');
+    this.drawText('Nu even niet :-)\nChill for a bit amigo...');
   },
 
   sendReady : function() {
@@ -134,7 +132,7 @@ Game.prototype = {
 
   handleCardClicked : function(card) {
     this.cardClickHandler(card);
-  },
+  }
 };
 
 function Card(rank, suit) {
@@ -144,7 +142,7 @@ function Card(rank, suit) {
 
 Card.prototype = {
   SUIT_TRANSLATION_TABLE : { 'DIAMONDS' : 'd', 'CLUBS' : 'c', 'SPADES' : 's', 'HEARTS' : 'h'},
-  RANK_TRANSLATION_TABLE : [undefined, undefined, '2', '3', '4', '5', '6', '7', '8', '9', 'j', 'q', 'k', 'a'],
+  RANK_TRANSLATION_TABLE : [undefined, undefined, '2', '3', '4', '5', '6', '7', '8', '9', '10', 'j', 'q', 'k', 'a'],
 
   draw: function(x, y, width, height) {
     var self = this;
@@ -234,12 +232,12 @@ MessageHandler.prototype = {
   
   sendMessage: function(message) {
     var messageStr = JSON.stringify(message);
-    $('#infoBlock').html(messageStr);
+    $('#debug-content').append('<p>' + messageStr + '</p>');
     this.ws.send(messageStr);
   },
 
   receiveMessage : function(msg) {
-    $('#warningBlock').html(msg);
+    $('#debug-content').append(msg);
     var json = JSON.parse(msg);
     var response = json.response;
     switch (response) {
@@ -258,8 +256,15 @@ MessageHandler.prototype = {
       case 'handPlayed':
         this.handleHandPlayedResponse(json);
         break;
+      case 'gameDecided':
+        this.handleGameDecidedResponse(json);
+        break;
+      case 'exception':
+        this.handleExceptionResponse(json);
+        break;
       default:
         alert('Unknown response: ' + response);
+        break;
     }
   },
   
@@ -280,6 +285,7 @@ MessageHandler.prototype = {
     _.each(cards, function (c) { game.addCard(c); });
     game.drawCards();
     game.drawText("Kies je troefkaart");
+    game.cardClickHandler = game.chooseTrump;
   },
 
   handleAllCardsResponse : function (response) {
@@ -288,11 +294,11 @@ MessageHandler.prototype = {
     _.each(cards, function (c) { game.addCard(c); });
     game.drawCards();
     game.sendReady();
-    game.drawText("Je bent aan de beurt...");
   },
 
   handleAskMoveResponse : function (response) {
-
+    game.drawText("Je bent aan de beurt...");
+    game.cardClickHandler = game.makeMove;
   },
 
   handleHandPlayedResponse : function (response) {
@@ -311,6 +317,17 @@ MessageHandler.prototype = {
         card.draw(10 + 20*move.index, 10 + 20*move.index, CARD_WIDTH, CARD_HEIGHT);
     });
     game.drawMoves(hand);
+    game.sendReady();
+  },
+  
+  handleGameDecidedResponse : function (response) {
+    var winningTeam = response.winningTeam;
+    game.drawText("Hand is gespeeld.\n Winaar is " + winningTeam);
+  },
+  
+  handleExceptionResponse : function (response) {
+    game.drawText("Ai ai ai!\nEr is een fout opgetreden.");
+    $('#error-content').append('<p>' + response.resultMessage + '</p>');
   },
 
   transformCards : function (cards) {

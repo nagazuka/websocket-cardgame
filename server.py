@@ -1,204 +1,182 @@
 import tornado.ioloop
 import tornado.web
-import tornado.websocket
 
-import json
-
-from game import CardGame
-from cards import Card, Deck, HandInfo, PlayerMove
+from message import MessageHandler
+from game import CardGame, ScoreKeeper
+from cards import Card, HandInfo, PlayerMove
 from player import HumanPlayer, Player
 
-class MessageEncoder(json.JSONEncoder):
-
-  def default(self, obj):
-    if isinstance(obj, Card):
-      return {'rank' : obj.rank, 'suit' : obj.suit}
-    elif isinstance(obj, HandInfo):
-      moves = [ {'index': move.index, 'card': self.default(move.card), 'player': move.player.id } for move in obj.playerMoves]
-      return moves
-
-    return self.convert_to_builtin_type(obj)
-
-  def convert_to_builtin_type(self, obj):
-    # Convert objects to a dictionary of their representation
-    d = { '__class__':obj.__class__.__name__, 
-          '__module__':obj.__module__,
-          }
-    d.update(obj.__dict__)
-    return d
-
-class MessageWriter():
-  def __init__(self, socket):
-    self.socket = socket
-
-  def sendMessage(self, message):
-    print "Sending message: %s" % message
-    self.socket.write_message(json.dumps(message, cls=MessageEncoder))
-  
-  def sendError(self, exception):
-    jsonResponse = {}
-    jsonResponse['resultCode'] = 'FAILURE' 
-    jsonResponse['resultMessage'] = str(exception)
-    self.socket.write_message(jsonResponse)
 
 class GameServer():
-  def __init__(self, handler):
-    self.handler = handler
-  
-  def createPlayers(self, playerName="John Doe"):
-    p1 = HumanPlayer(1, playerName, "A", self.handler)
-    p2 = Player(2, "Elvis Presley","A")
-    p3 = Player(3, "Bob Marley", "B")
-    p4 = Player(4, "Jimi Hendrix", "B")
-    return [p1,p3,p2,p4]
+    def __init__(self):
+        self.players = []
+        self.writer = None
+        self.cardGame = None
+        self.scores = None
+        self.hand = None
 
-  def startGame(self, playerName):
-    jsonResponse = {'response' : 'startGame'}
-    try:
-      self.players = self.createPlayers(playerName)
-      self.cardGame = CardGame(self.players)
+    def setWriter(self, writer):
+        self.writer = writer
 
-      jsonResponse['resultCode'] = 'SUCCESS'
+    @staticmethod
+    def createPlayers(playerName="John Doe"):
+        p1 = HumanPlayer(1, playerName, "Team Suriname")
+        p2 = Player(2, "Elvis Presley", "Team Suriname")
+        p3 = Player(3, "Bob Marley", "Team Nederland")
+        p4 = Player(4, "Jimi Hendrix", "Team Nederland")
+        return [p1, p3, p2, p4]
 
-      #self.cardGame.decideOrder()
-      # override to set humanplayer as first
-      self.cardGame.startingPlayerIndex = 0
-      self.cardGame.setPlayingOrder()
-     
-      playersList = []
-      i = 0
-      for player in self.cardGame.getPlayers():
-        playersList.append( {'index' : i, 'name': player.name, 'id' : player.id, 'isHuman' : isinstance(player, HumanPlayer)} )
-        i = i + 1
+    def startGame(self, playerName):
+        jsonResponse = {'response': 'startGame'}
+        try:
+            self.players = GameServer.createPlayers(playerName)
+            self.cardGame = CardGame(self.players)
+            self.scores = ScoreKeeper(self.players)
 
-      jsonResponse['players'] = playersList
-      jsonResponse['playingOrder'] = self.cardGame.getOrder()
-      jsonResponse['gameId'] = str(self.cardGame.id)
+            jsonResponse['resultCode'] = 'SUCCESS'
 
-    except Exception as ex:
-      self.handler.sendError(ex)
-      raise
+            #self.cardGame.decideOrder()
+            # override to set humanplayer as first
+            self.cardGame.startingPlayerIndex = 0
+            self.cardGame.setPlayingOrder()
 
-    self.handler.sendMessage(jsonResponse)
+            playersList = []
+            i = 0
+            for player in self.cardGame.getPlayers():
+                playersList.append({'index': i, 'name': player.name,
+                                    'id': player.id,
+                                    'isHuman': isinstance(player,
+                                                          HumanPlayer)})
+                i = i + 1
 
-  def dealFirstCards(self, jsonReq):
-    jsonResponse = {'response' : 'dealFirstCards'}
-    try:
-      index = int(jsonReq['playerIndex'])
-      self.cardGame.dealFirstCards()
-      firstCards = self.cardGame.players[index].getCards()
-      
-      jsonResponse['cards'] = [{'rank' : card.rank, 'suit' : card.suit} for card in firstCards]
-    except Exception as ex:
-      self.handler.sendError(ex)
-      raise
+            jsonResponse['players'] = playersList
+            jsonResponse['playingOrder'] = self.cardGame.getOrder()
+            jsonResponse['gameId'] = str(self.cardGame.id)
 
-    self.handler.sendMessage(jsonResponse)
-  
-  def chooseTrump(self, jsonReq):
-    jsonResponse = {'response' : 'allCards'}
-    try:
-      index = int(jsonReq['playerIndex'])
-      trumpSuit = jsonReq['suit']
-      self.cardGame.chooseTrump(trumpSuit)
-      self.cardGame.dealCards() 
+        except Exception as ex:
+            self.writer.sendError(ex)
+            raise
 
-      allCards = self.cardGame.players[index].getCards()
-      jsonResponse['cards'] = [{'rank' : card.rank, 'suit' : card.suit} for card in allCards]
+        self.writer.sendMessage(jsonResponse)
 
-    except Exception as ex:
-      self.handler.sendError(ex)
-      raise
+    def dealFirstCards(self, request):
+        response = {'response': 'dealFirstCards'}
+        try:
+            self.cardGame.dealFirstCards()
+            player = self.cardGame.getPlayerById(request['playerId'])
+            firstCards = player.getCards()
+            print "Total nr of cards: %s" % len(firstCards)
 
-    self.handler.sendMessage(jsonResponse)
+            response['cards'] = [{'rank': card.rank, 'suit': card.suit}
+                           for card in firstCards]
+        except Exception as ex:
+            self.writer.sendError(ex)
+            raise
 
-  def askPlayers(self, req):
-    jsonResponse = {'response' : 'handPlayed'}
-    while not self.hand.isComplete():
-      player = self.cardGame.getNextPlayer(self.hand.getStep())
+        self.writer.sendMessage(response)
 
-        # asynchronous via websocket
-      if isinstance(player, HumanPlayer):
-          message = {}
-          message['response'] = 'askMove'
-          message['hand'] = self.hand
-          self.handler.sendMessage(message)
-          break
-      else:
-          card = player.getNextMove(self.hand)
-          self.hand.addPlayerMove(PlayerMove(player, card))
-          print "%s played %s" % (player.name,card)
+    def chooseTrump(self, request):
+        jsonResponse = {'response': 'allCards'}
+        try:
+            trumpSuit = request['suit']
+            self.cardGame.chooseTrump(trumpSuit)
+            self.cardGame.dealCards()
 
-      if self.hand.isComplete():
-        winningMove = self.hand.decideWinner(self.cardGame.trumpSuit)
-        winningPlayer = winningMove.getPlayer()
+            player = self.cardGame.getPlayerById(request['playerId'])
+            allCards = player.getCards()
+            print "Total nr of cards: %s" % len(allCards)
+            jsonResponse['cards'] = [{'rank': card.rank, 'suit': card.suit}
+                               for card in allCards]
 
-        self.cardGame.scores.registerWin(winningPlayer)
-        self.cardGame.startingPlayerIndex = self.players.index(winningPlayer)
+        except Exception as ex:
+            self.writer.sendError(ex)
+            raise
 
-        jsonResponse['hand'] = self.hand
-        jsonResponse['winningCard'] = winningMove.card
-        jsonResponse['winningPlayerId'] = winningPlayer.id
-        self.handler.sendMessage(jsonResponse)
+        self.writer.sendMessage(jsonResponse)
 
-  def madeMove(self, req):
-    jsonResponse = {'response' : 'handPlayed'}
-    player = self.cardGame.getPlayerById(req['playerId']) 
-    playedCard = Card(req['suit'], req['rank'])
+    def askPlayers(self):
+        jsonResponse = {'response': 'handPlayed'}
+        while not self.hand.isComplete():
+            player = self.cardGame.getNextPlayer(self.hand.getStep())
 
-    try:
-      self.hand.addPlayerMove(PlayerMove(player, playedCard))
-      self.askPlayers(req)
-    except Exception as ex:
-      self.handler.sendError(ex)
-      raise
-  
-  def playHand(self, req):
-    jsonResponse = {'response' : 'handPlayed'}
-    try:
-      self.hand = HandInfo()
-      self.askPlayers(req)
-    except Exception as ex:
-      self.handler.sendError(ex)
-      raise
+            print "Asking player %s for move" % player.name
+
+            # asynchronous via websocket
+            if isinstance(player, HumanPlayer):
+                message = {}
+                message['response'] = 'askMove'
+                message['hand'] = self.hand
+                self.writer.sendMessage(message)
+                break
+            else:
+                card = player.getNextMove(self.hand)
+                self.hand.addPlayerMove(PlayerMove(player, card))
+                print "%s played %s" % (player.name, card)
+
+        if self.hand.isComplete():
+            winningMove = self.hand.decideWinner(self.cardGame.trumpSuit)
+            winningPlayer = winningMove.getPlayer()
+
+            print "Winner is %s\n" % winningPlayer
+
+            self.scores.registerWin(winningPlayer)
+            self.cardGame.changePlayingOrder(winningPlayer)
+
+            jsonResponse['hand'] = self.hand
+            jsonResponse['winningCard'] = winningMove.card
+            jsonResponse['winningPlayerId'] = winningPlayer.id
+            self.writer.sendMessage(jsonResponse)
+
+    def madeMove(self, req):
+        player = self.cardGame.getPlayerById(req['playerId'])
+        playedCard = Card(req['suit'], req['rank'])
+
+        try:
+            self.hand.addPlayerMove(PlayerMove(player, playedCard))
+            self.askPlayers()
+        except Exception as ex:
+            self.writer.sendError(ex)
+            raise
+
+    def playHand(self):
+        try:
+            if self.scores.isGameDecided():
+                scores = self.scores.getScores()
+                winningTeam = self.scores.getWinningTeam()
+                response = {'response': 'gameDecided', 'scores': scores,
+                            'winningTeam': winningTeam}
+                self.writer.sendMessage(response)
+            else:
+                self.hand = HandInfo()
+                self.askPlayers()
+
+        except Exception as ex:
+            self.writer.sendError(ex)
+            raise
+
 
 class MainHandler(tornado.web.RequestHandler):
-  def get(self):
-    self.render("index.html")
+    def get(self):
+        self.render("index.html")
 
-class SocketHandler(tornado.websocket.WebSocketHandler):
-  def open(self):
-    print "Websocket opened"
-    writer = MessageWriter(self)
-    self.gameServer = GameServer(writer)
+class AboutHandler(tornado.web.RequestHandler):
+    def get(self):
+        self.render("about.html")
 
-  def on_message(self, message):
-    json = tornado.escape.json_decode(message) 
-    print "Message received: %s" % json
-  
-    if (json['command'] == 'startGame'):
-      self.gameServer.startGame(json['playerName'])
-    elif (json['command'] == 'dealFirstCards'):
-      self.gameServer.dealFirstCards(json)
-    elif (json['command'] == 'chooseTrump'):
-      self.gameServer.chooseTrump(json)
-    elif (json['command'] == 'isReady'):
-      self.gameServer.playHand(json)
-    elif (json['command'] == 'makeMove'):
-      self.gameServer.madeMove(json)
-
-  def on_close(self):
-    print "Websocket closed"
+gameServer = GameServer()
 
 application = tornado.web.Application([
-  (r"/", MainHandler),
-  (r"/websocket", SocketHandler),
-  (r"/presentation/(.*)", tornado.web.StaticFileHandler, {"path": "presentation"}),
-  (r"/behaviour/(.*)", tornado.web.StaticFileHandler, {"path": "behaviour"}),
-  (r"/config/(.*)", tornado.web.StaticFileHandler, {"path": "config"}),
-  (r"/images/(.*)", tornado.web.StaticFileHandler, {"path": "images"}),
-  ], debug=True)
+    (r"/", MainHandler),
+    (r"/index.html", MainHandler),
+    (r"/about.html", AboutHandler),
+    (r"/websocket", MessageHandler, {"gameServer": gameServer}),
+    (r"/presentation/(.*)", tornado.web.StaticFileHandler,
+     {"path": "presentation"}),
+    (r"/behaviour/(.*)", tornado.web.StaticFileHandler, {"path": "behaviour"}),
+    (r"/config/(.*)", tornado.web.StaticFileHandler, {"path": "config"}),
+    (r"/images/(.*)", tornado.web.StaticFileHandler, {"path": "images"}),
+], debug=True)
 
 if __name__ == "__main__":
-  application.listen(8888)
-  tornado.ioloop.IOLoop.instance().start()
+    application.listen(8888)
+    tornado.ioloop.IOLoop.instance().start()
