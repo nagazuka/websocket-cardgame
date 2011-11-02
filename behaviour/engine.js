@@ -114,7 +114,7 @@ Game.prototype = {
   drawMoves : function(moves) {
     _.each(moves, function(move, index, list) {
       var card = move.card;
-      card.draw(10 + 20*index, 10 + 20*index, CARD_WIDTH, CARD_HEIGHT);
+      card.draw(TABLE_X + 30*index, TABLE_Y, CARD_WIDTH, CARD_HEIGHT);
     });
   },
 
@@ -320,17 +320,9 @@ MessageHandler.prototype = {
       game.drawText(winningPlayer.name + "\nheeft deze hand gemaakt!");
     }
 
-    var hand = response.hand;
-    var moves = [];
-    var sorted = _.sortBy(hand, function(h) { return h.index; });
-    _.each(sorted, function(move) {
-        var jsonCard = move['card'];
-        var card = new Card(jsonCard['rank'], jsonCard['suit']);
-        var player = game.getPlayerById(move['playerId']);
-        
-        moves.push(new PlayerMove(player, card));
-    });
-    game.drawMoves(moves);
+    var playerMoves = this.transformPlayerMoves(response.hand);
+    game.drawMoves(playerMoves);
+
     game.sendReady();
   },
   
@@ -342,6 +334,19 @@ MessageHandler.prototype = {
   handleExceptionResponse : function (response) {
     game.drawText("Ai ai ai!\nEr is een fout opgetreden.");
     $('#error-content').append('<p>' + response.resultMessage + '</p>');
+  },
+  
+  transformPlayerMoves : function (hand) {
+    var moves = [];
+    var sorted = _.sortBy(hand, function(h) { return h.index; });
+    _.each(sorted, function(move) {
+        var jsonCard = move['card'];
+        var card = new Card(jsonCard['rank'], jsonCard['suit']);
+        var player = game.getPlayerById(move['playerId']);
+        
+        moves.push(new PlayerMove(player, card));
+    });
+    return moves;
   },
 
   transformCards : function (cards) {
