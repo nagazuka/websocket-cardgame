@@ -114,7 +114,7 @@ Game.prototype = {
   drawMoves : function(moves) {
     _.each(moves, function(move, index, list) {
       var card = move.card;
-      card.draw(TABLE_X + 30*index, TABLE_Y, CARD_WIDTH, CARD_HEIGHT);
+      card.draw(TABLE_X + (TABLE_WIDTH / 2) + 30*index, TABLE_Y + (TABLE_HEIGHT / 2), CARD_WIDTH, CARD_HEIGHT);
     });
   },
 
@@ -308,6 +308,9 @@ MessageHandler.prototype = {
   },
 
   handleAskMoveResponse : function (response) {
+    var playerMoves = this.transformPlayerMoves(response.hand);
+    game.drawMoves(playerMoves);
+
     game.drawText("Je bent aan de beurt...");
     game.cardClickHandler = game.makeMove;
   },
