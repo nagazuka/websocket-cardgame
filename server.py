@@ -2,7 +2,7 @@ import tornado.ioloop
 import tornado.web
 
 from message import MessageHandler
-from game import CardGame
+from game import CardGame, ScoreKeeper
 from cards import Card, HandInfo, PlayerMove
 from player import HumanPlayer, Player
 
@@ -12,6 +12,7 @@ class GameServer():
         self.players = []
         self.writer = None
         self.cardGame = None
+        self.scores = None 
         self.hand = None
 
     def setWriter(self, writer):
@@ -30,6 +31,7 @@ class GameServer():
         try:
             self.players = GameServer.createPlayers(playerName)
             self.cardGame = CardGame(self.players)
+            self.scores = ScoreKeeper(self.players)
 
             jsonResponse['resultCode'] = 'SUCCESS'
 
@@ -117,7 +119,7 @@ class GameServer():
 
             print "Winner is %s\n" % winningPlayer
 
-            self.cardGame.scores.registerWin(winningPlayer)
+            self.scores.registerWin(winningPlayer)
             self.cardGame.changePlayingOrder(winningPlayer)
 
             jsonResponse['hand'] = self.hand
@@ -138,8 +140,9 @@ class GameServer():
 
     def playHand(self):
         try:
-            if self.cardGame.isDecided():
-                response = {'response': 'gameDecided'}
+            if self.scores.isGameDecided():
+                scores = self.scores.getScores()
+                response = {'response': 'gameDecided', 'scores' : scores}
                 self.writer.sendMessage(response)
             else:
                 self.hand = HandInfo()

@@ -22,15 +22,11 @@ class ScoreKeeper:
                 return True
         return False
 
-    def getScores(self):
-        scores = "Team Scores\n--------------\n"
-        for team, score in self.teamScore.iteritems():
-            scores = scores + "Team %s: %s\n" % (team, score)
-            scores = scores + "\nPlayer Scores\n--------------\n"
-        for player, score in self.playerScore.iteritems():
-            scores = scores + "Player %s: %s\n" % (player, score)
-        return scores
+    def getWinningTeam(self):
+        return max(self.teamScore, key=self.teamScore.get)
 
+    def getScores(self):
+        return {"teamScore" : self.teamScore, "playerScore" : self.playerScore} 
 
 class CardGame:
 
@@ -39,7 +35,6 @@ class CardGame:
         self.deck = CardGame.createDeck()
         self.players = players
         self.startingPlayerIndex = 0
-        self.scores = ScoreKeeper(self.players)
         self.state = "INITIALIZED"
         self.trumpSuit = None
         self.playingOrder = []
@@ -104,10 +99,6 @@ class CardGame:
         print "Number of remaining cards: %s" % self.deck.size()
 
         self.state = "DEALT"
-
-    def isDecided(self):
-        return self.scores.isGameDecided() or \
-        self.players[0].getNumberOfCards() == 0
 
     def getPlayers(self):
         return self.players
