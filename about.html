@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>TroefCall Online, by Savit Software</title>
+    <title>TroefCall Online, by Savit Software - About</title>
     <meta name="description" content="">
     <meta name="author" content="Shanny Anoep">
 
@@ -11,10 +11,8 @@
     <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
     <script src="behaviour/jquery-1.6.4.js" type="text/javascript"></script>
-    <script src="behaviour/raphael-2.0.0.js" type="text/javascript"></script>
     <script src="behaviour/underscore-1.2.0.js" type="text/javascript"></script>
     <script src="config/config.js"></script>
-    <script src="behaviour/engine.js" type="text/javascript"></script>
     <!-- Le styles -->
     <link href="presentation/bootstrap.css" rel="stylesheet">
     <style type="text/css">
@@ -72,8 +70,8 @@
         <div class="container">
           <a class="brand" href="#">TroefCall Online</a>
           <ul class="nav">
-            <li class="active"><a href="index.html">Home</a></li>
-            <li><a href="about.html">About</a></li>
+            <li><a href="index.html">Home</a></li>
+            <li class="active"><a href="about.html">About</a></li>
             <li><a href="#contact">Contact</a></li>
           </ul>
           <form action="" class="pull-right">
@@ -89,53 +87,38 @@
       <div class="content">
         <div class="row">
           <div class="span12">
-            <div id="canvas">
-              <p>Het lijkt erop dat je huidige browser niet geschikt is voor deze game. Download alsjeblieft een nieuwere versie van Chrome of Firefox!</p>
+            <h2>About</h2>
+            <div id="about-content">
+              <p>TroefCall Online is begonnen als een hobby project om mezelf Python en HTML5 technieken te leren. Alle code is beschikbaar op <a href="https://github.com/nagazuka/websocket-cardgame">GitHub</a>. Ik heb de volgende tools hiervoor gebruikt:</p>
+              <p>
+              <ul>
+                <h3>JavaScript</h3>
+                <li>Raphael.js v2.0</li>
+                <li>Underscore.js v1.2.0</li>
+                <li>jQuery v1.6.4</li>
+
+                <h3>CSS</h3>
+                <li>Twitter Bootstrap</li>
+
+                <h3>Server-side</h3>
+                <li>Tornado Web Framework v2.1.1</li>
+
+                <h3>Graphics</h3>
+                <li>Nicu's Playing Cards <a href="http://nicubunu.ro/cards/">link</a></li>
+                <li>Face Avatars by deleket <a href="http://deleket.deviantart.com/art/Face-Avatars-107881096">link</a></li></li>
+                
+                <h3>Source code</h3>
+                <li>Github <a href="https://github.com/nagazuka/websocket-cardgame">link</a></li>
+                <ul>
+              </p>
             </div>
           </div>
           <div class="span3">
-            <div id="infoBlock" class="alert-message info">
-              <a class="close" href="#">&times;</a>
-              <p><strong>Heads up!</strong> This is an alert that needs your attention, but it's not a huge priority just yet.</p>
-            </div>
-            <div id="warningBlock" class="alert-message warning">
-              <a class="close" href="#">&times;</a>
-              <p><strong>Heads up!</strong> This is an alert that needs your attention, but it's not a huge priority just yet.</p>
-            </div>
-            <h3>Scores</h3>
-            <table class="zebra-striped">
-              <thead>
-                <tr>
-                  <th>Team</th>
-                  <th>Hands</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Team A</td>
-                  <td>16.000,- SRD</td>
-                </tr>
-                <tr>
-                  <td>Team B</td>
-                  <td>4000,- SRD</td>
-                </tr>
-              </tbody>
-            </table>
+            <h3>Advertenties</h3>
           </div>
         </div>
       </div>
-      <!-- Example row of columns -->
-      <div class="row">
-        <div class="span6">
-          <h2>Debug</h2>
-          <p id="debug-content">&nbsp;</p>
-        </div>
-        <div class="span5">
-          <h2>Errors</h2>
-          <p id="error-content">&nbsp;</p>
-        </div>
-      </div>
-
+     
       <footer>
       <p>&copy; Savit Software 2011</p>
       </footer>

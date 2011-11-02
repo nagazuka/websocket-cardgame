@@ -159,10 +159,16 @@ class MainHandler(tornado.web.RequestHandler):
     def get(self):
         self.render("index.html")
 
+class AboutHandler(tornado.web.RequestHandler):
+    def get(self):
+        self.render("about.html")
+
 gameServer = GameServer()
 
 application = tornado.web.Application([
     (r"/", MainHandler),
+    (r"/index.html", MainHandler),
+    (r"/about.html", AboutHandler),
     (r"/websocket", MessageHandler, {"gameServer": gameServer}),
     (r"/presentation/(.*)", tornado.web.StaticFileHandler,
      {"path": "presentation"}),
