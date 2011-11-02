@@ -12,7 +12,7 @@ class GameServer():
         self.players = []
         self.writer = None
         self.cardGame = None
-        self.scores = None 
+        self.scores = None
         self.hand = None
 
     def setWriter(self, writer):
@@ -20,10 +20,10 @@ class GameServer():
 
     @staticmethod
     def createPlayers(playerName="John Doe"):
-        p1 = HumanPlayer(1, playerName, "A")
-        p2 = Player(2, "Elvis Presley", "A")
-        p3 = Player(3, "Bob Marley", "B")
-        p4 = Player(4, "Jimi Hendrix", "B")
+        p1 = HumanPlayer(1, playerName, "Team Suriname")
+        p2 = Player(2, "Elvis Presley", "Team Suriname")
+        p3 = Player(3, "Bob Marley", "Team Nederland")
+        p4 = Player(4, "Jimi Hendrix", "Team Nederland")
         return [p1, p3, p2, p4]
 
     def startGame(self, playerName):
@@ -142,7 +142,9 @@ class GameServer():
         try:
             if self.scores.isGameDecided():
                 scores = self.scores.getScores()
-                response = {'response': 'gameDecided', 'scores' : scores}
+                winningTeam = self.scores.getWinningTeam()
+                response = {'response': 'gameDecided', 'scores': scores,
+                            'winningTeam': winningTeam}
                 self.writer.sendMessage(response)
             else:
                 self.hand = HandInfo()

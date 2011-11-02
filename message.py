@@ -41,9 +41,10 @@ class MessageEncoder(json.JSONEncoder):
             moves = [{'index': move.index, 'card': self.default(move.card),
                       'player': move.player.id} for move in obj.playerMoves]
             return moves
-        return self.convert_to_builtin_type(obj)
+        return MessageEncoder.convert_to_builtin_type(obj)
 
-    def convert_to_builtin_type(self, obj):
+    @staticmethod
+    def convert_to_builtin_type(obj):
         # Convert objects to a dictionary of their representation
         d = {'__class__': obj.__class__.__name__,
            '__module__': obj.__module__,

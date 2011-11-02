@@ -26,7 +26,8 @@ class ScoreKeeper:
         return max(self.teamScore, key=self.teamScore.get)
 
     def getScores(self):
-        return {"teamScore" : self.teamScore, "playerScore" : self.playerScore} 
+        return {"teamScore": self.teamScore, "playerScore": self.playerScore}
+
 
 class CardGame:
 
