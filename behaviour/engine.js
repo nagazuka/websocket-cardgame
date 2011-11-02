@@ -55,7 +55,7 @@ Game.prototype = {
   },
 
   noAction : function (card) {
-    this.drawText('No action possible right now.\nChill for a bit amigo...');
+    this.drawText('Nu even niet :-)\nChill for a bit amigo...');
   },
 
   sendReady : function() {
@@ -256,6 +256,9 @@ MessageHandler.prototype = {
       case 'gameDecided':
         this.handleGameDecidedResponse(json);
         break;
+      case 'exception':
+        this.handleExceptionResponse(json);
+        break;
       default:
         alert('Unknown response: ' + response);
         break;
@@ -308,6 +311,11 @@ MessageHandler.prototype = {
   handleGameDecidedResponse : function (response) {
     var winningTeam = response.winningTeam;
     game.drawText("Hand is afgelopen.\n Winaar is " + winningTeam);
+  },
+  
+  handleExceptionResponse : function (response) {
+    game.drawText("Ai ai ai!\nEr is een fout opgetreden.");
+    $('#error-content').append('<p>' + response.resultMessage + '</p>');
   },
 
   transformCards : function (cards) {

@@ -62,6 +62,6 @@ class MessageWriter():
 
     def sendError(self, exception):
         jsonResponse = {}
-        jsonResponse['resultCode'] = 'FAILURE'
+        jsonResponse['command'] = 'exception'
         jsonResponse['resultMessage'] = str(exception)
         self.socket.write_message(jsonResponse)
