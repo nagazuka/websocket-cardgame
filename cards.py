@@ -15,9 +15,10 @@ class Card:
 class Deck:
 
     def __init__(self):
-        self.cards = self.createDeck()
-
-    def createDeck(self):
+        self.cards = Deck.createDeck()
+    
+    @staticmethod
+    def createDeck():
         values = range(2, 15)
         types = ["SPADES", "CLUBS", "HEARTS", "DIAMONDS"]
 

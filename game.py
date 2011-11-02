@@ -36,7 +36,7 @@ class CardGame:
 
     def __init__(self, players=None):
         self.id = uuid.uuid1()
-        self.deck = self.createDeck()
+        self.deck = CardGame.createDeck()
         self.players = players
         self.startingPlayerIndex = 0
         self.scores = ScoreKeeper(self.players)
@@ -44,12 +44,14 @@ class CardGame:
         self.trumpSuit = None
         self.playingOrder = []
 
-    def createDeck(self):
+    @staticmethod
+    def createDeck():
         deck = Deck()
         deck.shuffle()
         return deck
 
-    def getHighestCard(self, cards):
+    @staticmethod
+    def getHighestCard(cards):
         def getHigherCard(card1, card2):
             if card1.rank > card2.rank:
                 return card1
@@ -74,7 +76,7 @@ class CardGame:
         for i in range(0, len(self.players)):
             print "%s drew %s" % (self.players[i], cards[i])
 
-        highestCard = self.getHighestCard(cards)
+        highestCard = CardGame.getHighestCard(cards)
         self.startingPlayerIndex = cards.index(highestCard)
         print "Starting player is: %s\n" % self.getStartingPlayer()
         self.setPlayingOrder()
