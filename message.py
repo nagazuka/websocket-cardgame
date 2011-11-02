@@ -1,7 +1,7 @@
 import tornado.websocket
 import json
 
-from cards import Card, Deck, HandInfo, PlayerMove
+from cards import Card, HandInfo
 
 class MessageHandler(tornado.websocket.WebSocketHandler):
 
