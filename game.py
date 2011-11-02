@@ -60,6 +60,10 @@ class CardGame:
   def getNextPlayer(self, step):
     index = self.playingOrder[step]
     return self.players[index]
+
+  def changePlayingOrder(self, winningPlayer):
+    self.startingPlayerIndex = self.players.index(winningPlayer)
+    self.setPlayingOrder()
  
   def decideOrder(self):
     cards = self.deck.sample(len(self.players))

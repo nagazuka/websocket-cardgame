@@ -2,44 +2,11 @@ import tornado.ioloop
 import tornado.web
 import tornado.websocket
 
-import json
-
+from message import MessageHandler, MessageEncoder, MessageWriter
 from game import CardGame
 from cards import Card, Deck, HandInfo, PlayerMove
 from player import HumanPlayer, Player
 
-class MessageEncoder(json.JSONEncoder):
-
-  def default(self, obj):
-    if isinstance(obj, Card):
-      return {'rank' : obj.rank, 'suit' : obj.suit}
-    elif isinstance(obj, HandInfo):
-      moves = [ {'index': move.index, 'card': self.default(move.card), 'player': move.player.id } for move in obj.playerMoves]
-      return moves
-
-    return self.convert_to_builtin_type(obj)
-
-  def convert_to_builtin_type(self, obj):
-    # Convert objects to a dictionary of their representation
-    d = { '__class__':obj.__class__.__name__, 
-          '__module__':obj.__module__,
-          }
-    d.update(obj.__dict__)
-    return d
-
-class MessageWriter():
-  def __init__(self, socket):
-    self.socket = socket
-
-  def sendMessage(self, message):
-    print "Sending message: %s" % message
-    self.socket.write_message(json.dumps(message, cls=MessageEncoder))
-  
-  def sendError(self, exception):
-    jsonResponse = {}
-    jsonResponse['resultCode'] = 'FAILURE' 
-    jsonResponse['resultMessage'] = str(exception)
-    self.socket.write_message(jsonResponse)
 
 class GameServer():
   def __init__(self, handler):
@@ -118,6 +85,8 @@ class GameServer():
     jsonResponse = {'response' : 'handPlayed'}
     while not self.hand.isComplete():
       player = self.cardGame.getNextPlayer(self.hand.getStep())
+      
+      print "Asking player %s for move" % player.name
 
         # asynchronous via websocket
       if isinstance(player, HumanPlayer):
@@ -138,7 +107,7 @@ class GameServer():
         print "Winner is %s\n" % winningPlayer
 
         self.cardGame.scores.registerWin(winningPlayer)
-        self.cardGame.startingPlayerIndex = self.players.index(winningPlayer)
+        self.cardGame.changePlayingOrder(winningPlayer)
 
         jsonResponse['hand'] = self.hand
         jsonResponse['winningCard'] = winningMove.card
@@ -170,12 +139,7 @@ class GameServer():
       self.handler.sendError(ex)
       raise
     
-
-class MainHandler(tornado.web.RequestHandler):
-  def get(self):
-    self.render("index.html")
-
-class SocketHandler(tornado.websocket.WebSocketHandler):
+class MessageHandler(tornado.websocket.WebSocketHandler):
   def open(self):
     print "Websocket opened"
     writer = MessageWriter(self)
@@ -199,9 +163,13 @@ class SocketHandler(tornado.websocket.WebSocketHandler):
   def on_close(self):
     print "Websocket closed"
 
+class MainHandler(tornado.web.RequestHandler):
+  def get(self):
+    self.render("index.html")
+
 application = tornado.web.Application([
   (r"/", MainHandler),
-  (r"/websocket", SocketHandler),
+  (r"/websocket", MessageHandler),
   (r"/presentation/(.*)", tornado.web.StaticFileHandler, {"path": "presentation"}),
   (r"/behaviour/(.*)", tornado.web.StaticFileHandler, {"path": "behaviour"}),
   (r"/config/(.*)", tornado.web.StaticFileHandler, {"path": "config"}),
