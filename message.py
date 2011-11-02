@@ -15,18 +15,18 @@ class MessageHandler(tornado.websocket.WebSocketHandler):
         print "Websocket opened"
 
     def on_message(self, message):
-        json = tornado.escape.json_decode(message)
-        print "Message received: %s" % json
-        if (json['command'] == 'startGame'):
-            self.gameServer.startGame(json['playerName'])
-        elif (json['command'] == 'dealFirstCards'):
-            self.gameServer.dealFirstCards(json)
-        elif (json['command'] == 'chooseTrump'):
-            self.gameServer.chooseTrump(json)
-        elif (json['command'] == 'isReady'):
-            self.gameServer.playHand(json)
-        elif (json['command'] == 'makeMove'):
-            self.gameServer.madeMove(json)
+        req = tornado.escape.json_decode(message)
+        print "Message received: %s" % req
+        if (req['command'] == 'startGame'):
+            self.gameServer.startGame(req['playerName'])
+        elif (req['command'] == 'dealFirstCards'):
+            self.gameServer.dealFirstCards(req)
+        elif (req['command'] == 'chooseTrump'):
+            self.gameServer.chooseTrump(req)
+        elif (req['command'] == 'isReady'):
+            self.gameServer.playHand()
+        elif (req['command'] == 'makeMove'):
+            self.gameServer.madeMove(req)
 
     def on_close(self):
         print "Websocket closed"

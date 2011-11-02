@@ -41,6 +41,8 @@ class CardGame:
         self.startingPlayerIndex = 0
         self.scores = ScoreKeeper(self.players)
         self.state = "INITIALIZED"
+        self.trumpSuit = None
+        self.playingOrder = []
 
     def createDeck(self):
         deck = Deck()

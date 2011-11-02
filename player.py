@@ -13,8 +13,9 @@ class Player:
         assert len(self.cards) > 0
         return self.cards[0].suit
 
-    def chooseCutPosition(self, deckSize=52):
-        return random.randint(1, 52)
+    @staticmethod
+    def chooseCutPosition(deckSize=52):
+        return random.randint(1, deckSize)
 
     def addCard(self, card=None):
         assert card != None
@@ -41,14 +42,4 @@ class Player:
 
 class HumanPlayer(Player):
 
-    def __init__(self, id=0, name=None, team=None, handler=None):
-        self.id = id
-        self.name = name
-        self.team = team
-        self.cards = []
-        self.handler = None
-
-    def getNextMove(self, hand):
-        choice = random.choice(self.cards)
-        self.cards.remove(choice)
-        return choice
+    pass

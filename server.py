@@ -8,12 +8,18 @@ from player import HumanPlayer, Player
 
 
 class GameServer():
+    def __init__(self):
+        self.players = []
+        self.writer = None
+        self.cardGame = None
+        self.hand = None
 
     def setWriter(self, writer):
         self.writer = writer
 
-    def createPlayers(self, playerName="John Doe"):
-        p1 = HumanPlayer(1, playerName, "A", self.writer)
+    @staticmethod
+    def createPlayers(playerName="John Doe"):
+        p1 = HumanPlayer(1, playerName, "A")
         p2 = Player(2, "Elvis Presley", "A")
         p3 = Player(3, "Bob Marley", "B")
         p4 = Player(4, "Jimi Hendrix", "B")
@@ -22,7 +28,7 @@ class GameServer():
     def startGame(self, playerName):
         jsonResponse = {'response': 'startGame'}
         try:
-            self.players = self.createPlayers(playerName)
+            self.players = GameServer.createPlayers(playerName)
             self.cardGame = CardGame(self.players)
 
             jsonResponse['resultCode'] = 'SUCCESS'
@@ -86,7 +92,7 @@ class GameServer():
 
         self.writer.sendMessage(jsonResponse)
 
-    def askPlayers(self, req):
+    def askPlayers(self):
         jsonResponse = {'response': 'handPlayed'}
         while not self.hand.isComplete():
             player = self.cardGame.getNextPlayer(self.hand.getStep())
@@ -125,19 +131,19 @@ class GameServer():
 
         try:
             self.hand.addPlayerMove(PlayerMove(player, playedCard))
-            self.askPlayers(req)
+            self.askPlayers()
         except Exception as ex:
             self.writer.sendError(ex)
             raise
 
-    def playHand(self, req):
+    def playHand(self):
         try:
             if self.cardGame.isDecided():
                 response = {'response': 'gameDecided'}
                 self.writer.sendMessage(response)
             else:
                 self.hand = HandInfo()
-                self.askPlayers(req)
+                self.askPlayers()
 
         except Exception as ex:
             self.writer.sendError(ex)
