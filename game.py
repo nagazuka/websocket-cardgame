@@ -1,5 +1,6 @@
 import uuid
-from cards import Deck 
+from cards import Deck
+
 
 class ScoreKeeper:
 
@@ -30,8 +31,9 @@ class ScoreKeeper:
       scores = scores + "Player %s: %s\n" % (player, score)
     return scores
 
+
 class CardGame:
-  
+
   def __init__(self, players=None):
     self.id = uuid.uuid1()
     self.deck = self.createDeck()
@@ -43,8 +45,8 @@ class CardGame:
   def createDeck(self):
     deck = Deck()
     deck.shuffle()
-    return deck 
-  
+    return deck
+
   def getHighestCard(self, cards):
     def getHigherCard(card1, card2):
       if card1.rank > card2.rank:
@@ -55,7 +57,7 @@ class CardGame:
 
   def getStartingPlayer(self):
     return self.players[self.startingPlayerIndex]
-  
+
   def getNextPlayer(self, step):
     index = self.playingOrder[step]
     return self.players[index]
@@ -63,18 +65,18 @@ class CardGame:
   def changePlayingOrder(self, winningPlayer):
     self.startingPlayerIndex = self.players.index(winningPlayer)
     self.setPlayingOrder()
- 
+
   def decideOrder(self):
     cards = self.deck.sample(len(self.players))
-    
-    for i in range(0,len(self.players)):
+
+    for i in range(0, len(self.players)):
       print "%s drew %s" % (self.players[i], cards[i])
 
     highestCard = self.getHighestCard(cards)
     self.startingPlayerIndex = cards.index(highestCard)
     print "Starting player is: %s\n" % self.getStartingPlayer()
     self.setPlayingOrder()
-  
+
     self.state = "ORDER_DECIDED"
 
   def dealFirstCards(self):
@@ -83,7 +85,7 @@ class CardGame:
       firstCards = self.deck.removeCards(5)
       player.addCards(firstCards)
     print "Number of remaining cards: %s" % self.deck.size()
-  
+
   def chooseTrump(self, trumpSuit):
     self.trumpSuit = trumpSuit
     print "Trump is chosen as %s" % self.trumpSuit
@@ -96,15 +98,16 @@ class CardGame:
         nextCard = self.deck.removeCard()
         player.addCard(nextCard)
     print "Number of remaining cards: %s" % self.deck.size()
-    
+
     self.state = "DEALT"
-  
+
   def isDecided(self):
-    return self.scores.isGameDecided() or self.players[0].getNumberOfCards() == 0
+    return self.scores.isGameDecided() or \
+        self.players[0].getNumberOfCards() == 0
 
   def getPlayers(self):
     return self.players
-  
+
   def getPlayerById(self, id):
     player = filter(lambda p: p.id == id, self.players)[0]
     return player
@@ -114,11 +117,12 @@ class CardGame:
 
   def setPlayingOrder(self):
     numPlayers = len(self.players)
-    self.playingOrder =  [ (self.startingPlayerIndex + i) % numPlayers for i in range(0, numPlayers) ]
+    self.playingOrder = [(self.startingPlayerIndex + i) % numPlayers
+                          for i in range(0, numPlayers)]
 
   def getPlayersInOrder(self):
     for i in self.getOrder():
       yield self.players[i]
-  
+
 if __name__ == "__main__":
   game = CardGame()

@@ -1,7 +1,8 @@
 import random
 
+
 class Player:
- 
+
   def __init__(self, id=1, name=None, team=None):
     self.id = id
     self.name = name
@@ -13,15 +14,15 @@ class Player:
     return self.cards[0].suit
 
   def chooseCutPosition(self, deckSize=52):
-    return random.randint(1,52)
+    return random.randint(1, 52)
 
   def addCard(self, card=None):
     assert card != None
-    self.cards.append(card) 
-  
+    self.cards.append(card)
+
   def addCards(self, cards=None):
     assert cards != None
-    self.cards.extend(cards) 
+    self.cards.extend(cards)
 
   def getCards(self):
     return self.cards
@@ -37,8 +38,9 @@ class Player:
   def __str__(self):
     return "Player %s (%s)" % (self.name, self.team)
 
+
 class HumanPlayer(Player):
- 
+
   def __init__(self, id=0, name=None, team=None, handler=None):
     self.id = id
     self.name = name
@@ -52,6 +54,7 @@ class HumanPlayer(Player):
     return choice
 
   pass
+
 
 class AIPlayer(Player):
   pass
