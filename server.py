@@ -1,19 +1,18 @@
 import tornado.ioloop
 import tornado.web
-import tornado.websocket
 
 from message import MessageHandler, MessageEncoder, MessageWriter
 from game import CardGame
 from cards import Card, Deck, HandInfo, PlayerMove
 from player import HumanPlayer, Player
 
-
 class GameServer():
-  def __init__(self, handler):
-    self.handler = handler
+  
+  def setWriter(self, writer):
+    self.writer = writer
   
   def createPlayers(self, playerName="John Doe"):
-    p1 = HumanPlayer(1, playerName, "A", self.handler)
+    p1 = HumanPlayer(1, playerName, "A", self.writer)
     p2 = Player(2, "Elvis Presley","A")
     p3 = Player(3, "Bob Marley", "B")
     p4 = Player(4, "Jimi Hendrix", "B")
@@ -43,10 +42,10 @@ class GameServer():
       jsonResponse['gameId'] = str(self.cardGame.id)
 
     except Exception as ex:
-      self.handler.sendError(ex)
+      self.writer.sendError(ex)
       raise
 
-    self.handler.sendMessage(jsonResponse)
+    self.writer.sendMessage(jsonResponse)
 
   def dealFirstCards(self, request):
     response = {'response' : 'dealFirstCards'}
@@ -58,10 +57,10 @@ class GameServer():
       
       response['cards'] = [{'rank' : card.rank, 'suit' : card.suit} for card in firstCards]
     except Exception as ex:
-      self.handler.sendError(ex)
+      self.writer.sendError(ex)
       raise
 
-    self.handler.sendMessage(response)
+    self.writer.sendMessage(response)
   
   def chooseTrump(self, request):
     jsonResponse = {'response' : 'allCards'}
@@ -76,10 +75,10 @@ class GameServer():
       jsonResponse['cards'] = [{'rank' : card.rank, 'suit' : card.suit} for card in allCards]
 
     except Exception as ex:
-      self.handler.sendError(ex)
+      self.writer.sendError(ex)
       raise
 
-    self.handler.sendMessage(jsonResponse)
+    self.writer.sendMessage(jsonResponse)
 
   def askPlayers(self, req):
     jsonResponse = {'response' : 'handPlayed'}
@@ -93,7 +92,7 @@ class GameServer():
           message = {}
           message['response'] = 'askMove'
           message['hand'] = self.hand
-          self.handler.sendMessage(message)
+          self.writer.sendMessage(message)
           break
       else:
           card = player.getNextMove(self.hand)
@@ -112,7 +111,7 @@ class GameServer():
         jsonResponse['hand'] = self.hand
         jsonResponse['winningCard'] = winningMove.card
         jsonResponse['winningPlayerId'] = winningPlayer.id
-        self.handler.sendMessage(jsonResponse)
+        self.writer.sendMessage(jsonResponse)
 
   def madeMove(self, req):
     jsonResponse = {'response' : 'handPlayed'}
@@ -123,53 +122,32 @@ class GameServer():
       self.hand.addPlayerMove(PlayerMove(player, playedCard))
       self.askPlayers(req)
     except Exception as ex:
-      self.handler.sendError(ex)
+      self.writer.sendError(ex)
       raise
   
   def playHand(self, req):
     try:
       if self.cardGame.isDecided():
         response = {'response' : 'gameDecided'}
-        self.handler.sendMessage(response)
+        self.writer.sendMessage(response)
       else:
         self.hand = HandInfo()
         self.askPlayers(req)
 
     except Exception as ex:
-      self.handler.sendError(ex)
+      self.writer.sendError(ex)
       raise
     
-class MessageHandler(tornado.websocket.WebSocketHandler):
-  def open(self):
-    print "Websocket opened"
-    writer = MessageWriter(self)
-    self.gameServer = GameServer(writer)
-
-  def on_message(self, message):
-    json = tornado.escape.json_decode(message) 
-    print "Message received: %s" % json
-  
-    if (json['command'] == 'startGame'):
-      self.gameServer.startGame(json['playerName'])
-    elif (json['command'] == 'dealFirstCards'):
-      self.gameServer.dealFirstCards(json)
-    elif (json['command'] == 'chooseTrump'):
-      self.gameServer.chooseTrump(json)
-    elif (json['command'] == 'isReady'):
-      self.gameServer.playHand(json)
-    elif (json['command'] == 'makeMove'):
-      self.gameServer.madeMove(json)
-
-  def on_close(self):
-    print "Websocket closed"
 
 class MainHandler(tornado.web.RequestHandler):
   def get(self):
     self.render("index.html")
 
+gameServer = GameServer()
+
 application = tornado.web.Application([
   (r"/", MainHandler),
-  (r"/websocket", MessageHandler),
+  (r"/websocket", MessageHandler, {"gameServer" : gameServer}),
   (r"/presentation/(.*)", tornado.web.StaticFileHandler, {"path": "presentation"}),
   (r"/behaviour/(.*)", tornado.web.StaticFileHandler, {"path": "behaviour"}),
   (r"/config/(.*)", tornado.web.StaticFileHandler, {"path": "config"}),

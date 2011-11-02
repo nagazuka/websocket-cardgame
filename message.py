@@ -1,11 +1,17 @@
 import tornado.websocket
 import json
 
+from cards import Card, Deck, HandInfo, PlayerMove
+
 class MessageHandler(tornado.websocket.WebSocketHandler):
+
+  def initialize(self, gameServer):
+    self.gameServer = gameServer
+    writer = MessageWriter(self)
+    self.gameServer.setWriter(writer)
+
   def open(self):
     print "Websocket opened"
-    writer = MessageWriter(self)
-    self.gameServer = GameServer(writer)
 
   def on_message(self, message):
     json = tornado.escape.json_decode(message) 
@@ -24,6 +30,7 @@ class MessageHandler(tornado.websocket.WebSocketHandler):
 
   def on_close(self):
     print "Websocket closed"
+
 class MessageEncoder(json.JSONEncoder):
 
   def default(self, obj):
