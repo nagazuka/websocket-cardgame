@@ -111,7 +111,11 @@ Game.prototype = {
     }
   },
 
-  drawMoves : function(hand) {
+  drawMoves : function(moves) {
+    _.each(moves, function(move, index, list) {
+      var card = move.card;
+      card.draw(10 + 20*index, 10 + 20*index, CARD_WIDTH, CARD_HEIGHT);
+    });
   },
 
   drawText : function(content) {
@@ -200,6 +204,13 @@ Player.prototype = {
     return 'images/avatars/' + letter + '0' + number + '.png';
   }
 };
+
+function PlayerMove(player, card) {
+  this.player = player;
+  this.card = card;
+}
+
+PlayerMove.prototype = {};
 
 function MessageHandler() {
 }
@@ -310,13 +321,16 @@ MessageHandler.prototype = {
     }
 
     var hand = response.hand;
+    var moves = [];
     var sorted = _.sortBy(hand, function(h) { return h.index; });
     _.each(sorted, function(move) {
         var jsonCard = move['card'];
         var card = new Card(jsonCard['rank'], jsonCard['suit']);
-        card.draw(10 + 20*move.index, 10 + 20*move.index, CARD_WIDTH, CARD_HEIGHT);
+        var player = game.getPlayerById(move['playerId']);
+        
+        moves.push(new PlayerMove(player, card));
     });
-    game.drawMoves(hand);
+    game.drawMoves(moves);
     game.sendReady();
   },
   
