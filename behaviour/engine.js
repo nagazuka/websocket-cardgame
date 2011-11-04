@@ -121,9 +121,12 @@ Game.prototype = {
   },
 
   drawMoves : function(moves) {
+    var y = TABLE_Y + (TABLE_HEIGHT / 2) - (CARD_HEIGHT / 2);
+    var padding = 30;
+    var xOffset = TABLE_X + (TABLE_WIDTH / 2) - (2 * (CARD_WIDTH + padding));
     _.each(moves, function(move, index, list) {
       var card = move.card;
-      card.draw(TABLE_X + (TABLE_WIDTH / 2) + 30*index, TABLE_Y + (TABLE_HEIGHT / 2), CARD_WIDTH, CARD_HEIGHT);
+      card.draw(xOffset + 30*index, y, CARD_WIDTH, CARD_HEIGHT);
     });
   },
 
