@@ -17,6 +17,7 @@
     <script src="behaviour/engine.js" type="text/javascript"></script>
     <!-- Le styles -->
     <link href="presentation/bootstrap.css" rel="stylesheet">
+    <link href="presentation/screen.css" rel="stylesheet">
     <style type="text/css">
       /* Override some defaults */
       html, body {
@@ -27,9 +28,6 @@
       }
       .container > footer p {
         text-align: center; /* center align it with the container */
-      }
-      .container {
-        width: 900px; /* downsize our container to make the content feel a bit tighter and more cohesive. NOTE: this removes two full columns from the grid, meaning you only go to 14 columns and not 16. */
       }
 
       /* The white background content wrapper */
@@ -88,21 +86,16 @@
     <div class="container">
       <div class="content">
         <div class="row">
-          <div class="span12">
+          <div class="span11">
             <div id="canvas">
+              &nbsp;
+            </div>
+            <div id="browser-not-supported">
               <p>Het lijkt erop dat je huidige browser niet geschikt is voor deze game. Download alsjeblieft een nieuwere versie van Chrome of Firefox!</p>
             </div>
           </div>
-          <div class="span3">
-            <div id="infoBlock" class="alert-message info">
-              <a class="close" href="#">&times;</a>
-              <p><strong>Heads up!</strong> This is an alert that needs your attention, but it's not a huge priority just yet.</p>
-            </div>
-            <div id="warningBlock" class="alert-message warning">
-              <a class="close" href="#">&times;</a>
-              <p><strong>Heads up!</strong> This is an alert that needs your attention, but it's not a huge priority just yet.</p>
-            </div>
-            <h3>Scores</h3>
+          <div class="span5">
+            <h3>Team Scores</h3>
             <table class="zebra-striped">
               <thead>
                 <tr>
@@ -113,14 +106,39 @@
               <tbody>
                 <tr>
                   <td>Team A</td>
-                  <td>16.000,- SRD</td>
+                  <td>1</td>
                 </tr>
                 <tr>
                   <td>Team B</td>
-                  <td>4000,- SRD</td>
+                  <td>7</td>
                 </tr>
               </tbody>
             </table>
+            <h3>Player Scores</h3>
+            <table class="zebra-striped">
+              <thead>
+                <tr>
+                  <th>Player</th>
+                  <th>Hands</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Player #1</td>
+                  <td>1</td>
+                </tr>
+              </tbody>
+            </table>
+            <!--
+            <div id="infoBlock" class="alert-message info">
+              <a class="close" href="#">&times;</a>
+              <p><strong>Heads up!</strong> This is an alert that needs your attention, but it's not a huge priority just yet.</p>
+            </div>
+            <div id="warningBlock" class="alert-message warning">
+              <a class="close" href="#">&times;</a>
+              <p><strong>Heads up!</strong> This is an alert that needs your attention, but it's not a huge priority just yet.</p>
+            </div>
+            -->
           </div>
         </div>
       </div>

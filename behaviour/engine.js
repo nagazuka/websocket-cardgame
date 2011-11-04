@@ -84,6 +84,9 @@ Game.prototype = {
   setupCanvas: function() {
     var bg = this.canvas.rect(0, 0, WIDTH, HEIGHT);
     bg.attr({fill: '45-#000-#555'});
+    bg.mouseup(function(event) {
+      alert(event);
+    });
     var table = this.canvas.image('images/green_poker_skin.png', TABLE_X, TABLE_Y, TABLE_WIDTH, TABLE_HEIGHT);
     var cardArea = this.canvas.rect(0, CARD_AREA_Y, WIDTH, CARD_AREA_HEIGHT);
     cardArea.attr({'fill': '90-#161:5-#000:95', 'fill-opacity': 0.5, 'stroke-width': 0, 'opacity': 0.1});
