@@ -82,6 +82,13 @@ class HandInfo:
     def isComplete(self):
         return len(self.playerMoves) == 4
 
+    def size(self):
+        return len(self.playerMoves)
+
+    def getAskedSuit(self):
+        assert len(self.playerMoves) > 0
+        return self.playerMoves[0].card.suit
+
     def getStep(self):
         return len(self.playerMoves)
 

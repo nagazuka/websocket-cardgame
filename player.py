@@ -32,7 +32,15 @@ class Player:
         return len(self.cards)
 
     def getNextMove(self, hand):
-        choice = random.choice(self.cards)
+        choice = None
+        if hand.size() > 0:
+            candidates = [c for c in self.cards if c.suit ==
+                          hand.getAskedSuit()]
+            if len(candidates) > 0:
+                choice = random.choice(candidates)
+        if choice == None:
+            choice = random.choice(self.cards)
+
         self.cards.remove(choice)
         return choice
 
