@@ -54,12 +54,22 @@ Game.prototype = {
     this.cardClickHandler = this.noAction;
   },
 
-  noAction : function (card) {
+  noAction: function (card) {
     this.drawText('Nu even niet :-)\nChill for a bit amigo...');
   },
 
-  sendReady : function() {
+  sendReady: function() {
     this.handler.sendMessage({'command' : 'isReady'});
+  },
+
+  waitForEvent: function() {
+    var self = this;
+    var overlay = this.canvas.rect(0, 0, WIDTH, HEIGHT);
+    overlay.attr({fill: "#000", stroke: "none", opacity: '0.1'}); 
+    overlay.mouseup(function(event) {
+      self.sendReady(); 
+      overlay.remove();
+    }); 
   },
 
   setupCanvas: function() {
@@ -337,8 +347,7 @@ MessageHandler.prototype = {
 
     var playerMoves = this.transformPlayerMoves(response.hand);
     game.drawMoves(playerMoves);
-
-    game.sendReady();
+    game.waitForEvent();
   },
   
   handleGameDecidedResponse : function (response) {
