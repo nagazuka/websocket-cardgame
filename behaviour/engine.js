@@ -25,6 +25,9 @@ var PLAYER_MIDDLE_X = (WIDTH / 2) - (PLAYER_SIZE / 2);
 var PLAYER_END_X = WIDTH - PLAYER_SIZE - PLAYER_PADDING;
 var PLAYER_END_Y = CARD_AREA_Y - PLAYER_SIZE - (4 * PLAYER_PADDING);
 
+var PLAYER_X_ARR = [PLAYER_MIDDLE_X, PLAYER_PADDING, PLAYER_MIDDLE_X, PLAYER_END_X];
+var PLAYER_Y_ARR = [PLAYER_PADDING, PLAYER_MIDDLE_Y, PLAYER_END_Y, PLAYER_MIDDLE_Y];
+
 var game;
 
 function Game() {
@@ -137,8 +140,8 @@ Game.prototype = {
   },
 
   clearMoves: function(moves) {
-    var moveCards = this.repository.getElementsByCategory("moveCards");
-    _.each(moveCards, function(c) { c.clear(); });
+    var moves = this.repository.getElementsByCategory("moves");
+    _.each(moves, function(m) { m.clear(); });
   },
 
   drawMoves : function(moves) {
@@ -147,9 +150,8 @@ Game.prototype = {
     var padding = 30;
     var xOffset = TABLE_X + (TABLE_WIDTH / 2) - (2 * (CARD_WIDTH + padding));
     _.each(moves, function(move, index, list) {
-      var card = move.card;
-      card.draw(xOffset + 30*index, y, CARD_WIDTH, CARD_HEIGHT);
-      self.repository.addElement(card, "moveCards");
+      move.draw();
+      self.repository.addElement(move, "moves");
     });
   },
 
@@ -239,21 +241,19 @@ function Player(id, index, name, isHuman) {
   this.id = id;
   this.name = name;
   this.isHuman = Boolean(isHuman);
-  this.xLoc = [PLAYER_MIDDLE_X, PLAYER_PADDING, PLAYER_MIDDLE_X, PLAYER_END_X];
-  this.yLoc = [PLAYER_PADDING, PLAYER_MIDDLE_Y, PLAYER_END_Y, PLAYER_MIDDLE_Y];
+
+  this.playerX = PLAYER_X_ARR[this.index];
+  this.playerY = PLAYER_Y_ARR[this.index];
 }
 
 Player.prototype = {
-  draw : function() {
-    var x = this.xLoc[this.index];
-    var y = this.yLoc[this.index];
-
-    var table = game.getCanvas().image(this.getPlayerImageFile(), x, y, PLAYER_SIZE, PLAYER_SIZE);
-    var nameTxt = game.getCanvas().text(x + PLAYER_SIZE / 2, y + PLAYER_SIZE + PLAYER_PADDING, this.name);
+  draw: function() {
+    var table = game.getCanvas().image(this.getPlayerImageFile(), this.playerX, this.playerY, PLAYER_SIZE, PLAYER_SIZE);
+    var nameTxt = game.getCanvas().text(this.playerX + PLAYER_SIZE / 2, this.playerY + PLAYER_SIZE + PLAYER_PADDING, this.name);
     nameTxt.attr({'fill' : '#fff', 'font-size' : '14', 'font-family' : 'Helvetica', 'font-weight' : 'bold', 'fill-opacity' : '50%'});
   },
 
-  getPlayerImageFile : function() {
+  getPlayerImageFile: function() {
     var charCode = Math.floor(Math.random() * 15) + 65;
     var letter = String.fromCharCode(charCode);
     var number = Math.floor(Math.random() * 5) + 1;
@@ -266,7 +266,17 @@ function PlayerMove(player, card) {
   this.card = card;
 }
 
-PlayerMove.prototype = {};
+PlayerMove.prototype = {
+  draw: function() {
+      var x = this.player.playerX;
+      var y = this.player.playerY;
+      this.card.draw(x, y, CARD_WIDTH, CARD_HEIGHT);
+  },
+
+  clear: function() {
+      this.card.clear();
+  }
+};
 
 function MessageHandler() {
 }
