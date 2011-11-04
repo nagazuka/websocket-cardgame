@@ -20,6 +20,11 @@ var TABLE_Y = (HEIGHT - TABLE_HEIGHT - CARD_AREA_HEIGHT) / 2;
 var PLAYER_PADDING = 10;
 var PLAYER_SIZE = 100;
 
+var PLAYER_MIDDLE_Y = (CARD_AREA_Y / 2) - (PLAYER_SIZE / 2);
+var PLAYER_MIDDLE_X = (WIDTH / 2) - (PLAYER_SIZE / 2);
+var PLAYER_END_X = WIDTH - PLAYER_SIZE - PLAYER_PADDING;
+var PLAYER_END_Y = CARD_AREA_Y - PLAYER_SIZE - (4 * PLAYER_PADDING);
+
 var game;
 
 function Game() {
@@ -234,22 +239,17 @@ function Player(id, index, name, isHuman) {
   this.id = id;
   this.name = name;
   this.isHuman = Boolean(isHuman);
+  this.xLoc = [PLAYER_MIDDLE_X, PLAYER_PADDING, PLAYER_MIDDLE_X, PLAYER_END_X];
+  this.yLoc = [PLAYER_PADDING, PLAYER_MIDDLE_Y, PLAYER_END_Y, PLAYER_MIDDLE_Y];
 }
 
 Player.prototype = {
   draw : function() {
-    var middleHeight = (CARD_AREA_Y / 2) - (PLAYER_SIZE / 2);
-    var middleWidth = (WIDTH / 2) - (PLAYER_SIZE / 2);
-    var endWidth = WIDTH - PLAYER_SIZE - PLAYER_PADDING;
-    var endHeight = CARD_AREA_Y - PLAYER_SIZE - (4 * PLAYER_PADDING);
+    var x = this.xLoc[this.index];
+    var y = this.yLoc[this.index];
 
-    var xLoc = [middleWidth, PLAYER_PADDING, middleWidth, endWidth];
-    var yLoc = [PLAYER_PADDING, middleHeight, endHeight, middleHeight];
-
-    var x = xLoc[this.index];
-    var y = yLoc[this.index];
     var table = game.getCanvas().image(this.getPlayerImageFile(), x, y, PLAYER_SIZE, PLAYER_SIZE);
-    var nameTxt = game.getCanvas().text(x + PLAYER_SIZE / 2, y + PLAYER_SIZE + PLAYER_PADDING, this.name + ' (' + this.id + ')');
+    var nameTxt = game.getCanvas().text(x + PLAYER_SIZE / 2, y + PLAYER_SIZE + PLAYER_PADDING, this.name);
     nameTxt.attr({'fill' : '#fff', 'font-size' : '14', 'font-family' : 'Helvetica', 'font-weight' : 'bold', 'fill-opacity' : '50%'});
   },
 
@@ -369,14 +369,14 @@ MessageHandler.prototype = {
     game.clearMoves();
     game.drawMoves(playerMoves);
 
-    game.drawText("Je bent aan de beurt...");
+    game.drawText("Jij bent aan de beurt...");
     game.cardClickHandler = game.makeMove;
   },
 
   handleHandPlayedResponse : function (response) {
     var winningPlayer = game.getPlayerById(response.winningPlayerId);
     if (winningPlayer.id == game.humanPlayer.id) {
-      game.drawText("Je hebt deze hand gemaakt!");
+      game.drawText("Jij hebt deze hand gemaakt!");
     } else {
       game.drawText(winningPlayer.name + "\nheeft deze hand gemaakt!");
     }
@@ -388,7 +388,7 @@ MessageHandler.prototype = {
   
   handleGameDecidedResponse : function (response) {
     var winningTeam = response.winningTeam;
-    game.drawText("Hand is gespeeld.\n Winaar is " + winningTeam);
+    game.drawText("Spel afgelopen!.\n Winaar is " + winningTeam);
   },
   
   handleExceptionResponse : function (response) {
