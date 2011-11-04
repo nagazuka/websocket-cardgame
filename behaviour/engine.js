@@ -25,6 +25,7 @@ var game;
 function Game() {
     this.cards = [];
     this.players = [];
+    this.repository = new Repository();
     this.canvas = Raphael('canvas', WIDTH, HEIGHT);
     this.handler = new MessageHandler();
 }
@@ -130,13 +131,20 @@ Game.prototype = {
     }
   },
 
+  clearMoves: function(moves) {
+    var moveCards = this.repository.getElementsByCategory("moveCards");
+    _.each(moveCards, function(c) { c.clear(); });
+  },
+
   drawMoves : function(moves) {
+    var self = this;
     var y = TABLE_Y + (TABLE_HEIGHT / 2) - (CARD_HEIGHT / 2);
     var padding = 30;
     var xOffset = TABLE_X + (TABLE_WIDTH / 2) - (2 * (CARD_WIDTH + padding));
     _.each(moves, function(move, index, list) {
       var card = move.card;
       card.draw(xOffset + 30*index, y, CARD_WIDTH, CARD_HEIGHT);
+      self.repository.addElement(card, "moveCards");
     });
   },
 
@@ -158,6 +166,32 @@ Game.prototype = {
 
   handleCardClicked : function(card) {
     this.cardClickHandler(card);
+  }
+};
+
+function Repository() {
+}
+
+Repository.prototype = {
+
+  getElementsByCategory: function(category) {
+      return this[category];
+  },
+
+  createIfEmpty: function(category) {
+    if (!(this.hasOwnProperty(category))) {
+      this[category] = [];
+    }
+  },
+
+  addElement: function(element, category) {
+    this.createIfEmpty(category);
+    this[category].push(element);
+  },
+
+  addElements: function(elements, category) {
+    this.createIfEmpty(category);
+    this[category].concat(elements);
   }
 };
 
@@ -331,6 +365,8 @@ MessageHandler.prototype = {
 
   handleAskMoveResponse : function (response) {
     var playerMoves = this.transformPlayerMoves(response.hand);
+
+    game.clearMoves();
     game.drawMoves(playerMoves);
 
     game.drawText("Je bent aan de beurt...");
