@@ -54,6 +54,7 @@ Game.prototype = {
   },
 
   chooseTrump : function (card) {
+    this.trumpSuit = card.suit;
     this.handler.sendMessage({'command' : 'chooseTrump', 'suit': card.suit, 'playerId' : this.humanPlayer.id});
   },
   
@@ -132,6 +133,13 @@ Game.prototype = {
     this.cards.length = 0;
   },
 
+  drawTrumpSuit: function() {
+    var content = "TROEF\n" + this.trumpSuit;
+    var trumpSuitText = this.canvas.text(0, 0, content);
+    trumpSuitText.attr({'font-size': 20,'text-anchor': 'start','fill': '#fff','font-family' : 'Helvetica', 'font-weight' : 'bold'});
+    this.repository.addElement(trumpSuitText, "trumpSuitText");
+  },
+
   drawCards : function() {
     if (this.cards.length > 0) {
       var offset = 2 * CARD_AREA_PADDING;
@@ -149,9 +157,6 @@ Game.prototype = {
 
   drawMoves : function(moves) {
     var self = this;
-    var y = TABLE_Y + (TABLE_HEIGHT / 2) - (CARD_HEIGHT / 2);
-    var padding = 30;
-    var xOffset = TABLE_X + (TABLE_WIDTH / 2) - (2 * (CARD_WIDTH + padding));
     _.each(moves, function(move, index, list) {
       move.draw();
       self.repository.addElement(move, "moves");
@@ -287,10 +292,12 @@ function MessageHandler() {
 MessageHandler.prototype = {
 
   init: function(game) {
-    this.setupWebSocket(game);
+    this.game = game;
+    this.setupWebSocket();
   },
 
-  setupWebSocket: function(game) {
+  setupWebSocket: function() {
+    var self = this;
    
     if (window.WebSocket) {
       this.ws = new WebSocket(conf.network.wsURL);
@@ -298,15 +305,15 @@ MessageHandler.prototype = {
     else if (window.MozWebSocket) { 
       this.ws = new MozWebSocket(conf.network.wsURL);
     } else {
-      alert('No WebSocket support');
+      alert(messages[conf.lang].noWebSocketSupport);
     }
 
     this.ws.onopen = function() {
-        game.start();
+        self.game.start();
     };
 
     this.ws.onmessage = function(evt) {
-        game.handler.receiveMessage(evt.data);
+        self.receiveMessage(evt.data);
     };
   },
   
@@ -349,73 +356,77 @@ MessageHandler.prototype = {
   },
   
   handleStartGameResponse : function (response) {
+    var self = this;
     var playerList = response.players;
 
     _.each(response.players, function (p) {
       var player = new Player(p.id, p.index, p.name, p.isHuman);
-      game.addPlayer(player);
+      self.game.addPlayer(player);
       player.draw();
     });
 
-    game.dealFirstCards();
+    this.game.dealFirstCards();
   },
 
   handleDealFirstCardsResponse : function (response) {
     var cards = this.transformCards(response.cards);
-    game.addCards(cards);
-    game.drawCards();
-    game.drawText("Kies je troefkaart");
-    game.cardClickHandler = game.chooseTrump;
+    this.game.addCards(cards);
+    this.game.drawCards();
+    this.game.drawText(messages[conf.lang].chooseTrump);
+    this.game.cardClickHandler = this.game.chooseTrump;
   },
 
   handleAllCardsResponse : function (response) {
     var cards = this.transformCards(response.cards);
-    game.clearCards();
-    game.addCards(cards);
-    game.drawCards();
-    game.sendReady();
+    var trumpSuit = response.trumpSuit
+    this.game.drawTrumpSuit(trumpSuit);
+    this.game.clearCards();
+    this.game.addCards(cards);
+    this.game.drawCards();
+    this.game.sendReady();
   },
 
   handleAskMoveResponse : function (response) {
     var playerMoves = this.transformPlayerMoves(response.hand);
 
-    game.clearMoves();
-    game.drawMoves(playerMoves);
+    this.game.clearMoves();
+    this.game.drawMoves(playerMoves);
 
-    game.drawText("Jij bent aan de beurt...");
-    game.cardClickHandler = game.makeMove;
+    this.game.drawText(messages[conf.lang].yourTurn);
+    this.game.cardClickHandler = this.game.makeMove;
   },
 
   handleHandPlayedResponse : function (response) {
-    var winningPlayer = game.getPlayerById(response.winningPlayerId);
-    if (winningPlayer.id == game.humanPlayer.id) {
-      game.drawText("Jij hebt deze hand gemaakt!");
+    var winningPlayer = this.game.getPlayerById(response.winningPlayerId);
+    if (winningPlayer.id == this.game.humanPlayer.id) {
+      this.game.drawText(messages[conf.lang].youWinHand);
     } else {
-      game.drawText(winningPlayer.name + "\nheeft deze hand gemaakt!");
+      this.game.drawText(winningPlayer.name + messages[conf.lang].otherWinsHand);
     }
 
     var playerMoves = this.transformPlayerMoves(response.hand);
-    game.drawMoves(playerMoves);
-    game.waitForEvent();
+    this.game.drawMoves(playerMoves);
+    this.game.waitForEvent();
   },
   
   handleGameDecidedResponse : function (response) {
     var winningTeam = response.winningTeam;
-    game.drawText("Spel afgelopen!.\n Winaar is " + winningTeam);
+    this.game.drawText("Spel afgelopen!.\n Winaar is " + winningTeam);
   },
   
   handleExceptionResponse : function (response) {
-    game.drawText("Ai ai ai!\nEr is een fout opgetreden.");
+    this.game.drawText(messages[conf.lang].errorMessage);
     $('#error-content').append('<p>' + response.resultMessage + '</p>');
   },
   
   transformPlayerMoves : function (hand) {
+    var self = this;
     var moves = [];
     var sorted = _.sortBy(hand, function(h) { return h.index; });
     _.each(sorted, function(move) {
         var jsonCard = move['card'];
         var card = new Card(jsonCard['rank'], jsonCard['suit']);
-        var player = game.getPlayerById(move['playerId']);
+        var player = self.game.getPlayerById(move['playerId']);
         
         moves.push(new PlayerMove(player, card));
     });

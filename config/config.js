@@ -2,7 +2,7 @@
  * External configuration file. 
  */ 
 var conf = {
-	
+  lang: 'nl',	
 	// default clip configuration
 	defaults: {
 		
@@ -36,5 +36,15 @@ var conf = {
 		// setup additional skins here ...		
 	}
 	
-}
+};
 
+var messages = {
+  nl: {
+    noWebSocketSupport: 'No WebSocket support',
+    chooseTrump:  'Kies je troef',
+    yourTurn:  'Jij bent aan de beurt...',
+    youWinHand:  'Jij hebt deze hand gemaakt!',
+    otherWinsHand: '\nheeft deze hand gemaakt!',
+    errorMessage:  'Ai ai ai!\nEr is een fout opgetreden.'
+  }
+};
