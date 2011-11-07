@@ -1,4 +1,6 @@
+import logging
 import uuid
+
 from cards import Deck
 
 
@@ -8,7 +10,6 @@ class ScoreKeeper:
         self.teamScore = {}
         self.playerScore = {}
         for player in players:
-            print player
             self.playerScore[player.name] = 0
             self.teamScore[player.team] = 0
 
@@ -70,34 +71,30 @@ class CardGame:
         cards = self.deck.sample(len(self.players))
 
         for i in range(0, len(self.players)):
-            print "%s drew %s" % (self.players[i], cards[i])
+            logging.debug("%s drew %s" % (self.players[i], cards[i]))
 
         highestCard = CardGame.getHighestCard(cards)
         self.startingPlayerIndex = cards.index(highestCard)
-        print "Starting player is: %s\n" % self.getStartingPlayer()
+        logging.debug("Starting player is: %s\n" % self.getStartingPlayer())
         self.setPlayingOrder()
 
         self.state = "ORDER_DECIDED"
 
     def dealFirstCards(self):
-        print "Number of remaining cards: %s" % self.deck.size()
         for player in self.getPlayersInOrder():
             firstCards = self.deck.removeCards(5)
             player.addCards(firstCards)
-        print "Number of remaining cards: %s" % self.deck.size()
 
     def chooseTrump(self, trumpSuit):
         self.trumpSuit = trumpSuit
-        print "Trump is chosen as %s" % self.trumpSuit
+        logging.debug("Trump is chosen as %s" % self.trumpSuit)
         self.state = "TRUMP_CHOSEN"
 
     def dealCards(self):
-        print "Number of remaining cards: %s" % self.deck.size()
         while self.deck.hasNext():
             for player in self.players:
                 nextCard = self.deck.removeCard()
                 player.addCard(nextCard)
-        print "Number of remaining cards: %s" % self.deck.size()
 
         self.state = "DEALT"
 

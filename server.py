@@ -1,3 +1,5 @@
+import logging
+
 import tornado.ioloop
 import tornado.web
 
@@ -65,7 +67,7 @@ class GameServer():
             self.cardGame.dealFirstCards()
             player = self.cardGame.getPlayerById(request['playerId'])
             firstCards = player.getCards()
-            print "Total nr of cards: %s" % len(firstCards)
+            logging.debug("Total nr of cards: %s" % len(firstCards))
 
             response['cards'] = [{'rank': card.rank, 'suit': card.suit}
                            for card in firstCards]
@@ -76,7 +78,7 @@ class GameServer():
         self.writer.sendMessage(response)
 
     def chooseTrump(self, request):
-        jsonResponse = {'response': 'allCards'}
+        response = {'response': 'allCards'}
         try:
             trumpSuit = request['suit']
             self.cardGame.chooseTrump(trumpSuit)
@@ -84,22 +86,24 @@ class GameServer():
 
             player = self.cardGame.getPlayerById(request['playerId'])
             allCards = player.getCards()
-            print "Total nr of cards: %s" % len(allCards)
-            jsonResponse['cards'] = [{'rank': card.rank, 'suit': card.suit}
+            logging.debug("Total nr of cards: %s" % len(allCards))
+            response['cards'] = [{'rank': card.rank, 'suit': card.suit}
                                for card in allCards]
+            response['trumpSuit'] = trumpSuit
+
+            self.writer.sendMessage(response)
 
         except Exception as ex:
             self.writer.sendError(ex)
             raise
 
-        self.writer.sendMessage(jsonResponse)
 
     def askPlayers(self):
         jsonResponse = {'response': 'handPlayed'}
         while not self.hand.isComplete():
             player = self.cardGame.getNextPlayer(self.hand.getStep())
 
-            print "Asking player %s for move" % player.name
+            logging.debug("Asking player %s for move" % player.name)
 
             # asynchronous via websocket
             if isinstance(player, HumanPlayer):
@@ -111,13 +115,13 @@ class GameServer():
             else:
                 card = player.getNextMove(self.hand)
                 self.hand.addPlayerMove(PlayerMove(player, card))
-                print "%s played %s" % (player.name, card)
+                logging.debug("%s played %s" % (player.name, card))
 
         if self.hand.isComplete():
             winningMove = self.hand.decideWinner(self.cardGame.trumpSuit)
             winningPlayer = winningMove.getPlayer()
 
-            print "Winner is %s\n" % winningPlayer
+            logging.debug("Winner is %s\n" % winningPlayer)
 
             self.scores.registerWin(winningPlayer)
             self.cardGame.changePlayingOrder(winningPlayer)
@@ -154,7 +158,6 @@ class GameServer():
             self.writer.sendError(ex)
             raise
 
-
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
         self.render("index.html")
@@ -163,9 +166,12 @@ class AboutHandler(tornado.web.RequestHandler):
     def get(self):
         self.render("about.html")
 
-gameServer = GameServer()
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.DEBUG)
 
-application = tornado.web.Application([
+    gameServer = GameServer()
+
+    application = tornado.web.Application([
     (r"/", MainHandler),
     (r"/index.html", MainHandler),
     (r"/about.html", AboutHandler),
@@ -177,6 +183,5 @@ application = tornado.web.Application([
     (r"/images/(.*)", tornado.web.StaticFileHandler, {"path": "images"}),
 ], debug=True)
 
-if __name__ == "__main__":
     application.listen(8888)
     tornado.ioloop.IOLoop.instance().start()

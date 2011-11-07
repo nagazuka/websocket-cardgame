@@ -1,3 +1,4 @@
+import logging
 import random
 
 
@@ -103,6 +104,6 @@ class HandInfo:
             elif winningCard.suit != otherCard.suit and \
                     otherCard.suit == trumpSuit:
                 winningMove = otherMove
-                print "CUT WITH TRUMP!"
+                logging.debug("CUT WITH TRUMP!")
 
         return winningMove

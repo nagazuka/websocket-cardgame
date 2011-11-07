@@ -1,5 +1,7 @@
-import tornado.websocket
 import json
+import logging
+
+import tornado.websocket
 
 from cards import Card, HandInfo
 
@@ -12,11 +14,11 @@ class MessageHandler(tornado.websocket.WebSocketHandler):
         self.gameServer.setWriter(writer)
 
     def open(self):
-        print "Websocket opened"
+        logging.info("Websocket opened")
 
     def on_message(self, message):
         req = tornado.escape.json_decode(message)
-        print "Message received: %s" % req
+        logging.debug("Message received: %s" % req)
         if (req['command'] == 'startGame'):
             self.gameServer.startGame(req['playerName'])
         elif (req['command'] == 'dealFirstCards'):
@@ -29,7 +31,7 @@ class MessageHandler(tornado.websocket.WebSocketHandler):
             self.gameServer.madeMove(req)
 
     def on_close(self):
-        print "Websocket closed"
+        logging.info("Websocket closed")
 
 
 class MessageEncoder(json.JSONEncoder):
@@ -58,7 +60,7 @@ class MessageWriter():
         self.socket = socket
 
     def sendMessage(self, message):
-        print "Sending message: %s" % message
+        logging.debug("Sending message: %s" % message)
         self.socket.write_message(json.dumps(message, cls=MessageEncoder))
 
     def sendError(self, exception):
