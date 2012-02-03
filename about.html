@@ -1,129 +1,46 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <title>TroefCall Online, by Savit Software - About</title>
-    <meta name="description" content="">
-    <meta name="author" content="Shanny Anoep">
+{% extends "base.html" %}
 
-    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
-    <!--[if lt IE 9]>
-    <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-    <script src="behaviour/jquery-1.7.js" type="text/javascript"></script>
-    <script src="behaviour/underscore-1.2.1.js" type="text/javascript"></script>
-    <script src="config/config.js"></script>
-    <!-- Le styles -->
-    <link href="presentation/bootstrap.css" rel="stylesheet">
-    <style type="text/css">
-      /* Override some defaults */
-      html, body {
-        background-color: #eee;
-      }
-      body {
-        padding-top: 40px; /* 40px to make the container go all the way to the bottom of the topbar */
-      }
-      .container > footer p {
-        text-align: center; /* center align it with the container */
-      }
-      .container {
-        width: 900px; /* downsize our container to make the content feel a bit tighter and more cohesive. NOTE: this removes two full columns from the grid, meaning you only go to 14 columns and not 16. */
-      }
-
-      /* The white background content wrapper */
-      .content {
-        background-color: #fff;
-        padding: 20px;
-        margin: 0 -20px; /* negative indent the amount of the padding to maintain the grid system */
-        -webkit-border-radius: 0 0 6px 6px;
-        -moz-border-radius: 0 0 6px 6px;
-        border-radius: 0 0 6px 6px;
-        -webkit-box-shadow: 0 1px 2px rgba(0,0,0,.15);
-        -moz-box-shadow: 0 1px 2px rgba(0,0,0,.15);
-        box-shadow: 0 1px 2px rgba(0,0,0,.15);
-      }
-
-      /* Give a quick and non-cross-browser friendly divider */
-      .content .span3 {
-        margin-left: 0;
-        padding-left: 19px;
-        border-left: 1px solid #eee;
-      }
-
-      .topbar .btn {
-        border: 0;
-      }
-
-    </style>
-
-    <!-- Le fav and touch icons -->
-    <link rel="shortcut icon" href="images/favicon.ico">
-    <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
-    <link rel="apple-touch-icon" sizes="72x72" href="images/apple-touch-icon-72x72.png">
-    <link rel="apple-touch-icon" sizes="114x114" href="images/apple-touch-icon-114x114.png">
-  </head>
-
-  <body>
-
-    <div class="topbar">
-      <div class="fill">
-        <div class="container">
-          <a class="brand" href="#">TroefCall Online</a>
-          <ul class="nav">
-            <li><a href="index.html">Home</a></li>
-            <li class="active"><a href="about.html">About</a></li>
-            <li><a href="#contact">Contact</a></li>
-          </ul>
-          <form action="" class="pull-right">
-            <input class="input-small" type="text" placeholder="Username">
-            <input class="input-small" type="password" placeholder="Password">
-            <button class="btn" type="submit">Sign in</button>
-          </form>
-        </div>
-      </div>
-    </div>
-
-    <div class="container">
-      <div class="content">
-        <div class="row">
-          <div class="span12">
-            <h2>About</h2>
-            <div id="about-content">
+{% block content %}
+<div class="hero-unit">
+            <h1>About</h1>
               <p>TroefCall Online is begonnen als een hobby project om mezelf Python en HTML5 technieken te leren. Alle code is beschikbaar op <a href="https://github.com/nagazuka/websocket-cardgame">GitHub</a>. Ik heb de volgende tools hiervoor gebruikt:</p>
+          </div>
+
+          <div class="row-fluid">
+            <div class="span4">
+              <h2>JavaScript</h2>
               <p>
               <ul>
-                <h3>JavaScript</h3>
                 <li>Raphael.js v2.0</li>
                 <li>Underscore.js v1.2.0</li>
                 <li>jQuery v1.6.4</li>
-
-                <h3>CSS</h3>
-                <li>Twitter Bootstrap</li>
-
-                <h3>Server-side</h3>
-                <li>Tornado Web Framework v2.1.1</li>
-
-                <h3>Graphics</h3>
+              </ul>
+              </p>
+            </div><!--/span-->
+            <div class="span4">
+              <h2>CSS</h2>
+              <p>Twitter Bootstrap
+              </p>
+            </div><!--/span-->
+            <div class="span4">
+              <h2>Server-side</h2>
+              <p>Tornado Web Framework v2.2</p>
+            </div><!--/span-->
+          </div><!--/row-->
+          
+          <div class="row-fluid">
+            <div class="span4">
+              <h2>Graphics</h2>
+              <p>
+              <ul>
                 <li>Nicu's Playing Cards <a href="http://nicubunu.ro/cards/">link</a></li>
                 <li>Face Avatars by deleket <a href="http://deleket.deviantart.com/art/Face-Avatars-107881096">link</a></li></li>
-                
-                <h3>Source code</h3>
-                <li>Github <a href="https://github.com/nagazuka/websocket-cardgame">link</a></li>
-                <ul>
+              </ul>
               </p>
-            </div>
-          </div>
-          <div class="span3">
-            <h3>Advertenties</h3>
-          </div>
-        </div>
-      </div>
-     
-      <footer>
-      <p>&copy; Savit Software 2011</p>
-      </footer>
-
-    </div> <!-- /container -->
-
-  </body>
-</html>
+            </div><!--/span-->
+            <div class="span4">
+              <h2>Source code</h2>
+                <p>Github <a href="https://github.com/nagazuka/websocket-cardgame">link</a></p>
+            </div><!--/span-->
+          </div><!--/row-->
+{% end %}

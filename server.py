@@ -166,6 +166,10 @@ class AboutHandler(tornado.web.RequestHandler):
     def get(self):
         self.render("about.html")
 
+class ContactHandler(tornado.web.RequestHandler):
+    def get(self):
+        self.render("contact.html")
+
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
 
@@ -175,6 +179,7 @@ if __name__ == "__main__":
     (r"/", MainHandler),
     (r"/index.html", MainHandler),
     (r"/about.html", AboutHandler),
+    (r"/contact.html", ContactHandler),
     (r"/websocket", MessageHandler, {"gameServer": gameServer}),
     (r"/presentation/(.*)", tornado.web.StaticFileHandler,
      {"path": "presentation"}),
