@@ -160,15 +160,15 @@ class GameServer():
 
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
-        self.render("index.html")
+        self.render("template/index.html")
 
 class AboutHandler(tornado.web.RequestHandler):
     def get(self):
-        self.render("about.html")
+        self.render("template/about.html")
 
 class ContactHandler(tornado.web.RequestHandler):
     def get(self):
-        self.render("contact.html")
+        self.render("template/contact.html")
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
