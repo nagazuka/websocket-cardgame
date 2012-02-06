@@ -326,36 +326,19 @@ MessageHandler.prototype = {
   receiveMessage : function(msg) {
     $('#debug-content').append(msg);
     var json = JSON.parse(msg);
-    var response = json.response;
-    switch (response) {
-      case 'startGame':
-        this.handleStartGameResponse(json);
-        break;
-      case 'dealFirstCards':
-        this.handleDealFirstCardsResponse(json);
-        break;
-      case 'allCards':
-        this.handleAllCardsResponse(json);
-        break;
-      case 'askMove':
-        this.handleAskMoveResponse(json);
-        break;
-      case 'handPlayed':
-        this.handleHandPlayedResponse(json);
-        break;
-      case 'gameDecided':
-        this.handleGameDecidedResponse(json);
-        break;
-      case 'exception':
-        this.handleExceptionResponse(json);
-        break;
-      default:
-        alert('Unknown response: ' + response);
-        break;
+    var handlerName = json.response;
+    var functionCall = this[handlerName];
+
+    //check whether handler function exists
+    if (typeof functionCall != 'function') {
+        alert('Unknown response: ' + handlerName);
     }
+
+    //call handler function
+    this[handlerName](json);
   },
   
-  handleStartGameResponse : function (response) {
+  startGame : function (response) {
     var self = this;
     var playerList = response.players;
 
@@ -368,7 +351,7 @@ MessageHandler.prototype = {
     this.game.dealFirstCards();
   },
 
-  handleDealFirstCardsResponse : function (response) {
+  dealFirstCards : function (response) {
     var cards = this.transformCards(response.cards);
     this.game.addCards(cards);
     this.game.drawCards();
@@ -376,7 +359,7 @@ MessageHandler.prototype = {
     this.game.cardClickHandler = this.game.chooseTrump;
   },
 
-  handleAllCardsResponse : function (response) {
+  allCards : function (response) {
     var cards = this.transformCards(response.cards);
     var trumpSuit = response.trumpSuit
     this.game.drawTrumpSuit(trumpSuit);
@@ -386,7 +369,7 @@ MessageHandler.prototype = {
     this.game.sendReady();
   },
 
-  handleAskMoveResponse : function (response) {
+  askMove : function (response) {
     var playerMoves = this.transformPlayerMoves(response.hand);
 
     this.game.clearMoves();
@@ -396,7 +379,7 @@ MessageHandler.prototype = {
     this.game.cardClickHandler = this.game.makeMove;
   },
 
-  handleHandPlayedResponse : function (response) {
+  handPlayed : function (response) {
     var winningPlayer = this.game.getPlayerById(response.winningPlayerId);
     if (winningPlayer.id == this.game.humanPlayer.id) {
       this.game.drawText(messages[conf.lang].youWinHand);
@@ -409,12 +392,12 @@ MessageHandler.prototype = {
     this.game.waitForEvent();
   },
   
-  handleGameDecidedResponse : function (response) {
+  gameDecided : function (response) {
     var winningTeam = response.winningTeam;
     this.game.drawText("Spel afgelopen!.\n Winaar is " + winningTeam);
   },
   
-  handleExceptionResponse : function (response) {
+  exception : function (response) {
     this.game.drawText(messages[conf.lang].errorMessage);
     $('#error-content').append('<p>' + response.resultMessage + '</p>');
   },
