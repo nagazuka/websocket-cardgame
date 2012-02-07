@@ -56,15 +56,19 @@ class Deck:
 
 
 class PlayerMove:
-    def __init__(self, player, card):
+    def __init__(self, player, card, remainingCards):
         self.player = player
         self.card = card
+        self.remainingCards = remainingCards
 
     def getPlayer(self):
         return self.player
 
     def getCard(self):
         return self.card
+
+    def getRemainingCards(self):
+        return self.remainingCards
 
 
 class HandInfo:
@@ -93,7 +97,7 @@ class HandInfo:
     def getStep(self):
         return len(self.playerMoves)
 
-    def validatePlayerMove(self, move, remainingCards, trumpSuit):
+    def validatePlayerMove(self, move, trumpSuit):
         #the first move is always valid
         if len(self.playerMoves) == 0:
           return True
@@ -101,7 +105,7 @@ class HandInfo:
         firstCard = self.playerMoves[0].getCard() 
         askedSuit = firstCard.suit
         
-        remainingAskedSuit = [card for card in remainingCards if card.suit == askedSuit]
+        remainingAskedSuit = [card for card in move.remainingCards if card.suit == askedSuit]
         if len(remainingAskedSuit) == 0:
           return True
 

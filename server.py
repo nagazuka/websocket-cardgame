@@ -117,7 +117,7 @@ class GameServer:
                 break
             else:
                 card = player.getNextMove(self.hand)
-                self.hand.addPlayerMove(PlayerMove(player, card))
+                self.hand.addPlayerMove(PlayerMove(player, card, []))
                 logging.debug("%s played %s" % (player.name, card))
 
         if self.hand.isComplete():
@@ -135,12 +135,14 @@ class GameServer:
             self.writer.sendMessage(jsonResponse)
 
     def makeMove(self, req):
-        player = self.cardGame.getPlayerById(req['playerId'])
-        playedCard = Card(req['suit'], req['rank'])
-
         try:
-            playerMove = PlayerMove(player, playedCard)
-            validMove = self.hand.validatePlayerMove(playerMove, [], self.cardGame.trumpSuit)
+            player = self.cardGame.getPlayerById(req['playerId'])
+            playedCard = Card(req['suit'], req['rank'])
+            remainingCards = [ Card(c.suit, c. rank) for c in req['remainingCards']]
+            logging.error("remainingCards: %s" % remainingCards)
+
+            playerMove = PlayerMove(player, playedCard, remainingCards)
+            validMove = self.hand.validatePlayerMove(playerMove, self.cardGame.trumpSuit)
             if not validMove:
               response = {'response': 'invalidMove', 'playerId': req['playerId']}
               self.writer.sendMessage(response)
