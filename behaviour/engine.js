@@ -168,7 +168,11 @@ Game.prototype = {
 
   clearMoves: function(moves) {
     var moves = this.repository.getElementsByCategory("moves");
-    _.each(moves, function(m) { m.clear(); });
+    _.each(moves, function(m) {
+      logger.debug("Clearing playerMove: " + m);
+      m.clear(); 
+    });
+    this.repository.clearCategory("moves");
   },
 
   drawMoves : function(moves) {
@@ -212,6 +216,10 @@ Repository.prototype = {
 
   getElementsByCategory: function(category) {
       return this[category];
+  },
+
+  clearCategory: function(category) {
+      this[category] = [];
   },
 
   createIfEmpty: function(category) {
@@ -356,6 +364,8 @@ MessageHandler.prototype = {
     //check whether handler function exists
     if (typeof functionCall != 'function') {
         logger.error('Unknown response: ' + handlerName);
+    } else {
+        logger.debug('Calling method handler: ' + handlerName);
     }
 
     //call handler function
@@ -394,6 +404,7 @@ MessageHandler.prototype = {
   },
 
   askMove : function (response) {
+    logger.debug("Entered askMove method");
     var playerMoves = this.transformPlayerMoves(response.hand);
 
     this.game.clearMoves();
@@ -401,6 +412,7 @@ MessageHandler.prototype = {
 
     this.game.drawText(messages[conf.lang].yourTurn);
     this.game.setCardClickHandler(this.game.makeMove);
+    logger.debug("Leaving askMove method");
   },
 
   handPlayed : function (response) {
