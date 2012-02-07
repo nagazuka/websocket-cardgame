@@ -65,22 +65,22 @@ Game.prototype = {
     this.handler.sendMessage({'command' : 'startGame', 'playerName' : 'Shanny Anoep'});
   },
 
-  dealFirstCards : function() {
+  dealFirstCards : function fn_dealFirstCards () {
     this.handler.sendMessage({ 'command' : 'dealFirstCards', 'playerId' : this.humanPlayer.id});
   },
 
-  chooseTrump : function (card) {
+  chooseTrump : function fn_chooseTrump (card) {
     this.trumpSuit = card.suit;
     this.handler.sendMessage({'command' : 'chooseTrump', 'suit': card.suit, 'playerId' : this.humanPlayer.id});
   },
   
-  makeMove : function (card) {
+  makeMove : function fn_makeMove (card) {
     this.handler.sendMessage({'command' : 'makeMove', 'rank' : card.rank, 'suit': card.suit, 'playerIndex' : 0, 'playerId' : this.humanPlayer.id});
     this.removeCard(card);
-    this.cardClickHandler = this.noAction;
+    this.setCardClickHandler(this.noAction);
   },
 
-  noAction: function (card) {
+  noAction: function fn_noAction (card) {
     this.drawText('Nu even niet :-)\nChill for a bit amigo...');
   },
 
@@ -197,6 +197,11 @@ Game.prototype = {
 
   handleCardClicked : function(card) {
     this.cardClickHandler(card);
+  },
+
+  setCardClickHandler : function(handler) {
+    logger.debug("Setting cardClickHandler to: " + handler.name);
+    this.cardClickHandler = handler;
   }
 };
 
@@ -375,7 +380,7 @@ MessageHandler.prototype = {
     this.game.addCards(cards);
     this.game.drawCards();
     this.game.drawText(messages[conf.lang].chooseTrump);
-    this.game.cardClickHandler = this.game.chooseTrump;
+    this.game.setCardClickHandler(this.game.chooseTrump);
   },
 
   allCards : function (response) {
@@ -395,7 +400,7 @@ MessageHandler.prototype = {
     this.game.drawMoves(playerMoves);
 
     this.game.drawText(messages[conf.lang].yourTurn);
-    this.game.cardClickHandler = this.game.makeMove;
+    this.game.setCardClickHandler(this.game.makeMove);
   },
 
   handPlayed : function (response) {
