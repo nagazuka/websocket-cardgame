@@ -431,6 +431,9 @@ MessageHandler.prototype = {
 
   handPlayed : function (response) {
     this.game.removeSelectedCard();
+    
+    var playerMoves = this.transformPlayerMoves(response.hand);
+    this.game.drawMoves(playerMoves);
 
     var winningPlayer = this.game.getPlayerById(response.winningPlayerId);
     if (winningPlayer.id == this.game.humanPlayer.id) {
@@ -439,8 +442,6 @@ MessageHandler.prototype = {
       this.game.drawText(winningPlayer.name + messages[conf.lang].otherWinsHand);
     }
 
-    var playerMoves = this.transformPlayerMoves(response.hand);
-    this.game.drawMoves(playerMoves);
     this.game.waitForEvent();
   },
   
