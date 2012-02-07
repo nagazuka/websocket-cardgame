@@ -86,7 +86,7 @@ Game.prototype = {
     var bg = this.canvas.rect(0, 0, WIDTH, HEIGHT);
     bg.attr({fill: '45-#000-#555'});
     bg.mouseup(function(event) {
-      alert(event);
+      console.log(event);
     });
     var table = this.canvas.image('images/green_poker_skin.png', TABLE_X, TABLE_Y, TABLE_WIDTH, TABLE_HEIGHT);
     var cardArea = this.canvas.rect(0, CARD_AREA_Y, WIDTH, CARD_AREA_HEIGHT);
@@ -305,11 +305,12 @@ MessageHandler.prototype = {
     else if (window.MozWebSocket) { 
       this.ws = new MozWebSocket(conf.network.wsURL);
     } else {
-      alert(messages[conf.lang].noWebSocketSupport);
+      console.log(messages[conf.lang].noWebSocketSupport);
     }
 
     this.ws.onopen = function() {
         self.game.start();
+        console.log("Websocket opened, game started");
     };
 
     this.ws.onmessage = function(evt) {
@@ -321,9 +322,13 @@ MessageHandler.prototype = {
     var messageStr = JSON.stringify(message);
     $('#debug-content').append('<p>' + messageStr + '</p>');
     this.ws.send(messageStr);
+
+    console.log("Sent: " + messageStr);
   },
 
   receiveMessage : function(msg) {
+    console.log("Received: " + msg);
+
     $('#debug-content').append(msg);
     var json = JSON.parse(msg);
     var handlerName = json.response;
@@ -331,7 +336,7 @@ MessageHandler.prototype = {
 
     //check whether handler function exists
     if (typeof functionCall != 'function') {
-        alert('Unknown response: ' + handlerName);
+        console.log('Unknown response: ' + handlerName);
     }
 
     //call handler function
