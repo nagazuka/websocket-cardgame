@@ -52,6 +52,7 @@ function Game() {
     this.repository = new Repository();
     this.canvas = Raphael('canvas', WIDTH, HEIGHT);
     this.handler = new MessageHandler();
+    this.selectedCard = null;
 }
 
 Game.prototype = {
@@ -76,9 +77,10 @@ Game.prototype = {
   
   makeMove : function fn_makeMove (card) {
     this.handler.sendMessage({'command' : 'makeMove', 'rank' : card.rank, 'suit': card.suit, 'playerIndex' : 0, 'playerId' : this.humanPlayer.id});
-    this.removeCard(card);
+    this.selectedCard = card;
     this.setCardClickHandler(this.noAction);
   },
+
 
   noAction: function fn_noAction (card) {
     this.drawText('Nu even niet :-)\nChill for a bit amigo...');
@@ -134,6 +136,10 @@ Game.prototype = {
   getPlayerById: function(id) {
     var player = _.find(this.players, function (p) { return p.id == id;});
     return player;
+  },
+
+  removeSelectedCard: function() {
+    this.removeCard(this.selectedCard);
   },
 
   removeCard: function(card) {
@@ -404,7 +410,6 @@ MessageHandler.prototype = {
   },
 
   askMove : function (response) {
-    logger.debug("Entered askMove method");
     var playerMoves = this.transformPlayerMoves(response.hand);
 
     this.game.clearMoves();
@@ -412,10 +417,16 @@ MessageHandler.prototype = {
 
     this.game.drawText(messages[conf.lang].yourTurn);
     this.game.setCardClickHandler(this.game.makeMove);
-    logger.debug("Leaving askMove method");
+  },
+
+  invalidMove : function (response) {
+    this.game.drawText(messages[conf.lang].invalidMove);
+    this.game.setCardClickHandler(this.game.makeMove);
   },
 
   handPlayed : function (response) {
+    this.game.removeSelectedCard();
+
     var winningPlayer = this.game.getPlayerById(response.winningPlayerId);
     if (winningPlayer.id == this.game.humanPlayer.id) {
       this.game.drawText(messages[conf.lang].youWinHand);
