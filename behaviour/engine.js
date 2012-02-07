@@ -76,7 +76,7 @@ Game.prototype = {
   },
   
   makeMove : function fn_makeMove (card) {
-    this.handler.sendMessage({'command' : 'makeMove', 'rank' : card.rank, 'suit': card.suit, 'playerIndex' : 0, 'playerId' : this.humanPlayer.id});
+    this.handler.sendMessage({'command' : 'makeMove', 'rank' : card.rank, 'suit': card.suit, 'playerIndex' : 0, 'playerId' : this.humanPlayer.id, 'remainingCards': this.cards});
     this.selectedCard = card;
     this.setCardClickHandler(this.noAction);
   },
@@ -276,7 +276,12 @@ Card.prototype = {
   
   getCardImageFile : function(rank, suit) {
     return 'images/cards/simple_' + this.SUIT_TRANSLATION_TABLE[suit] + '_' + this.RANK_TRANSLATION_TABLE[rank] + '.png';
+  },
+
+  toJSON: function() {
+    return { 'rank' : this.rank, 'suit': this.suit }; 
   }
+
 };
 
 function Player(id, index, name, isHuman) {

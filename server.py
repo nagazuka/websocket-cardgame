@@ -140,7 +140,7 @@ class GameServer:
 
         try:
             playerMove = PlayerMove(player, playedCard)
-            validMove = self.hand.validatePlayerMove(playerMove, self.cardGame.trumpSuit)
+            validMove = self.hand.validatePlayerMove(playerMove, [], self.cardGame.trumpSuit)
             if not validMove:
               response = {'response': 'invalidMove', 'playerId': req['playerId']}
               self.writer.sendMessage(response)

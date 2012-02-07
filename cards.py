@@ -93,13 +93,17 @@ class HandInfo:
     def getStep(self):
         return len(self.playerMoves)
 
-    def validatePlayerMove(self, move, trumpSuit):
+    def validatePlayerMove(self, move, remainingCards, trumpSuit):
         #the first move is always valid
         if len(self.playerMoves) == 0:
           return True
 
         firstCard = self.playerMoves[0].getCard() 
         askedSuit = firstCard.suit
+        
+        remainingAskedSuit = [card for card in remainingCards if card.suit == askedSuit]
+        if len(remainingAskedSuit) == 0:
+          return True
 
         moveCard = move.getCard()
         moveSuit = moveCard.suit
