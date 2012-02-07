@@ -8,7 +8,7 @@ from message import MessageEncoder, MessageWriter
 from game import CardGame, ScoreKeeper
 from cards import Card, HandInfo, PlayerMove
 from player import HumanPlayer, Player
-
+import settings
 
 class GameServer():
     def __init__(self):
@@ -212,5 +212,5 @@ if __name__ == "__main__":
     (r"/images/(.*)", tornado.web.StaticFileHandler, {"path": "images"}),
 ], debug=True)
 
-    application.listen(8888)
+    application.listen(settings.PORT_NUMBER)
     tornado.ioloop.IOLoop.instance().start()
