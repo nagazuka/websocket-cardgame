@@ -2,8 +2,9 @@ import logging
 
 import tornado.ioloop
 import tornado.web
+import tornado.websocket
 
-from message import MessageHandler
+from message import MessageEncoder, MessageWriter
 from game import CardGame, ScoreKeeper
 from cards import Card, HandInfo, PlayerMove
 from player import HumanPlayer, Player
@@ -170,6 +171,33 @@ class ContactHandler(tornado.web.RequestHandler):
     def get(self):
         self.render("template/contact.html")
 
+class MessageHandler(tornado.websocket.WebSocketHandler):
+
+    def open(self):
+        logging.info("Websocket opened")
+
+        self.gameServer = GameServer()
+        writer = MessageWriter(self)
+        self.gameServer.setWriter(writer)
+
+    def on_message(self, message):
+        req = tornado.escape.json_decode(message)
+        logging.debug("Message received: %s" % req)
+        if (req['command'] == 'startGame'):
+            self.gameServer.startGame(req['playerName'])
+        elif (req['command'] == 'dealFirstCards'):
+            self.gameServer.dealFirstCards(req)
+        elif (req['command'] == 'chooseTrump'):
+            self.gameServer.chooseTrump(req)
+        elif (req['command'] == 'isReady'):
+            self.gameServer.playHand()
+        elif (req['command'] == 'makeMove'):
+            self.gameServer.madeMove(req)
+
+    def on_close(self):
+        logging.info("Websocket closed")
+        self.gameServer = None
+
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
 
@@ -180,7 +208,7 @@ if __name__ == "__main__":
     (r"/index.html", MainHandler),
     (r"/about.html", AboutHandler),
     (r"/contact.html", ContactHandler),
-    (r"/websocket", MessageHandler, {"gameServer": gameServer}),
+    (r"/websocket", MessageHandler),
     (r"/presentation/(.*)", tornado.web.StaticFileHandler,
      {"path": "presentation"}),
     (r"/behaviour/(.*)", tornado.web.StaticFileHandler, {"path": "behaviour"}),
