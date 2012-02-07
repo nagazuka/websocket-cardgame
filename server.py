@@ -29,9 +29,10 @@ class GameServer():
         p4 = Player(4, "Jimi Hendrix", "Team Nederland")
         return [p1, p3, p2, p4]
 
-    def startGame(self, playerName):
+    def startGame(self, req):
         jsonResponse = {'response': 'startGame'}
         try:
+            playerName = req['playerName']
             self.players = GameServer.createPlayers(playerName)
             self.cardGame = CardGame(self.players)
             self.scores = ScoreKeeper(self.players)
@@ -132,7 +133,7 @@ class GameServer():
             jsonResponse['winningPlayerId'] = winningPlayer.id
             self.writer.sendMessage(jsonResponse)
 
-    def madeMove(self, req):
+    def makeMove(self, req):
         player = self.cardGame.getPlayerById(req['playerId'])
         playedCard = Card(req['suit'], req['rank'])
 
@@ -143,7 +144,7 @@ class GameServer():
             self.writer.sendError(ex)
             raise
 
-    def playHand(self):
+    def isReady(self, req):
         try:
             if self.scores.isGameDecided():
                 scores = self.scores.getScores()
@@ -183,16 +184,11 @@ class MessageHandler(tornado.websocket.WebSocketHandler):
     def on_message(self, message):
         req = tornado.escape.json_decode(message)
         logging.debug("Message received: %s" % req)
-        if (req['command'] == 'startGame'):
-            self.gameServer.startGame(req['playerName'])
-        elif (req['command'] == 'dealFirstCards'):
-            self.gameServer.dealFirstCards(req)
-        elif (req['command'] == 'chooseTrump'):
-            self.gameServer.chooseTrump(req)
-        elif (req['command'] == 'isReady'):
-            self.gameServer.playHand()
-        elif (req['command'] == 'makeMove'):
-            self.gameServer.madeMove(req)
+        methodName = req['command']
+        if hasattr(self.gameServer, methodName):
+          getattr(self.gameServer, methodName)(req)
+        else:
+          logging.error("Received unknown command [%s]" % command)
 
     def on_close(self):
         logging.info("Websocket closed")
