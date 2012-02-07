@@ -138,8 +138,8 @@ class GameServer:
         try:
             player = self.cardGame.getPlayerById(req['playerId'])
             playedCard = Card(req['suit'], req['rank'])
-            remainingCards = [ Card(c.suit, c. rank) for c in req['remainingCards']]
-            logging.error("remainingCards: %s" % remainingCards)
+            remainingCards = [ Card(c['suit'], c['rank']) for c in req['remainingCards']]
+            logging.debug("remainingCards: %s" % remainingCards)
 
             playerMove = PlayerMove(player, playedCard, remainingCards)
             validMove = self.hand.validatePlayerMove(playerMove, self.cardGame.trumpSuit)
