@@ -29,6 +29,22 @@ var PLAYER_X_ARR = [PLAYER_MIDDLE_X, PLAYER_END_X, PLAYER_MIDDLE_X, PLAYER_PADDI
 var PLAYER_Y_ARR = [PLAYER_PADDING, PLAYER_MIDDLE_Y, PLAYER_END_Y, PLAYER_MIDDLE_Y];
 
 var game;
+var logger;
+
+function Logger() {
+}
+
+Logger.prototype = {
+  debug : function(message) {
+    console.log("DEBUG " + message);
+    $('#debug-content').append("<p>" + message + "</p>");
+  },
+
+  error : function(message) {
+    console.log("ERROR " + message);
+    $('#error-content').append("<p>" + message + "</p>");
+  }
+};
 
 function Game() {
     this.cards = [];
@@ -86,7 +102,7 @@ Game.prototype = {
     var bg = this.canvas.rect(0, 0, WIDTH, HEIGHT);
     bg.attr({fill: '45-#000-#555'});
     bg.mouseup(function(event) {
-      console.log(event);
+      logger.debug("Event " + event);
     });
     var table = this.canvas.image('images/green_poker_skin.png', TABLE_X, TABLE_Y, TABLE_WIDTH, TABLE_HEIGHT);
     var cardArea = this.canvas.rect(0, CARD_AREA_Y, WIDTH, CARD_AREA_HEIGHT);
@@ -305,12 +321,12 @@ MessageHandler.prototype = {
     else if (window.MozWebSocket) { 
       this.ws = new MozWebSocket(conf.network.wsURL);
     } else {
-      console.log(messages[conf.lang].noWebSocketSupport);
+      logger.error(messages[conf.lang].noWebSocketSupport);
     }
 
     this.ws.onopen = function() {
         self.game.start();
-        console.log("Websocket opened, game started");
+        logger.debug("Websocket opened, game started");
     };
 
     this.ws.onmessage = function(evt) {
@@ -320,23 +336,21 @@ MessageHandler.prototype = {
   
   sendMessage: function(message) {
     var messageStr = JSON.stringify(message);
-    $('#debug-content').append('<p>' + messageStr + '</p>');
     this.ws.send(messageStr);
 
-    console.log("Sent: " + messageStr);
+    logger.debug("Sent: " + messageStr);
   },
 
   receiveMessage : function(msg) {
-    console.log("Received: " + msg);
+    logger.debug("Received: " + msg);
 
-    $('#debug-content').append(msg);
     var json = JSON.parse(msg);
     var handlerName = json.response;
     var functionCall = this[handlerName];
 
     //check whether handler function exists
     if (typeof functionCall != 'function') {
-        console.log('Unknown response: ' + handlerName);
+        logger.error('Unknown response: ' + handlerName);
     }
 
     //call handler function
@@ -404,7 +418,7 @@ MessageHandler.prototype = {
   
   exception : function (response) {
     this.game.drawText(messages[conf.lang].errorMessage);
-    $('#error-content').append('<p>' + response.resultMessage + '</p>');
+    logger.error(response.resultMessage);
   },
   
   transformPlayerMoves : function (hand) {
@@ -427,6 +441,7 @@ MessageHandler.prototype = {
 };
 
 $(document).ready(function() {
+    logger = new Logger();
     game = new Game();
     game.init();
 });
