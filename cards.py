@@ -71,7 +71,7 @@ class HandInfo:
     def __init__(self):
         self.playerMoves = []
         self.index = 0
-
+    
     def addPlayerMove(self, move):
         move.index = self.index
         self.playerMoves.append(move)
@@ -92,6 +92,22 @@ class HandInfo:
 
     def getStep(self):
         return len(self.playerMoves)
+
+    def validatePlayerMove(self, move, trumpSuit):
+        #the first move is always valid
+        if len(self.playerMoves) == 0:
+          return True
+
+        firstCard = self.playerMoves[0].getCard() 
+        askedSuit = firstCard.suit
+
+        moveCard = move.getCard()
+        moveSuit = moveCard.suit
+        if moveSuit == askedSuit or moveSuit == trumpSuit:
+          return True
+
+        logging.debug("PlayedMove %s not valid for current hand %s" % (move, self))
+        return False
 
     def decideWinner(self, trumpSuit):
         winningMove = self.playerMoves[0]

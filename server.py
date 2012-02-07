@@ -10,7 +10,8 @@ from cards import Card, HandInfo, PlayerMove
 from player import HumanPlayer, Player
 import settings
 
-class GameServer():
+
+class GameServer:
     def __init__(self):
         self.players = []
         self.writer = None
@@ -58,8 +59,8 @@ class GameServer():
             jsonResponse['gameId'] = str(self.cardGame.id)
 
         except Exception as ex:
-            self.writer.sendError(ex)
-            raise
+          self.writer.sendError(ex)
+          raise
 
         self.writer.sendMessage(jsonResponse)
 
@@ -138,8 +139,15 @@ class GameServer():
         playedCard = Card(req['suit'], req['rank'])
 
         try:
-            self.hand.addPlayerMove(PlayerMove(player, playedCard))
-            self.askPlayers()
+            playerMove = PlayerMove(player, playedCard)
+            validMove = self.hand.validatePlayerMove(playerMove, self.cardGame.trumpSuit)
+            if not validMove:
+              response = {'response': 'invalidMove', 'playerId': req['playerId']}
+              self.writer.sendMessage(response)
+            else:
+              self.hand.addPlayerMove(playerMove)
+              self.askPlayers()
+
         except Exception as ex:
             self.writer.sendError(ex)
             raise
