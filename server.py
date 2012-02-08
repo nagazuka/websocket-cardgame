@@ -4,7 +4,7 @@ import tornado.ioloop
 import tornado.web
 import tornado.websocket
 
-from message import MessageEncoder, MessageWriter
+from message import MessageWriter
 from game import CardGame, ScoreKeeper
 from cards import Card, HandInfo, PlayerMove
 from player import HumanPlayer, Player
@@ -59,8 +59,8 @@ class GameServer:
             jsonResponse['gameId'] = str(self.cardGame.id)
 
         except Exception as ex:
-          self.writer.sendError(ex)
-          raise
+            self.writer.sendError(ex)
+            raise
 
         self.writer.sendMessage(jsonResponse)
 
@@ -70,7 +70,7 @@ class GameServer:
             self.cardGame.dealFirstCards()
             player = self.cardGame.getPlayerById(request['playerId'])
             firstCards = player.getCards()
-            logging.debug("Total nr of cards: %s" % len(firstCards))
+            logging.debug("Total nr of cards: %s", len(firstCards))
 
             response['cards'] = [{'rank': card.rank, 'suit': card.suit}
                            for card in firstCards]
@@ -89,7 +89,7 @@ class GameServer:
 
             player = self.cardGame.getPlayerById(request['playerId'])
             allCards = player.getCards()
-            logging.debug("Total nr of cards: %s" % len(allCards))
+            logging.debug("Total nr of cards: %s", len(allCards))
             response['cards'] = [{'rank': card.rank, 'suit': card.suit}
                                for card in allCards]
             response['trumpSuit'] = trumpSuit
@@ -106,7 +106,7 @@ class GameServer:
         while not self.hand.isComplete():
             player = self.cardGame.getNextPlayer(self.hand.getStep())
 
-            logging.debug("Asking player %s for move" % player.name)
+            logging.debug("Asking player %s for move", player.name)
 
             # asynchronous via websocket
             if isinstance(player, HumanPlayer):
@@ -118,13 +118,13 @@ class GameServer:
             else:
                 card = player.getNextMove(self.hand)
                 self.hand.addPlayerMove(PlayerMove(player, card, []))
-                logging.debug("%s played %s" % (player.name, card))
+                logging.debug("%s played %s", player.name, card)
 
         if self.hand.isComplete():
             winningMove = self.hand.decideWinner(self.cardGame.trumpSuit)
             winningPlayer = winningMove.getPlayer()
 
-            logging.debug("Winner is %s\n" % winningPlayer)
+            logging.debug("Winner is %s\n", winningPlayer)
 
             self.scores.registerWin(winningPlayer)
             self.cardGame.changePlayingOrder(winningPlayer)
@@ -139,16 +139,16 @@ class GameServer:
             player = self.cardGame.getPlayerById(req['playerId'])
             playedCard = Card(req['suit'], req['rank'])
             remainingCards = [ Card(c['suit'], c['rank']) for c in req['remainingCards']]
-            logging.debug("remainingCards: %s" % remainingCards)
+            logging.debug("remainingCards: %s", remainingCards)
 
             playerMove = PlayerMove(player, playedCard, remainingCards)
             validMove = self.hand.validatePlayerMove(playerMove, self.cardGame.trumpSuit)
             if not validMove:
-              response = {'response': 'invalidMove', 'playerId': req['playerId']}
-              self.writer.sendMessage(response)
+                response = {'response': 'invalidMove', 'playerId': req['playerId']}
+                self.writer.sendMessage(response)
             else:
-              self.hand.addPlayerMove(playerMove)
-              self.askPlayers()
+                self.hand.addPlayerMove(playerMove)
+                self.askPlayers()
 
         except Exception as ex:
             self.writer.sendError(ex)
@@ -193,12 +193,12 @@ class MessageHandler(tornado.websocket.WebSocketHandler):
 
     def on_message(self, message):
         req = tornado.escape.json_decode(message)
-        logging.debug("Message received: %s" % req)
+        logging.debug("Message received: %s", req)
         methodName = req['command']
         if hasattr(self.gameServer, methodName):
-          getattr(self.gameServer, methodName)(req)
+            getattr(self.gameServer, methodName)(req)
         else:
-          logging.error("Received unknown command [%s]" % command)
+            logging.error("Received unknown command [%s]", methodName)
 
     def on_close(self):
         logging.info("Websocket closed")

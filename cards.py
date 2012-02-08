@@ -12,6 +12,11 @@ class Card:
     def __str__(self):
         return "[%s %s]" % (self.suit, self.rank)
 
+    def getRank(self):
+        return self.rank
+
+    def getSuit(self):
+        return self.suit
 
 class Deck:
 
@@ -100,21 +105,21 @@ class HandInfo:
     def validatePlayerMove(self, move, trumpSuit):
         #the first move is always valid
         if len(self.playerMoves) == 0:
-          return True
+            return True
 
         firstCard = self.playerMoves[0].getCard() 
         askedSuit = firstCard.suit
         
         remainingAskedSuit = [card for card in move.remainingCards if card.suit == askedSuit]
         if len(remainingAskedSuit) == 0:
-          return True
+            return True
 
         moveCard = move.getCard()
         moveSuit = moveCard.suit
         if moveSuit == askedSuit or moveSuit == trumpSuit:
-          return True
+            return True
 
-        logging.debug("PlayedMove %s not valid for current hand %s" % (move, self))
+        logging.debug("PlayedMove %s not valid for current hand %s", move, self)
         return False
 
     def decideWinner(self, trumpSuit):

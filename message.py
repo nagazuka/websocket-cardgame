@@ -29,7 +29,7 @@ class MessageWriter():
         self.socket = socket
 
     def sendMessage(self, message):
-        logging.debug("Sending message: %s" % message)
+        logging.debug("Sending message: %s", message)
         self.socket.write_message(json.dumps(message, cls=MessageEncoder))
 
     def sendError(self, exception):

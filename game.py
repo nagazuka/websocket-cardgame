@@ -71,11 +71,11 @@ class CardGame:
         cards = self.deck.sample(len(self.players))
 
         for i in range(0, len(self.players)):
-            logging.debug("%s drew %s" % (self.players[i], cards[i]))
+            logging.debug("%s drew %s", self.players[i], cards[i])
 
         highestCard = CardGame.getHighestCard(cards)
         self.startingPlayerIndex = cards.index(highestCard)
-        logging.debug("Starting player is: %s\n" % self.getStartingPlayer())
+        logging.debug("Starting player is: %s\n", self.getStartingPlayer())
         self.setPlayingOrder()
 
         self.state = "ORDER_DECIDED"
@@ -87,7 +87,7 @@ class CardGame:
 
     def chooseTrump(self, trumpSuit):
         self.trumpSuit = trumpSuit
-        logging.debug("Trump is chosen as %s" % self.trumpSuit)
+        logging.debug("Trump is chosen as %s", self.trumpSuit)
         self.state = "TRUMP_CHOSEN"
 
     def dealCards(self):
