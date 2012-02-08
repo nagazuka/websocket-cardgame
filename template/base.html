@@ -58,7 +58,7 @@
     <div class="container-fluid">
       <div class="row-fluid">
         <div class="span9">
-        {% block content %}Default content{% end %}
+        {% block content %}&nbsp;{% end %}
         </div><!--/span-->
         <div class="span3">
         {% include sidebar.html %}
@@ -66,6 +66,23 @@
       </div><!--/row-->
 
       <hr>
+
+      <div id="welcomeModal" class="modal hide fade"> 
+        <div class="modal-header">
+          <a href="#" class="close" data-dismiss="modal">&times;</a>
+          <h3>Welkom bij TroefCall Online</h3>
+        </div>
+        <div class="modal-body">
+          <p>Voordat we beginnen met TroefCall Online, eerst je naam invoeren:</p>
+          <form class="well">
+            <label>Naam</label>
+              <input id="inputPlayerName" type="text" class="span3" placeholder="Typ iets…"> <span class="help-inline">&nbsp;</span>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <a id="btnStartGame" href="#" data-dismiss="modal" class="btn btn-primary">Starten</a>
+        </div>
+      </div>
 
       <footer>
         <p>&copy; Savit Software 2011</p>

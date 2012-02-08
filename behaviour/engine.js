@@ -35,6 +35,7 @@ var CARD_Y_ARR = [CARD_MIDDLE_Y - 0.75*CARD_HEIGHT, CARD_MIDDLE_Y, CARD_MIDDLE_Y
 
 var PLAYER_MOVE_ANIMATE_TIME = 1000;
 
+var application;
 var game;
 var logger;
 
@@ -469,6 +470,8 @@ MessageHandler.prototype = {
 
   invalidMove : function (response) {
     this.game.drawText(messages[conf.lang].invalidMove);
+    $(".alert-message").alert();
+ 
     this.game.setCardClickHandler(this.game.makeMove);
   },
 
@@ -519,8 +522,26 @@ MessageHandler.prototype = {
   }
 };
 
-$(document).ready(function() {
-    logger = new Logger();
+function Application() {
+}
+
+Application.prototype = {
+  init: function() {
+    $('#welcomeModal').modal('show');
+    $('#btnStartGame').click(function() {
+        var playerName =  $('#inputPlayerName').val();
+        this.startGame(playerName);
+      });
+  },
+
+  startGame: function(playerName) {
     game = new Game();
     game.init();
+  }
+};
+
+$(document).ready(function() {
+    logger = new Logger();
+    application = new Application();
+    application.startGame();
 });
