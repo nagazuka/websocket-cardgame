@@ -28,6 +28,11 @@ var PLAYER_END_Y = CARD_AREA_Y - PLAYER_SIZE - (4 * PLAYER_PADDING);
 var PLAYER_X_ARR = [PLAYER_MIDDLE_X, PLAYER_END_X, PLAYER_MIDDLE_X, PLAYER_PADDING];
 var PLAYER_Y_ARR = [PLAYER_PADDING, PLAYER_MIDDLE_Y, PLAYER_END_Y, PLAYER_MIDDLE_Y];
 
+var CARD_MIDDLE_Y = (CARD_AREA_Y / 2) - (CARD_HEIGHT / 2);
+var CARD_MIDDLE_X = (WIDTH / 2) - (CARD_WIDTH / 2);
+var CARD_X_ARR = [CARD_MIDDLE_X, CARD_MIDDLE_X + 2*CARD_WIDTH, CARD_MIDDLE_X, CARD_MIDDLE_X - 2*CARD_WIDTH];
+var CARD_Y_ARR = [CARD_MIDDLE_Y - 0.75*CARD_HEIGHT, CARD_MIDDLE_Y, CARD_MIDDLE_Y + 0.5*CARD_HEIGHT, CARD_MIDDLE_Y];
+
 var game;
 var logger;
 
@@ -254,6 +259,11 @@ Card.prototype = {
   SUIT_TRANSLATION_TABLE : { 'DIAMONDS' : 'd', 'CLUBS' : 'c', 'SPADES' : 's', 'HEARTS' : 'h'},
   RANK_TRANSLATION_TABLE : [undefined, undefined, '2', '3', '4', '5', '6', '7', '8', '9', '10', 'j', 'q', 'k', 'a'],
 
+  animate: function(srcX, srcY, width, height, destX, destY, time) {
+    this.draw(srcX, srcY, width, height);
+    this.cardImage.stop().animate({x: destX, y: destY}, time);
+  },
+
   draw: function(x, y, width, height) {
     var self = this;
 
@@ -306,19 +316,30 @@ Player.prototype = {
     var letter = String.fromCharCode(charCode);
     var number = Math.floor(Math.random() * 5) + 1;
     return 'images/avatars/' + letter + '0' + number + '.png';
+  },
+
+  getIndex: function() {
+    return this.index;
   }
 };
 
-function PlayerMove(player, card) {
+function PlayerMove(player, card, sequenceNumber) {
   this.player = player;
   this.card = card;
+  this.sequenceNumber = sequenceNumber;
+ 
+  var playerIndex = this.player.getIndex(); 
+  this.cardX = CARD_X_ARR[playerIndex];
+  this.cardY = CARD_Y_ARR[playerIndex];
 }
 
 PlayerMove.prototype = {
   draw: function() {
       var x = this.player.playerX;
       var y = this.player.playerY;
-      this.card.draw(x, y, CARD_WIDTH, CARD_HEIGHT);
+      //this.card.draw(x, y, CARD_WIDTH, CARD_HEIGHT);
+      //this.card.draw(this.cardX, this.cardY, CARD_WIDTH, CARD_HEIGHT);
+      this.card.animate(x, y, CARD_WIDTH, CARD_HEIGHT, this.cardX, this.cardY, 1000);
   },
 
   clear: function() {
@@ -458,13 +479,14 @@ MessageHandler.prototype = {
   transformPlayerMoves : function (hand) {
     var self = this;
     var moves = [];
-    var sorted = _.sortBy(hand, function(h) { return h.index; });
+    var sorted = _.sortBy(hand, function(playerMove) { return playerMove.sequenceNumber; });
     _.each(sorted, function(move) {
         var jsonCard = move['card'];
+        var seqNo = move['sequenceNumber'];
         var card = new Card(jsonCard['rank'], jsonCard['suit']);
         var player = self.game.getPlayerById(move['playerId']);
         
-        moves.push(new PlayerMove(player, card));
+        moves.push(new PlayerMove(player, card, seqNo));
     });
     return moves;
   },

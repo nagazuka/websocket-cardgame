@@ -65,6 +65,7 @@ class PlayerMove:
         self.player = player
         self.card = card
         self.remainingCards = remainingCards
+        self.sequenceNumber = -1
 
     def getPlayer(self):
         return self.player
@@ -75,18 +76,21 @@ class PlayerMove:
     def getRemainingCards(self):
         return self.remainingCards
 
+    def setSequenceNumber(self, seqNo):
+        self.sequenceNumber = seqNo
 
 class HandInfo:
     def __init__(self):
         self.playerMoves = []
-        self.index = 0
+        self.count = 0
     
     def addPlayerMove(self, move):
-        move.index = self.index
-        self.playerMoves.append(move)
-        self.index = self.index + 1
+        self.count = self.count + 1
+        move.setSequenceNumber(self.count)
 
-    def getMove(self, index=0):
+        self.playerMoves.append(move)
+
+    def getMove(self, index):
         return self.playerMoves[index]
 
     def isComplete(self):
