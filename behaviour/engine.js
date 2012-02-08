@@ -33,6 +33,8 @@ var CARD_MIDDLE_X = (WIDTH / 2) - (CARD_WIDTH / 2);
 var CARD_X_ARR = [CARD_MIDDLE_X, CARD_MIDDLE_X + 2*CARD_WIDTH, CARD_MIDDLE_X, CARD_MIDDLE_X - 2*CARD_WIDTH];
 var CARD_Y_ARR = [CARD_MIDDLE_Y - 0.75*CARD_HEIGHT, CARD_MIDDLE_Y, CARD_MIDDLE_Y + 0.5*CARD_HEIGHT, CARD_MIDDLE_Y];
 
+var PLAYER_MOVE_ANIMATE_TIME = 1000;
+
 var game;
 var logger;
 
@@ -185,12 +187,33 @@ Game.prototype = {
     });
     this.repository.clearCategory("moves");
   },
+  
+  addMoves : function(moves) {
+    var currentSequenceNumber = 0;
+    var existingMoves = this.repository.getElementsByCategory("moves");
+    
+    if (existingMoves.length > 0) { 
+      currentSequenceNumber = _.reduce(existingMoves, function (memo, move) { 
+                                  return Math.max(memo, move.sequenceNumber);
+                                }, 0);
+    }
 
-  drawMoves : function(moves) {
+    console.log("current sequence number: " + currentSequenceNumber);
+
     var self = this;
     _.each(moves, function(move, index, list) {
+      if (move.sequenceNumber > currentSequenceNumber) {
+        self.repository.addElement(move, "moves");
+      }
+    });
+  },
+
+  drawMoves : function() {
+    var moves = this.repository.getElementsByCategory("moves");
+    console.log("drawMoves, number of #moves: " + moves.length);
+
+    _.each(moves, function(move, index, list) {
       move.draw();
-      self.repository.addElement(move, "moves");
     });
   },
 
@@ -242,11 +265,6 @@ Repository.prototype = {
   addElement: function(element, category) {
     this.createIfEmpty(category);
     this[category].push(element);
-  },
-
-  addElements: function(elements, category) {
-    this.createIfEmpty(category);
-    this[category].concat(elements);
   }
 };
 
@@ -327,19 +345,22 @@ function PlayerMove(player, card, sequenceNumber) {
   this.player = player;
   this.card = card;
   this.sequenceNumber = sequenceNumber;
+  this.animationFinished = false;
  
   var playerIndex = this.player.getIndex(); 
-  this.cardX = CARD_X_ARR[playerIndex];
-  this.cardY = CARD_Y_ARR[playerIndex];
+  this.startX = this.player.playerX;
+  this.startY = this.player.playerY;
+
+  this.endX = CARD_X_ARR[playerIndex];
+  this.endY = CARD_Y_ARR[playerIndex];
 }
 
 PlayerMove.prototype = {
   draw: function() {
-      var x = this.player.playerX;
-      var y = this.player.playerY;
-      //this.card.draw(x, y, CARD_WIDTH, CARD_HEIGHT);
-      //this.card.draw(this.cardX, this.cardY, CARD_WIDTH, CARD_HEIGHT);
-      this.card.animate(x, y, CARD_WIDTH, CARD_HEIGHT, this.cardX, this.cardY, 1000);
+    if (!this.animationFinished) {
+      this.card.animate(this.startX, this.startY, CARD_WIDTH, CARD_HEIGHT, this.endX, this.endY, PLAYER_MOVE_ANIMATE_TIME);
+      this.animationFinished = true;
+    }
   },
 
   clear: function() {
@@ -439,7 +460,8 @@ MessageHandler.prototype = {
     var playerMoves = this.transformPlayerMoves(response.hand);
 
     this.game.clearMoves();
-    this.game.drawMoves(playerMoves);
+    this.game.addMoves(playerMoves);
+    this.game.drawMoves();
 
     this.game.drawText(messages[conf.lang].yourTurn);
     this.game.setCardClickHandler(this.game.makeMove);
@@ -452,9 +474,10 @@ MessageHandler.prototype = {
 
   handPlayed : function (response) {
     this.game.removeSelectedCard();
-    
+
     var playerMoves = this.transformPlayerMoves(response.hand);
-    this.game.drawMoves(playerMoves);
+    this.game.addMoves(playerMoves);
+    this.game.drawMoves();
 
     var winningPlayer = this.game.getPlayerById(response.winningPlayerId);
     if (winningPlayer.id == this.game.humanPlayer.id) {
