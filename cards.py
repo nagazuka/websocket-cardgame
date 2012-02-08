@@ -26,12 +26,12 @@ class Deck:
     @staticmethod
     def createDeck():
         values = range(2, 15)
-        types = ["SPADES", "CLUBS", "HEARTS", "DIAMONDS"]
+        suits = ["SPADES", "CLUBS", "HEARTS", "DIAMONDS"]
 
         deck = []
         for value in values:
-            for type in types:
-                deck.append(Card(type, value))
+            for suit in suits:
+                deck.append(Card(suit, value))
         return deck
 
     def sample(self, size):

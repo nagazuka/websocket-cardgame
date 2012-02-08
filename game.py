@@ -101,8 +101,8 @@ class CardGame:
     def getPlayers(self):
         return self.players
 
-    def getPlayerById(self, id):
-        player = filter(lambda p: p.id == id, self.players)[0]
+    def getPlayerById(self, playerId):
+        player = next((p for p in self.players if p.id == playerId), None)
         return player
 
     def getOrder(self):

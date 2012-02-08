@@ -3,8 +3,8 @@ import random
 
 class Player:
 
-    def __init__(self, id=1, name=None, team=None):
-        self.id = id
+    def __init__(self, playerId, name=None, team=None):
+        self.id = playerId
         self.name = name
         self.team = team
         self.cards = []
