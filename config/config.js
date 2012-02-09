@@ -2,12 +2,15 @@
  * External configuration file. 
  */ 
 var conf = {
-  lang: 'nl',	
+  lang: 'nl',
+
+  font: 'Helvetica',	
 
 	network: {
     wsURL : 'ws://nagazuka.nl:8080/websocket'
 	},
-  
+
+  avatarDirectory: 'images/avatars/',  
   flagDirectory: 'images/flags/64/', 
 
   teamFlags: {

@@ -171,7 +171,7 @@ Game.prototype = {
   drawTrumpSuit: function() {
     var content = "TROEF\n" + this.trumpSuit;
     var trumpSuitText = this.canvas.text(0, 0, content);
-    trumpSuitText.attr({'font-size': 20,'text-anchor': 'start','fill': '#fff','font-family' : 'Helvetica', 'font-weight' : 'bold'});
+    trumpSuitText.attr({'font-size': 20,'text-anchor': 'start','fill': '#fff','font-family' : conf.font, 'font-weight' : 'bold'});
     this.repository.addElement(trumpSuitText, "trumpSuitText");
   },
 
@@ -255,7 +255,7 @@ Game.prototype = {
     }
 
     this.text = this.canvas.text(x, y, content);
-    this.text.attr({'fill' : '#fff', 'font-size' : '24', 'font-family' : 'Helvetica', 'font-weight' : 'bold', 'fill-opacity' : '100%', 'stroke' : '#aaa', 'stroke-width' : '1', 'stroke-opacity' : '100%'});
+    this.text.attr({'fill' : '#fff', 'font-size' : '24', 'font-family' : conf.font, 'font-weight' : 'bold', 'fill-opacity' : '100%', 'stroke' : '#aaa', 'stroke-width' : '1', 'stroke-opacity' : '100%'});
   },
 
   getCanvas: function() {
@@ -378,14 +378,14 @@ Player.prototype = {
     var teamFlag = canvas.image(this.getTeamImageFile(), this.flagX, this.flagY,  TEAM_FLAG_SIZE, TEAM_FLAG_SIZE);
     var player = canvas.image(this.getPlayerImageFile(), this.playerX, this.playerY, PLAYER_SIZE, PLAYER_SIZE);
     var nameTxt = canvas.text(this.playerX + PLAYER_SIZE / 2, this.playerY + PLAYER_SIZE + PLAYER_PADDING, this.name);
-    nameTxt.attr({'fill' : '#fff', 'font-size' : '14', 'font-family' : 'Helvetica', 'font-weight' : 'bold', 'fill-opacity' : '50%'});
+    nameTxt.attr({'fill' : '#fff', 'font-size' : '14', 'font-family' : conf.font, 'font-weight' : 'bold', 'fill-opacity' : '50%'});
   },
 
   getPlayerImageFile: function() {
     var charCode = Math.floor(Math.random() * 15) + 65;
     var letter = String.fromCharCode(charCode);
     var number = Math.floor(Math.random() * 5) + 1;
-    return 'images/avatars/' + letter + '0' + number + '.png';
+    return conf.avatarDirectory + letter + '0' + number + '.png';
   },
 
   getTeamImageFile: function() {
