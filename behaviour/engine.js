@@ -61,6 +61,7 @@ function Game() {
     this.canvas = Raphael('canvas', WIDTH, HEIGHT);
     this.handler = new MessageHandler();
     this.selectedCard = null;
+    this.playerName = null;
 }
 
 Game.prototype = {
@@ -71,7 +72,7 @@ Game.prototype = {
   },
 
   start : function() {
-    this.handler.sendMessage({'command' : 'startGame', 'playerName' : 'Shanny Anoep'});
+    this.handler.sendMessage({'command' : 'startGame', 'playerName' : this.playerName});
   },
 
   dealFirstCards : function fn_dealFirstCards () {
@@ -241,6 +242,10 @@ Game.prototype = {
   setCardClickHandler : function(handler) {
     logger.debug("Setting cardClickHandler to: " + handler.name);
     this.cardClickHandler = handler;
+  },
+  
+  setPlayerName: function(playerName) {
+    this.playerName = playerName;
   }
 };
 
@@ -527,15 +532,19 @@ function Application() {
 
 Application.prototype = {
   init: function() {
+    var self = this;
     $('#welcomeModal').modal('show');
-    $('#btnStartGame').click(function() {
+    $('#formPlayerName').submit(function(event) {
+        event.preventDefault();
         var playerName =  $('#inputPlayerName').val();
-        this.startGame(playerName);
+        $('#welcomeModal').modal('hide');
+        self.startGame(playerName);
       });
   },
 
   startGame: function(playerName) {
     game = new Game();
+    game.setPlayerName(playerName);
     game.init();
   }
 };
@@ -543,5 +552,5 @@ Application.prototype = {
 $(document).ready(function() {
     logger = new Logger();
     application = new Application();
-    application.startGame();
+    application.init();
 });
