@@ -23,18 +23,20 @@ class GameServer:
         self.writer = writer
 
     @staticmethod
-    def createPlayers(playerName="John Doe"):
-        p1 = HumanPlayer(1, playerName, "Team Suriname")
-        p2 = Player(2, "Elvis Presley", "Team Suriname")
-        p3 = Player(3, "Bob Marley", "Team Nederland")
-        p4 = Player(4, "Jimi Hendrix", "Team Nederland")
+    def createPlayers(playerName="John Doe", team1Name="Team Suriname", team2Name="Team Nederland"):
+        p1 = HumanPlayer(1, playerName, team1Name)
+        p2 = Player(2, "Elvis Presley", team1Name)
+        p3 = Player(3, "Bob Marley", team2Name)
+        p4 = Player(4, "Jimi Hendrix", team2Name)
         return [p1, p3, p2, p4]
 
     def startGame(self, req):
         jsonResponse = {'response': 'startGame'}
         try:
             playerName = req['playerName']
-            self.players = GameServer.createPlayers(playerName)
+            playerTeam = req['playerTeam']
+            opponentTeam = req['opponentTeam']
+            self.players = GameServer.createPlayers(playerName, playerTeam, opponentTeam)
             self.cardGame = CardGame(self.players)
             self.scores = ScoreKeeper(self.players)
 
@@ -49,7 +51,7 @@ class GameServer:
             i = 0
             for player in self.cardGame.getPlayers():
                 playersList.append({'index': i, 'name': player.name,
-                                    'id': player.id,
+                                    'id': player.id, 'team': player.team,
                                     'isHuman': isinstance(player,
                                                           HumanPlayer)})
                 i = i + 1

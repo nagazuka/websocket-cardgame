@@ -62,6 +62,8 @@ function Game() {
     this.handler = new MessageHandler();
     this.selectedCard = null;
     this.playerName = null;
+    this.playerTeam = null;
+    this.cpuTeam = null;
 }
 
 Game.prototype = {
@@ -73,7 +75,7 @@ Game.prototype = {
   },
 
   start : function() {
-    this.handler.sendMessage({'command' : 'startGame', 'playerName' : this.playerName});
+    this.handler.sendMessage({'command' : 'startGame', 'playerName' : this.playerName, 'playerTeam': this.playerTeam, 'opponentTeam': this.cpuTeam});
   },
 
   dealFirstCards : function fn_dealFirstCards () {
@@ -211,8 +213,8 @@ Game.prototype = {
   },
 
   initScores: function() {
-    $('#team-name-1').text('Team Suriname');
-    $('#team-name-2').text('Team Nederland');
+    $('#team-name-1').text(this.playerTeam);
+    $('#team-name-2').text(this.cpuTeam);
 
     $('#team-score-1').text('0');
     $('#team-score-2').text('0');
@@ -222,8 +224,8 @@ Game.prototype = {
     var teamScores = scores['teamScore'];
     var playerScores = scores['playerScore'];
 
-    $('#team-score-1').text(teamScores['Team Suriname']);
-    $('#team-score-2').text(teamScores['Team Nederland']);
+    $('#team-score-1').text(teamScores[this.playerTeam]);
+    $('#team-score-2').text(teamScores[this.cpuTeam]);
    
     var player; 
     var count = 1;
@@ -266,6 +268,14 @@ Game.prototype = {
   setCardClickHandler : function(handler) {
     logger.debug("Setting cardClickHandler to: " + handler.name);
     this.cardClickHandler = handler;
+  },
+  
+  setPlayerTeam: function(playerTeam) {
+    this.playerTeam = playerTeam;
+  },
+  
+  setCpuTeam: function(cpuTeam) {
+    this.cpuTeam = cpuTeam;
   },
   
   setPlayerName: function(playerName) {
@@ -347,10 +357,11 @@ Card.prototype = {
 
 };
 
-function Player(id, index, name, isHuman) {
+function Player(id, index, name, isHuman, teamName) {
   this.index = index;
   this.id = id;
   this.name = name;
+  this.teamName = teamName;
   this.isHuman = Boolean(isHuman);
 
   this.playerX = PLAYER_X_ARR[this.index];
@@ -465,7 +476,7 @@ MessageHandler.prototype = {
     var playerList = response.players;
 
     _.each(response.players, function (p) {
-      var player = new Player(p.id, p.index, p.name, p.isHuman);
+      var player = new Player(p.id, p.index, p.name, p.isHuman, p.team);
       self.game.addPlayer(player);
       player.draw();
     });
@@ -584,6 +595,9 @@ Application.prototype = {
   startGame: function(playerName) {
     game = new Game();
     game.setPlayerName(playerName);
+    game.setPlayerTeam("Player Team");
+    game.setCpuTeam("CPU Team");
+
     game.init();
   }
 };
