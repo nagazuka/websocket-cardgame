@@ -20,6 +20,10 @@ var TABLE_Y = (HEIGHT - TABLE_HEIGHT - CARD_AREA_HEIGHT) / 2;
 var PLAYER_PADDING = 10;
 var PLAYER_SIZE = 100;
 var TEAM_FLAG_SIZE = 64;
+var TRUMPSUIT_SIZE = 64;
+
+var TRUMPSUIT_X = 10;
+var TRUMPSUIT_Y = 10;
 
 var PLAYER_MIDDLE_Y = (CARD_AREA_Y / 2) - (PLAYER_SIZE / 2);
 var PLAYER_MIDDLE_X = (WIDTH / 2) - (PLAYER_SIZE / 2);
@@ -169,10 +173,15 @@ Game.prototype = {
   },
 
   drawTrumpSuit: function() {
-    var content = "TROEF\n" + this.trumpSuit;
+    var content = "Troef"; 
     var trumpSuitText = this.canvas.text(0, 0, content);
     trumpSuitText.attr({'font-size': 20,'text-anchor': 'start','fill': '#fff','font-family' : conf.font, 'font-weight' : 'bold'});
+
+    var iconImage = conf.suitsDirectory + conf.suitIcons[this.trumpSuit];
+    var trumpSuitIcon = this.canvas.image(iconImage, TRUMPSUIT_X, TRUMPSUIT_Y, TRUMPSUIT_SIZE, TRUMPSUIT_SIZE);
+
     this.repository.addElement(trumpSuitText, "trumpSuitText");
+    this.repository.addElement(trumpSuitIcon, "trumpSuitIcon");
   },
 
   drawCards : function() {

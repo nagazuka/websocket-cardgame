@@ -12,6 +12,15 @@ var conf = {
 
   avatarDirectory: 'images/avatars/',  
   flagDirectory: 'images/flags/64/', 
+  suitsDirectory: 'images/suits/', 
+  
+  suitIcons: {
+    'SPADES': 'Game-spades64.png',
+    'CLUBDS': 'Game-clubs64.png',
+    'DIAMONDS': 'Game-diamond64.png',
+    'HEARTS': 'Game-hearts64.png',
+    'default': 'default.png',
+  },
 
   teamFlags: {
     'Team Suriname': 'Suriname.png',
