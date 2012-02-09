@@ -185,7 +185,6 @@ Game.prototype = {
   clearMoves: function(moves) {
     var moves = this.repository.getElementsByCategory("moves");
     _.each(moves, function(m) {
-      logger.debug("Clearing playerMove: " + m);
       m.clear(); 
     });
     this.repository.clearCategory("moves");
@@ -523,6 +522,8 @@ MessageHandler.prototype = {
     } else {
       this.game.drawText(winningPlayer.name + messages[conf.lang].otherWinsHand);
     }
+    
+    this.game.updateScores(response.scores);
 
     this.game.waitForEvent();
   },

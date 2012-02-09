@@ -127,11 +127,14 @@ class GameServer:
             logging.debug("Winner is %s\n", winningPlayer)
 
             self.scores.registerWin(winningPlayer)
+            scores = self.scores.getScores()
+
             self.cardGame.changePlayingOrder(winningPlayer)
 
             jsonResponse['hand'] = self.hand
             jsonResponse['winningCard'] = winningMove.card
             jsonResponse['winningPlayerId'] = winningPlayer.id
+            jsonResponse['scores'] = scores
             self.writer.sendMessage(jsonResponse)
 
     def makeMove(self, req):
