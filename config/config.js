@@ -3,25 +3,18 @@
  */ 
 var conf = {
   lang: 'nl',	
-	// default clip configuration
-	defaults: {
-		
-		autoPlay: false,
-		autoBuffering: true,
-		baseUrl: 'http://blip.tv/file/get',
-	
-		// functions are also supported
-		onBegin: function() {
-			
-			// make controlbar visible, fade lasts 4 seconds
-			this.getControls().fadeIn(4000);
-		}
-		
-	},
 
 	network: {
     wsURL : 'ws://nagazuka.nl:8080/websocket'
 	},
+  
+  flagDirectory: 'images/flags/64/', 
+
+  teamFlags: {
+    'Team Suriname': 'Suriname.png',
+    'Team Nederland': 'Netherlands.png',
+    'default': 'default.png',
+  },
 	
 	// my skins
 	skins: {		
@@ -32,8 +25,6 @@ var conf = {
 			time: false,
 			autoHide: false
 		}
-		
-		// setup additional skins here ...		
 	}
 	
 };

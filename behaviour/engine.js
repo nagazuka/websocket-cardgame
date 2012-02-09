@@ -19,6 +19,7 @@ var TABLE_Y = (HEIGHT - TABLE_HEIGHT - CARD_AREA_HEIGHT) / 2;
 
 var PLAYER_PADDING = 10;
 var PLAYER_SIZE = 100;
+var TEAM_FLAG_SIZE = 64;
 
 var PLAYER_MIDDLE_Y = (CARD_AREA_Y / 2) - (PLAYER_SIZE / 2);
 var PLAYER_MIDDLE_X = (WIDTH / 2) - (PLAYER_SIZE / 2);
@@ -366,12 +367,17 @@ function Player(id, index, name, isHuman, teamName) {
 
   this.playerX = PLAYER_X_ARR[this.index];
   this.playerY = PLAYER_Y_ARR[this.index];
+  this.flagX = this.playerX - 0.25*TEAM_FLAG_SIZE;
+  this.flagY = this.playerY - 0.25*TEAM_FLAG_SIZE;
 }
 
 Player.prototype = {
   draw: function() {
-    var table = game.getCanvas().image(this.getPlayerImageFile(), this.playerX, this.playerY, PLAYER_SIZE, PLAYER_SIZE);
-    var nameTxt = game.getCanvas().text(this.playerX + PLAYER_SIZE / 2, this.playerY + PLAYER_SIZE + PLAYER_PADDING, this.name);
+    var canvas = game.getCanvas();
+
+    var teamFlag = canvas.image(this.getTeamImageFile(), this.flagX, this.flagY,  TEAM_FLAG_SIZE, TEAM_FLAG_SIZE);
+    var player = canvas.image(this.getPlayerImageFile(), this.playerX, this.playerY, PLAYER_SIZE, PLAYER_SIZE);
+    var nameTxt = canvas.text(this.playerX + PLAYER_SIZE / 2, this.playerY + PLAYER_SIZE + PLAYER_PADDING, this.name);
     nameTxt.attr({'fill' : '#fff', 'font-size' : '14', 'font-family' : 'Helvetica', 'font-weight' : 'bold', 'fill-opacity' : '50%'});
   },
 
@@ -380,6 +386,18 @@ Player.prototype = {
     var letter = String.fromCharCode(charCode);
     var number = Math.floor(Math.random() * 5) + 1;
     return 'images/avatars/' + letter + '0' + number + '.png';
+  },
+
+  getTeamImageFile: function() {
+    var teamName;
+
+    if (this.teamName in conf.teamFlags) {
+      teamName = this.teamName;
+    } else {
+      teamName = 'default';
+    }
+
+    return conf.flagDirectory + conf.teamFlags[teamName];
   },
 
   getIndex: function() {
@@ -595,8 +613,8 @@ Application.prototype = {
   startGame: function(playerName) {
     game = new Game();
     game.setPlayerName(playerName);
-    game.setPlayerTeam("Player Team");
-    game.setCpuTeam("CPU Team");
+    game.setPlayerTeam("Team Suriname");
+    game.setCpuTeam("Team Nederland");
 
     game.init();
   }
