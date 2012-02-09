@@ -245,7 +245,12 @@ Game.prototype = {
   },
   
   setPlayerName: function(playerName) {
-    this.playerName = playerName;
+    if (playerName != null && playerName != '') {
+      this.playerName = playerName;
+    } else {
+      var code = "" + (Math.floor(Math.random() * 2500) + 1);
+      this.playerName = messages[conf.lang].playerPrefix + code;
+    }
   }
 };
 
@@ -534,6 +539,13 @@ Application.prototype = {
   init: function() {
     var self = this;
     $('#welcomeModal').modal('show');
+
+    $('#closePlayerName').click(function(event) {
+        event.preventDefault();
+        $('#welcomeModal').modal('hide');
+        self.startGame('');
+    });
+
     $('#formPlayerName').submit(function(event) {
         event.preventDefault();
         var playerName =  $('#inputPlayerName').val();
