@@ -1,6 +1,6 @@
 'use strict';
 
-var WIDTH = 650;
+var WIDTH = 750;
 var HEIGHT = 600;
 
 var TABLE_WIDTH = 500;
@@ -17,7 +17,8 @@ var CARD_AREA_PADDING = 10;
 var TABLE_X = (WIDTH - TABLE_WIDTH) / 2;
 var TABLE_Y = (HEIGHT - TABLE_HEIGHT - CARD_AREA_HEIGHT) / 2;
 
-var PLAYER_PADDING = 10;
+var PLAYER_VERT_PADDING = 10;
+var PLAYER_HORIZ_PADDING = 35;
 var PLAYER_SIZE = 100;
 var TEAM_FLAG_SIZE = 64;
 var TRUMPSUIT_SIZE = 64;
@@ -27,11 +28,11 @@ var TRUMPSUIT_Y = 10;
 
 var PLAYER_MIDDLE_Y = (CARD_AREA_Y / 2) - (PLAYER_SIZE / 2);
 var PLAYER_MIDDLE_X = (WIDTH / 2) - (PLAYER_SIZE / 2);
-var PLAYER_END_X = WIDTH - PLAYER_SIZE - PLAYER_PADDING;
-var PLAYER_END_Y = CARD_AREA_Y - PLAYER_SIZE - (4 * PLAYER_PADDING);
+var PLAYER_END_X = WIDTH - PLAYER_SIZE - PLAYER_HORIZ_PADDING;
+var PLAYER_END_Y = CARD_AREA_Y - PLAYER_SIZE - (4 * PLAYER_VERT_PADDING);
 
-var PLAYER_X_ARR = [PLAYER_MIDDLE_X, PLAYER_END_X, PLAYER_MIDDLE_X, PLAYER_PADDING];
-var PLAYER_Y_ARR = [PLAYER_PADDING, PLAYER_MIDDLE_Y, PLAYER_END_Y, PLAYER_MIDDLE_Y];
+var PLAYER_X_ARR = [PLAYER_MIDDLE_X, PLAYER_END_X, PLAYER_MIDDLE_X, PLAYER_HORIZ_PADDING];
+var PLAYER_Y_ARR = [PLAYER_VERT_PADDING, PLAYER_MIDDLE_Y, PLAYER_END_Y, PLAYER_MIDDLE_Y];
 
 var CARD_MIDDLE_Y = (CARD_AREA_Y / 2) - (CARD_HEIGHT / 2);
 var CARD_MIDDLE_X = (WIDTH / 2) - (CARD_WIDTH / 2);
@@ -386,7 +387,7 @@ Player.prototype = {
 
     var teamFlag = canvas.image(this.getTeamImageFile(), this.flagX, this.flagY,  TEAM_FLAG_SIZE, TEAM_FLAG_SIZE);
     var player = canvas.image(this.getPlayerImageFile(), this.playerX, this.playerY, PLAYER_SIZE, PLAYER_SIZE);
-    var nameTxt = canvas.text(this.playerX + PLAYER_SIZE / 2, this.playerY + PLAYER_SIZE + PLAYER_PADDING, this.name);
+    var nameTxt = canvas.text(this.playerX + PLAYER_SIZE / 2, this.playerY + PLAYER_SIZE + PLAYER_VERT_PADDING, this.name);
     nameTxt.attr({'fill' : '#fff', 'font-size' : '14', 'font-family' : conf.font, 'font-weight' : 'bold', 'fill-opacity' : '50%'});
   },
 

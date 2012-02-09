@@ -15,10 +15,10 @@ var conf = {
   suitsDirectory: 'images/suits/', 
   
   suitIcons: {
-    'SPADES': 'Game-spades64.png',
-    'CLUBDS': 'Game-clubs64.png',
-    'DIAMONDS': 'Game-diamond64.png',
-    'HEARTS': 'Game-hearts64.png',
+    'SPADES': 'Spades64.png',
+    'CLUBS': 'Clubs64.png',
+    'DIAMONDS': 'Diamond64.png',
+    'HEARTS': 'Hearts64.png',
     'default': 'default.png',
   },
 
