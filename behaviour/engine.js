@@ -225,6 +225,14 @@ Game.prototype = {
 
     $('#team-score-1').text(teamScores['Team Suriname']);
     $('#team-score-2').text(teamScores['Team Nederland']);
+   
+    var player; 
+    var count = 1;
+    for (player in playerScores) {
+      $('#player-name-' + count).text(player);
+      $('#player-score-' + count).text(playerScores[player]);
+      count += 1;
+    }
   },
 
   drawMoves : function() {
