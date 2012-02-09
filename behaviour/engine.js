@@ -69,6 +69,7 @@ Game.prototype = {
   init: function() {
     this.handler.init(this);
     this.setupCanvas();
+    this.initScores();
   },
 
   start : function() {
@@ -208,6 +209,22 @@ Game.prototype = {
         self.repository.addElement(move, "moves");
       }
     });
+  },
+
+  initScores: function() {
+    $('#team-name-1').text('Team Suriname');
+    $('#team-name-2').text('Team Nederland');
+
+    $('#team-score-1').text('0');
+    $('#team-score-2').text('0');
+  },
+
+  updateScores: function(scores) {
+    var teamScores = scores['teamScore'];
+    var playerScores = scores['playerScore'];
+
+    $('#team-score-1').text(teamScores['Team Suriname']);
+    $('#team-score-2').text(teamScores['Team Nederland']);
   },
 
   drawMoves : function() {
@@ -505,6 +522,7 @@ MessageHandler.prototype = {
   gameDecided : function (response) {
     var winningTeam = response.winningTeam;
     this.game.drawText("Spel afgelopen!.\n Winaar is " + winningTeam);
+    this.game.updateScores(response.scores);
   },
   
   exception : function (response) {
