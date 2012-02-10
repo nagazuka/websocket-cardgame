@@ -134,7 +134,8 @@ View.prototype = {
       var offset = 2 * CARD_AREA_PADDING;
       var stepSize = (CARD_AREA_WIDTH - offset) / cards.length;
       _.each(cards, function(card, i) {
-        self.drawCard(card, i * stepSize + offset, CARD_AREA_Y + CARD_AREA_PADDING, CARD_WIDTH, CARD_HEIGHT, 'playerCards');
+        var cardImage = self.drawCard(card, i * stepSize + offset, CARD_AREA_Y + CARD_AREA_PADDING, CARD_WIDTH, CARD_HEIGHT, 'playerCards');
+      self.repository.addElement(cardImage, 'playerCards');
       });
     }
   },
@@ -152,15 +153,22 @@ View.prototype = {
 
     var cardImage = this.drawCard(card, startX, startY, CARD_WIDTH, CARD_HEIGHT, 'playerMoves');
     cardImage.stop().animate({x: endX, y: endY}, PLAYER_MOVE_ANIMATE_TIME);
+    this.repository.addElement(cardImage, 'playerMoves');
   },
 
   clearPlayerMoves: function() {
     var playerMoves = this.repository.getElementsByCategory('playerMoves');
     _.each(playerMoves, function (pm) { pm.remove(); });
+    this.repository.clearCategory('playerMoves');
+  },
+
+  getCardId: function(card, category) {
+    var id = category + "_" + card.rank + "_" + card.suit;
+    return id;
   },
 
   removePlayerCard: function(card) {
-    var id = card.rank + "_" + card.suit;
+    var id = this.getCardId(card,'playerCards');
     var cardImage = this.repository.findElement(id, 'playerCards');
     cardImage.remove();
   },
@@ -187,8 +195,7 @@ View.prototype = {
         self.game.handleCardClicked(card);
     });
 
-    cardImage.node.id = card.rank + "_" + card.suit;
-    this.repository.addElement(cardImage, "playerCards");
+    cardImage.node.id = this.getCardId(card, category);
     return cardImage;
   },
 
