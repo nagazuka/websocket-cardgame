@@ -24,7 +24,8 @@ var TEAM_FLAG_SIZE = 64;
 var TRUMPSUIT_SIZE = 64;
 
 var TRUMPSUIT_X = 10;
-var TRUMPSUIT_Y = 10;
+var TRUMPSUIT_Y = 35;
+var TRUMPSUIT_PADDING = 18;
 
 var PLAYER_MIDDLE_Y = (CARD_AREA_Y / 2) - (PLAYER_SIZE / 2);
 var PLAYER_MIDDLE_X = (WIDTH / 2) - (PLAYER_SIZE / 2);
@@ -175,7 +176,7 @@ Game.prototype = {
 
   drawTrumpSuit: function() {
     var content = "Troef"; 
-    var trumpSuitText = this.canvas.text(0, 0, content);
+    var trumpSuitText = this.canvas.text(TRUMPSUIT_PADDING, TRUMPSUIT_PADDING, content);
     trumpSuitText.attr({'font-size': 20,'text-anchor': 'start','fill': '#fff','font-family' : conf.font, 'font-weight' : 'bold'});
 
     var iconImage = conf.suitsDirectory + conf.suitIcons[this.trumpSuit];
