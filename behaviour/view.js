@@ -64,12 +64,13 @@ Repository.prototype = {
 
   findElement: function(id, category) {
     var allElements = this.getElementsByCategory(category);
-    var element =  _.find(allElements, function(e) { return e.node.id == id }); 
+    var element =  _.find(allElements, function(e) { return e.id == id }); 
     return element;
   },
 
   addElement: function(element, category) {
     this.createIfEmpty(category);
+    if (element == null) { console.error("Adding null element in addElement"); }
     this[category].push(element);
   }
 };
@@ -135,7 +136,8 @@ View.prototype = {
       var stepSize = (CARD_AREA_WIDTH - offset) / cards.length;
       _.each(cards, function(card, i) {
         var cardImage = self.drawCard(card, i * stepSize + offset, CARD_AREA_Y + CARD_AREA_PADDING, CARD_WIDTH, CARD_HEIGHT, 'playerCards');
-      self.repository.addElement(cardImage, 'playerCards');
+        if (cardImage == null) { console.error("Adding null element in drawPlayerCards"); }
+        self.repository.addElement(cardImage, 'playerCards');
       });
     }
   },
@@ -153,6 +155,7 @@ View.prototype = {
 
     var cardImage = this.drawCard(card, startX, startY, CARD_WIDTH, CARD_HEIGHT, 'playerMoves');
     cardImage.stop().animate({x: endX, y: endY}, PLAYER_MOVE_ANIMATE_TIME);
+    if (cardImage == null) { console.error("Adding null element in drawPlayerMove"); }
     this.repository.addElement(cardImage, 'playerMoves');
   },
 
@@ -195,7 +198,7 @@ View.prototype = {
         self.game.handleCardClicked(card);
     });
 
-    cardImage.node.id = this.getCardId(card, category);
+    cardImage.id = this.getCardId(card, category);
     return cardImage;
   },
 

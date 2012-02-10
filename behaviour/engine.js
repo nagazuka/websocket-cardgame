@@ -31,6 +31,7 @@ function Game() {
     this.playerName = null;
     this.playerTeam = null;
     this.cpuTeam = null;
+    this.currentStep = -1;
 }
 
 Game.prototype = {
@@ -144,32 +145,19 @@ Game.prototype = {
     this.playerMoves.length = 0;
   },
   
-  addMoves : function(moves) {
-    var currentSequenceNumber = 0;
-    var existingMoves = this.playerMoves;
-
-    //TODO: refactor expensive reduce operation to sorting first
-    if (existingMoves.length > 0) { 
-      currentSequenceNumber = _.reduce(existingMoves, function (memo, move) { 
-                                  return Math.max(memo, move.sequenceNumber);
-                                }, 0);
-    }
-
+  addAndDrawMoves : function(moves) {
     var self = this;
+    var existingMoves = this.playerMoves;
+    var currentStep = existingMoves.length;
+
     _.each(moves, function(move, index, list) {
-      if (move.sequenceNumber > currentSequenceNumber) {
+      if (move.sequenceNumber > currentStep) {
         self.playerMoves.push(move);
+        self.view.drawPlayerMove(move);
       }
     });
   },
   
-  drawMoves : function() {
-    var self = this;
-    _.each(self.playerMoves, function(move, index, list) {
-      self.view.drawPlayerMove(move);
-    });
-  },
-
   initScores: function() {
     $('#team-name-1').text(this.playerTeam);
     $('#team-name-2').text(this.cpuTeam);
@@ -325,8 +313,7 @@ MessageHandler.prototype = {
     var playerMoves = this.transformPlayerMoves(response.hand);
 
     this.game.clearMoves();
-    this.game.addMoves(playerMoves);
-    this.game.drawMoves();
+    this.game.addAndDrawMoves(playerMoves);
 
     this.game.drawText(messages[conf.lang].yourTurn);
     this.game.setCardClickHandler(this.game.makeMove);
@@ -343,8 +330,7 @@ MessageHandler.prototype = {
     this.game.removeSelectedCard();
 
     var playerMoves = this.transformPlayerMoves(response.hand);
-    this.game.addMoves(playerMoves);
-    this.game.drawMoves();
+    this.game.addAndDrawMoves(playerMoves);
 
     var winningPlayer = this.game.getPlayerById(response.winningPlayerId);
     if (winningPlayer.id == this.game.humanPlayer.id) {
