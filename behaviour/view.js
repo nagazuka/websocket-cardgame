@@ -1,4 +1,4 @@
-var WIDTH = 750;
+var WIDTH = 760;
 var HEIGHT = 600;
 
 var TABLE_WIDTH = 500;
@@ -181,7 +181,7 @@ View.prototype = {
 
   drawCard: function(card, x, y, width, height, category) {
     var self = this;
-    var cardImage = game.getCanvas().image(this.getCardImageFile(card.rank, card.suit), x, y, width, height);
+    var cardImage = this.getCanvas().image(this.getCardImageFile(card.rank, card.suit), x, y, width, height);
 
     cardImage.mouseover(function(event) {
         this.attr({'height': CARD_HEIGHT * 2, 'width': CARD_WIDTH * 2});

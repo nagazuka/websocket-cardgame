@@ -1,7 +1,6 @@
 'use strict';
 
 var application;
-var game;
 var logger;
 
 function Logger() {
@@ -31,7 +30,6 @@ function Game() {
     this.playerName = null;
     this.playerTeam = null;
     this.cpuTeam = null;
-    this.currentStep = -1;
 }
 
 Game.prototype = {
@@ -384,7 +382,7 @@ Application.prototype = {
   },
 
   startGame: function(playerName) {
-    game = new Game();
+    var game = new Game();
     game.setPlayerName(playerName);
     game.setPlayerTeam("Team Suriname");
     game.setCpuTeam("Team Nederland");
