@@ -69,16 +69,6 @@ Game.prototype = {
     this.handler.sendMessage({'command' : 'isReady'});
   },
 
-  waitForEvent: function() {
-    var self = this;
-    var overlay = this.getCanvas().rect(0, 0, WIDTH, HEIGHT);
-    overlay.attr({fill: "#000", stroke: "none", opacity: '0.1'}); 
-    overlay.mouseup(function(event) {
-      self.sendReady(); 
-      overlay.remove();
-    }); 
-  },
-
   addCards: function(newCards) {
     this.cards = this.cards.concat(newCards);
     this.sortCards();
@@ -139,6 +129,11 @@ Game.prototype = {
   drawCards : function() {
     this.view.drawPlayerCards(this.cards);
   },
+  
+  waitForEvent: function() {
+    this.view.waitForEvent();
+  },
+
 
   clearMoves: function(moves) {
     this.view.clearPlayerMoves();
@@ -187,10 +182,6 @@ Game.prototype = {
     return this.view.getCanvas();
   },
   
-  getRepository: function() {
-    return this.view.getRepository();
-  },
-
   handleCardClicked : function(card) {
         console.log("DEBUG in game handleCardClicked");
     this.cardClickHandler(card);

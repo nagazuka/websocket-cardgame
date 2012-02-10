@@ -217,6 +217,17 @@ View.prototype = {
     nameTxt.attr({'fill' : '#fff', 'font-size' : '14', 'font-family' : conf.font, 'font-weight' : 'bold', 'fill-opacity' : '50%'});
   },
   
+  waitForEvent: function() {
+    var self = this;
+
+    var overlay = this.getCanvas().rect(0, 0, WIDTH, HEIGHT);
+    overlay.attr({fill: "#000", stroke: "none", opacity: '0.1'}); 
+    overlay.mouseup(function(event) {
+      self.game.sendReady(); 
+      overlay.remove();
+    }); 
+  },
+  
   getCardImageFile : function(rank, suit) {
     return 'images/cards/simple_' + SUIT_TRANSLATION_TABLE[suit] + '_' + RANK_TRANSLATION_TABLE[rank] + '.png';
   },
