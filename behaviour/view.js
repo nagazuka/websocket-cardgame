@@ -39,6 +39,9 @@ var CARD_X_ARR = [CARD_MIDDLE_X, CARD_MIDDLE_X + 2*CARD_WIDTH, CARD_MIDDLE_X, CA
 var CARD_Y_ARR = [CARD_MIDDLE_Y - 0.75*CARD_HEIGHT, CARD_MIDDLE_Y, CARD_MIDDLE_Y + 0.5*CARD_HEIGHT, CARD_MIDDLE_Y];
 
 var PLAYER_MOVE_ANIMATE_TIME = 1000;
+var SUIT_TRANSLATION_TABLE = { 'DIAMONDS' : 'd', 'CLUBS' : 'c', 'SPADES' : 's', 'HEARTS' : 'h'};
+var RANK_TRANSLATION_TABLE = [undefined, undefined, '2', '3', '4', '5', '6', '7', '8', '9', '10', 'j', 'q', 'k', 'a'];
+
 
 function Repository() {
 }
@@ -59,6 +62,12 @@ Repository.prototype = {
     }
   },
 
+  findElement: function(id, category) {
+    var allElements = this.getElementsByCategory(category);
+    var element =  _.find(allElements, function(e) { return e.node.id == id }); 
+    return element;
+  },
+
   addElement: function(element, category) {
     this.createIfEmpty(category);
     this[category].push(element);
@@ -66,7 +75,8 @@ Repository.prototype = {
 };
 
 
-function View() {
+function View(game) {
+    this.game = game;
     this.canvas = Raphael('canvas', WIDTH, HEIGHT);
     this.repository = new Repository();
 }
@@ -114,8 +124,51 @@ View.prototype = {
     var iconImage = conf.suitsDirectory + conf.suitIcons[trumpSuit];
     var trumpSuitIcon = this.getCanvas().image(iconImage, TRUMPSUIT_X, TRUMPSUIT_Y, TRUMPSUIT_SIZE, TRUMPSUIT_SIZE);
 
-    this.repository.addElement(trumpSuitText, "trumpSuitText");
-    this.repository.addElement(trumpSuitIcon, "trumpSuitIcon");
+    this.repository.addElement(trumpSuitText, "trumpSuit");
+    this.repository.addElement(trumpSuitIcon, "trumpSuit");
+  },
+
+  drawPlayerCards: function(cards) {
+    var self = this;
+    if (cards.length > 0) {
+      var offset = 2 * CARD_AREA_PADDING;
+      var stepSize = (CARD_AREA_WIDTH - offset) / cards.length;
+      _.each(cards, function(card, i) {
+        self.drawCard(card, i * stepSize + offset, CARD_AREA_Y + CARD_AREA_PADDING, CARD_WIDTH, CARD_HEIGHT, 'playerCards');
+      });
+    }
+  },
+
+  removePlayerCard: function(card) {
+    var id = card.rank + "_" + card.suit;
+    var cardImage = this.repository.findElement(id, 'playerCards');
+    cardImage.remove();
+  },
+
+  clearPlayerCards: function() {
+    var playerCards = this.repository.getElementsByCategory('playerCards');
+    _.each(playerCards, function(c) { c.remove(); });
+    this.repository.clearCategory("playerCards");
+  },
+
+  drawCard: function(card, x, y, width, height, category) {
+    var self = this;
+    var cardImage = game.getCanvas().image(this.getCardImageFile(card.rank, card.suit), x, y, width, height);
+
+    cardImage.mouseover(function(event) {
+        this.attr({'height': CARD_HEIGHT * 2, 'width': CARD_WIDTH * 2});
+    });
+    cardImage.mouseout(function(event) {
+        this.attr({'height': CARD_HEIGHT, 'width': CARD_WIDTH});
+    });
+
+    cardImage.click(function(event) {
+        console.log("DEBUG in cardImage clickEventHandler");
+        self.game.handleCardClicked(card);
+    });
+
+    cardImage.node.id = card.rank + "_" + card.suit;
+    this.repository.addElement(cardImage, "playerCards");
   },
 
   drawPlayer: function(player) {
@@ -134,6 +187,10 @@ View.prototype = {
     var playerName = player.getName();
     var nameTxt = canvas.text(playerX + PLAYER_SIZE / 2, playerY + PLAYER_SIZE + PLAYER_VERT_PADDING, playerName);
     nameTxt.attr({'fill' : '#fff', 'font-size' : '14', 'font-family' : conf.font, 'font-weight' : 'bold', 'fill-opacity' : '50%'});
+  },
+  
+  getCardImageFile : function(rank, suit) {
+    return 'images/cards/simple_' + SUIT_TRANSLATION_TABLE[suit] + '_' + RANK_TRANSLATION_TABLE[rank] + '.png';
   },
   
   getPlayerImageFile: function() {

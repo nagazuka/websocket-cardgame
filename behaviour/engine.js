@@ -20,7 +20,7 @@ Logger.prototype = {
 };
 
 function Game() {
-    this.view = new View();
+    this.view = new View(this);
     this.cards = [];
     this.players = [];
     this.handler = new MessageHandler();
@@ -107,7 +107,8 @@ Game.prototype = {
   },
 
   removeCard: function(card) {
-    card.clear();
+    this.view.removePlayerCard(card);
+
     var index = _.indexOf(this.cards, card);
     if (index != -1) {
       this.cards.splice(index,1);
@@ -115,7 +116,7 @@ Game.prototype = {
    },
 
   clearCards: function() {
-    _.each(this.cards, function(c) { c.clear(); });
+    this.view.clearPlayerCards();
     this.cards.length = 0;
   },
 
@@ -132,13 +133,7 @@ Game.prototype = {
   },
 
   drawCards : function() {
-    if (this.cards.length > 0) {
-      var offset = 2 * CARD_AREA_PADDING;
-      var stepSize = (CARD_AREA_WIDTH - offset) / this.cards.length;
-      _.each(this.cards, function(card, i) {
-        card.draw(i * stepSize + offset, CARD_AREA_Y + CARD_AREA_PADDING, CARD_WIDTH, CARD_HEIGHT);
-      });
-    }
+    this.view.drawPlayerCards(this.cards);
   },
 
   clearMoves: function(moves) {
@@ -211,6 +206,7 @@ Game.prototype = {
   },
 
   handleCardClicked : function(card) {
+        console.log("DEBUG in game handleCardClicked");
     this.cardClickHandler(card);
   },
 
@@ -243,42 +239,14 @@ function Card(rank, suit) {
 }
 
 Card.prototype = {
-  SUIT_TRANSLATION_TABLE : { 'DIAMONDS' : 'd', 'CLUBS' : 'c', 'SPADES' : 's', 'HEARTS' : 'h'},
-  RANK_TRANSLATION_TABLE : [undefined, undefined, '2', '3', '4', '5', '6', '7', '8', '9', '10', 'j', 'q', 'k', 'a'],
-
   animate: function(srcX, srcY, width, height, destX, destY, time) {
     this.draw(srcX, srcY, width, height);
     this.cardImage.stop().animate({x: destX, y: destY}, time);
   },
 
-  draw: function(x, y, width, height) {
-    var self = this;
-
-    this.cardImage = game.getCanvas().image(this.getCardImageFile(this.rank, this.suit), x, y, width, height);
-
-    this.cardImage.mouseover(function(event) {
-        this.attr({'height': CARD_HEIGHT * 2, 'width': CARD_WIDTH * 2});
-    });
-    this.cardImage.mouseout(function(event) {
-        this.attr({'height': CARD_HEIGHT, 'width': CARD_WIDTH});
-    });
-    this.cardImage.click(function(event) {
-        game.handleCardClicked(self);
-    });
-  },
-
-  clear: function() {
-    this.cardImage.remove();
-  },
-  
-  getCardImageFile : function(rank, suit) {
-    return 'images/cards/simple_' + this.SUIT_TRANSLATION_TABLE[suit] + '_' + this.RANK_TRANSLATION_TABLE[rank] + '.png';
-  },
-
   toJSON: function() {
-    return { 'rank' : this.rank, 'suit': this.suit }; 
+    return { 'rank' : this.rank, 'suit': this.suit };
   }
-
 };
 
 function PlayerMove(player, card, sequenceNumber) {
