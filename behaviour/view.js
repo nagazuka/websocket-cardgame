@@ -139,6 +139,26 @@ View.prototype = {
     }
   },
 
+  drawPlayerMove: function(playerMove) {
+    var player = playerMove.getPlayer();
+    var card = playerMove.getCard();
+    var playerIndex = player.getIndex(); 
+
+    var startX = PLAYER_X_ARR[playerIndex];
+    var startY = PLAYER_Y_ARR[playerIndex];
+
+    var endX = CARD_X_ARR[playerIndex];
+    var endY = CARD_Y_ARR[playerIndex];
+
+    var cardImage = this.drawCard(card, startX, startY, CARD_WIDTH, CARD_HEIGHT, 'playerMoves');
+    cardImage.stop().animate({x: endX, y: endY}, PLAYER_MOVE_ANIMATE_TIME);
+  },
+
+  clearPlayerMoves: function() {
+    var playerMoves = this.repository.getElementsByCategory('playerMoves');
+    _.each(playerMoves, function (pm) { pm.remove(); });
+  },
+
   removePlayerCard: function(card) {
     var id = card.rank + "_" + card.suit;
     var cardImage = this.repository.findElement(id, 'playerCards');
@@ -169,6 +189,7 @@ View.prototype = {
 
     cardImage.node.id = card.rank + "_" + card.suit;
     this.repository.addElement(cardImage, "playerCards");
+    return cardImage;
   },
 
   drawPlayer: function(player) {

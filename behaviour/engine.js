@@ -137,11 +137,8 @@ Game.prototype = {
   },
 
   clearMoves: function(moves) {
-    var moves = this.getRepository().getElementsByCategory("moves");
-    _.each(moves, function(m) {
-      m.clear(); 
-    });
-    this.getRepository().clearCategory("moves");
+    this.view.clearPlayerMoves();
+    this.getRepository().clearCategory('moves');
   },
   
   addMoves : function(moves) {
@@ -189,11 +186,12 @@ Game.prototype = {
   },
 
   drawMoves : function() {
+    var self = this;
     var moves = this.getRepository().getElementsByCategory("moves");
     console.log("drawMoves, number of #moves: " + moves.length);
 
     _.each(moves, function(move, index, list) {
-      move.draw();
+      self.view.drawPlayerMove(move);
     });
   },
 
@@ -239,42 +237,12 @@ function Card(rank, suit) {
 }
 
 Card.prototype = {
-  animate: function(srcX, srcY, width, height, destX, destY, time) {
-    this.draw(srcX, srcY, width, height);
-    this.cardImage.stop().animate({x: destX, y: destY}, time);
-  },
 
   toJSON: function() {
     return { 'rank' : this.rank, 'suit': this.suit };
   }
 };
 
-function PlayerMove(player, card, sequenceNumber) {
-  this.player = player;
-  this.card = card;
-  this.sequenceNumber = sequenceNumber;
-  this.animationFinished = false;
- 
-  var playerIndex = this.player.getIndex(); 
-  this.startX = this.player.playerX;
-  this.startY = this.player.playerY;
-
-  this.endX = CARD_X_ARR[playerIndex];
-  this.endY = CARD_Y_ARR[playerIndex];
-}
-
-PlayerMove.prototype = {
-  draw: function() {
-    if (!this.animationFinished) {
-      this.card.animate(this.startX, this.startY, CARD_WIDTH, CARD_HEIGHT, this.endX, this.endY, PLAYER_MOVE_ANIMATE_TIME);
-      this.animationFinished = true;
-    }
-  },
-
-  clear: function() {
-      this.card.clear();
-  }
-};
 
 function MessageHandler() {
 }

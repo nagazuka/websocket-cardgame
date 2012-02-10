@@ -20,3 +20,24 @@ Player.prototype = {
     return this.index;
   }
 };
+
+function PlayerMove(player, card, sequenceNumber) {
+  this.player = player;
+  this.card = card;
+  this.sequenceNumber = sequenceNumber;
+}
+
+PlayerMove.prototype = {
+  
+  getPlayer: function() {
+    return this.player;
+  },
+
+  getCard: function() {
+    return this.card;
+  },
+
+  getSequenceNumber: function() {
+    return this.sequenceNumber;
+  }
+};
