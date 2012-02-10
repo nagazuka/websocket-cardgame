@@ -117,4 +117,36 @@ View.prototype = {
     this.repository.addElement(trumpSuitText, "trumpSuitText");
     this.repository.addElement(trumpSuitIcon, "trumpSuitIcon");
   },
+
+  drawPlayer: function(player) {
+    var canvas = this.getCanvas();
+    var playerX = PLAYER_X_ARR[player.getIndex()];
+    var playerY = PLAYER_Y_ARR[player.getIndex()];
+    var flagX = playerX - 0.25*TEAM_FLAG_SIZE;
+    var flagY = playerY - 0.25*TEAM_FLAG_SIZE;
+
+    var teamName = player.getTeamName();
+    var teamImage = this.getTeamImageFile(teamName);
+    var teamFlag = canvas.image(teamImage, flagX, flagY,  TEAM_FLAG_SIZE, TEAM_FLAG_SIZE);
+
+    var playerImage = canvas.image(this.getPlayerImageFile(), playerX, playerY, PLAYER_SIZE, PLAYER_SIZE);
+
+    var playerName = player.getName();
+    var nameTxt = canvas.text(playerX + PLAYER_SIZE / 2, playerY + PLAYER_SIZE + PLAYER_VERT_PADDING, playerName);
+    nameTxt.attr({'fill' : '#fff', 'font-size' : '14', 'font-family' : conf.font, 'font-weight' : 'bold', 'fill-opacity' : '50%'});
+  },
+  
+  getPlayerImageFile: function() {
+    var charCode = Math.floor(Math.random() * 15) + 65;
+    var letter = String.fromCharCode(charCode);
+    var number = Math.floor(Math.random() * 5) + 1;
+    return conf.avatarDirectory + letter + '0' + number + '.png';
+  },
+
+  getTeamImageFile: function(teamName) {
+    if (!(teamName in conf.teamFlags)) {
+      teamName = 'default';
+    }
+    return conf.flagDirectory + conf.teamFlags[teamName];
+  },
 };

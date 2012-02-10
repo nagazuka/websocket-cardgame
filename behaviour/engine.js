@@ -126,6 +126,10 @@ Game.prototype = {
   drawText: function(text) {
     this.view.drawText(text);
   },
+  
+  drawPlayer: function(player) {
+    this.view.drawPlayer(player);
+  },
 
   drawCards : function() {
     if (this.cards.length > 0) {
@@ -160,7 +164,7 @@ Game.prototype = {
     var self = this;
     _.each(moves, function(move, index, list) {
       if (move.sequenceNumber > currentSequenceNumber) {
-        self.repository.addElement(move, "moves");
+        self.getRepository().addElement(move, "moves");
       }
     });
   },
@@ -277,53 +281,6 @@ Card.prototype = {
 
 };
 
-function Player(id, index, name, isHuman, teamName) {
-  this.index = index;
-  this.id = id;
-  this.name = name;
-  this.teamName = teamName;
-  this.isHuman = Boolean(isHuman);
-
-  this.playerX = PLAYER_X_ARR[this.index];
-  this.playerY = PLAYER_Y_ARR[this.index];
-  this.flagX = this.playerX - 0.25*TEAM_FLAG_SIZE;
-  this.flagY = this.playerY - 0.25*TEAM_FLAG_SIZE;
-}
-
-Player.prototype = {
-  draw: function() {
-    var canvas = game.getCanvas();
-
-    var teamFlag = canvas.image(this.getTeamImageFile(), this.flagX, this.flagY,  TEAM_FLAG_SIZE, TEAM_FLAG_SIZE);
-    var player = canvas.image(this.getPlayerImageFile(), this.playerX, this.playerY, PLAYER_SIZE, PLAYER_SIZE);
-    var nameTxt = canvas.text(this.playerX + PLAYER_SIZE / 2, this.playerY + PLAYER_SIZE + PLAYER_VERT_PADDING, this.name);
-    nameTxt.attr({'fill' : '#fff', 'font-size' : '14', 'font-family' : conf.font, 'font-weight' : 'bold', 'fill-opacity' : '50%'});
-  },
-
-  getPlayerImageFile: function() {
-    var charCode = Math.floor(Math.random() * 15) + 65;
-    var letter = String.fromCharCode(charCode);
-    var number = Math.floor(Math.random() * 5) + 1;
-    return conf.avatarDirectory + letter + '0' + number + '.png';
-  },
-
-  getTeamImageFile: function() {
-    var teamName;
-
-    if (this.teamName in conf.teamFlags) {
-      teamName = this.teamName;
-    } else {
-      teamName = 'default';
-    }
-
-    return conf.flagDirectory + conf.teamFlags[teamName];
-  },
-
-  getIndex: function() {
-    return this.index;
-  }
-};
-
 function PlayerMove(player, card, sequenceNumber) {
   this.player = player;
   this.card = card;
@@ -415,7 +372,7 @@ MessageHandler.prototype = {
     _.each(response.players, function (p) {
       var player = new Player(p.id, p.index, p.name, p.isHuman, p.team);
       self.game.addPlayer(player);
-      player.draw();
+      self.game.drawPlayer(player);
     });
 
     this.game.dealFirstCards();
