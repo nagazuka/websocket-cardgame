@@ -23,7 +23,6 @@ function Game() {
     this.view = new View();
     this.cards = [];
     this.players = [];
-    this.repository = new Repository();
     this.handler = new MessageHandler();
     this.selectedCard = null;
     this.playerName = null;
@@ -35,7 +34,7 @@ Game.prototype = {
 
   init: function() {
     this.handler.init(this);
-    this.setupCanvas();
+    this.view.init();
     this.initScores();
   },
 
@@ -58,9 +57,8 @@ Game.prototype = {
     this.setCardClickHandler(this.noAction);
   },
 
-
   noAction: function fn_noAction (card) {
-    this.drawText('Nu even niet :-)\nChill for a bit amigo...');
+    this.view.drawText('Nu even niet :-)\nChill for a bit amigo...');
   },
 
   sendReady: function() {
@@ -75,17 +73,6 @@ Game.prototype = {
       self.sendReady(); 
       overlay.remove();
     }); 
-  },
-
-  setupCanvas: function() {
-    var bg = this.getCanvas().rect(0, 0, WIDTH, HEIGHT);
-    bg.attr({fill: '45-#000-#555'});
-    bg.mouseup(function(event) {
-      logger.debug("Event " + event);
-    });
-    var table = this.getCanvas().image('images/green_poker_skin.png', TABLE_X, TABLE_Y, TABLE_WIDTH, TABLE_HEIGHT);
-    var cardArea = this.getCanvas().rect(0, CARD_AREA_Y, WIDTH, CARD_AREA_HEIGHT);
-    cardArea.attr({'fill': '90-#161:5-#000:95', 'fill-opacity': 0.5, 'stroke-width': 0, 'opacity': 0.1});
   },
 
   addCards: function(newCards) {
@@ -132,16 +119,12 @@ Game.prototype = {
     this.cards.length = 0;
   },
 
-  drawTrumpSuit: function() {
-    var content = "Troef"; 
-    var trumpSuitText = this.getCanvas().text(TRUMPSUIT_PADDING, TRUMPSUIT_PADDING, content);
-    trumpSuitText.attr({'font-size': 20,'text-anchor': 'start','fill': '#fff','font-family' : conf.font, 'font-weight' : 'bold'});
-
-    var iconImage = conf.suitsDirectory + conf.suitIcons[this.trumpSuit];
-    var trumpSuitIcon = this.getCanvas().image(iconImage, TRUMPSUIT_X, TRUMPSUIT_Y, TRUMPSUIT_SIZE, TRUMPSUIT_SIZE);
-
-    this.repository.addElement(trumpSuitText, "trumpSuitText");
-    this.repository.addElement(trumpSuitIcon, "trumpSuitIcon");
+  drawTrumpSuit: function(trumpSuit) {
+    this.view.drawTrumpSuit(this.trumpSuit);
+  },
+  
+  drawText: function(text) {
+    this.view.drawText(text);
   },
 
   drawCards : function() {
@@ -155,16 +138,16 @@ Game.prototype = {
   },
 
   clearMoves: function(moves) {
-    var moves = this.repository.getElementsByCategory("moves");
+    var moves = this.getRepository().getElementsByCategory("moves");
     _.each(moves, function(m) {
       m.clear(); 
     });
-    this.repository.clearCategory("moves");
+    this.getRepository().clearCategory("moves");
   },
   
   addMoves : function(moves) {
     var currentSequenceNumber = 0;
-    var existingMoves = this.repository.getElementsByCategory("moves");
+    var existingMoves = this.getRepository().getElementsByCategory("moves");
     
     if (existingMoves.length > 0) { 
       currentSequenceNumber = _.reduce(existingMoves, function (memo, move) { 
@@ -207,7 +190,7 @@ Game.prototype = {
   },
 
   drawMoves : function() {
-    var moves = this.repository.getElementsByCategory("moves");
+    var moves = this.getRepository().getElementsByCategory("moves");
     console.log("drawMoves, number of #moves: " + moves.length);
 
     _.each(moves, function(move, index, list) {
@@ -215,20 +198,12 @@ Game.prototype = {
     });
   },
 
-  drawText : function(content) {
-    var x = WIDTH / 2;
-    var y = HEIGHT / 2;
-
-    if (this.text) {
-      this.text.remove();
-    }
-
-    this.text = this.getCanvas().text(x, y, content);
-    this.text.attr({'fill' : '#fff', 'font-size' : '24', 'font-family' : conf.font, 'font-weight' : 'bold', 'fill-opacity' : '100%', 'stroke' : '#aaa', 'stroke-width' : '1', 'stroke-opacity' : '100%'});
-  },
-
   getCanvas: function() {
     return this.view.getCanvas();
+  },
+  
+  getRepository: function() {
+    return this.view.getRepository();
   },
 
   handleCardClicked : function(card) {
@@ -255,31 +230,6 @@ Game.prototype = {
       var code = "" + (Math.floor(Math.random() * 2500) + 1);
       this.playerName = messages[conf.lang].playerPrefix + code;
     }
-  }
-};
-
-function Repository() {
-}
-
-Repository.prototype = {
-
-  getElementsByCategory: function(category) {
-      return this[category];
-  },
-
-  clearCategory: function(category) {
-      this[category] = [];
-  },
-
-  createIfEmpty: function(category) {
-    if (!(this.hasOwnProperty(category))) {
-      this[category] = [];
-    }
-  },
-
-  addElement: function(element, category) {
-    this.createIfEmpty(category);
-    this[category].push(element);
   }
 };
 
