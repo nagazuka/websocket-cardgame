@@ -21,6 +21,18 @@ Player.prototype = {
   }
 };
 
+function Card(rank, suit) {
+    this.rank = rank;
+    this.suit = suit;
+}
+
+Card.prototype = {
+
+  toJSON: function() {
+    return { 'rank' : this.rank, 'suit': this.suit };
+  }
+};
+
 function PlayerMove(player, card, sequenceNumber) {
   this.player = player;
   this.card = card;

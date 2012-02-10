@@ -21,9 +21,12 @@ Logger.prototype = {
 
 function Game() {
     this.view = new View(this);
+    this.handler = new MessageHandler();
+
     this.cards = [];
     this.players = [];
-    this.handler = new MessageHandler();
+    this.playerMoves = [];
+
     this.selectedCard = null;
     this.playerName = null;
     this.playerTeam = null;
@@ -138,26 +141,32 @@ Game.prototype = {
 
   clearMoves: function(moves) {
     this.view.clearPlayerMoves();
-    this.getRepository().clearCategory('moves');
+    this.playerMoves.length = 0;
   },
   
   addMoves : function(moves) {
     var currentSequenceNumber = 0;
-    var existingMoves = this.getRepository().getElementsByCategory("moves");
-    
+    var existingMoves = this.playerMoves;
+
+    //TODO: refactor expensive reduce operation to sorting first
     if (existingMoves.length > 0) { 
       currentSequenceNumber = _.reduce(existingMoves, function (memo, move) { 
                                   return Math.max(memo, move.sequenceNumber);
                                 }, 0);
     }
 
-    console.log("current sequence number: " + currentSequenceNumber);
-
     var self = this;
     _.each(moves, function(move, index, list) {
       if (move.sequenceNumber > currentSequenceNumber) {
-        self.getRepository().addElement(move, "moves");
+        self.playerMoves.push(move);
       }
+    });
+  },
+  
+  drawMoves : function() {
+    var self = this;
+    _.each(self.playerMoves, function(move, index, list) {
+      self.view.drawPlayerMove(move);
     });
   },
 
@@ -185,15 +194,6 @@ Game.prototype = {
     }
   },
 
-  drawMoves : function() {
-    var self = this;
-    var moves = this.getRepository().getElementsByCategory("moves");
-    console.log("drawMoves, number of #moves: " + moves.length);
-
-    _.each(moves, function(move, index, list) {
-      self.view.drawPlayerMove(move);
-    });
-  },
 
   getCanvas: function() {
     return this.view.getCanvas();
@@ -231,17 +231,6 @@ Game.prototype = {
   }
 };
 
-function Card(rank, suit) {
-    this.rank = rank;
-    this.suit = suit;
-}
-
-Card.prototype = {
-
-  toJSON: function() {
-    return { 'rank' : this.rank, 'suit': this.suit };
-  }
-};
 
 
 function MessageHandler() {
