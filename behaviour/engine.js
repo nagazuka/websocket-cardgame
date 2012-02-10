@@ -177,11 +177,6 @@ Game.prototype = {
     }
   },
 
-
-  getCanvas: function() {
-    return this.view.getCanvas();
-  },
-  
   handleCardClicked : function(card) {
         console.log("DEBUG in game handleCardClicked");
     this.cardClickHandler(card);
