@@ -105,7 +105,7 @@ View.prototype = {
       var bg = this.getCanvas().rect(0, 0, WIDTH, HEIGHT);
       bg.attr({fill: '45-#000-#555'});
 
-      var table = this.getCanvas().image('images/green_poker_skin.png', TABLE_X, TABLE_Y, TABLE_WIDTH, TABLE_HEIGHT);
+      var table = this.getCanvas().image(this.getTableImageFile(), TABLE_X, TABLE_Y, TABLE_WIDTH, TABLE_HEIGHT);
       
       var cardArea = this.getCanvas().rect(0, CARD_AREA_Y, WIDTH, CARD_AREA_HEIGHT);
       cardArea.attr({'fill': '90-#161:5-#000:95', 'fill-opacity': 0.5, 'stroke-width': 0, 'opacity': 0.1});
@@ -113,7 +113,8 @@ View.prototype = {
   
     initPxLoader: function() {
       var loader = new PxLoader();
-      loader.addImage(conf.imageDir + 'green_poker_skin.png');
+      var tableImage = this.getTableImageFile();
+      loader.addImage(tableImage);
   
       var teamName; 
       for (teamName in conf.teamFlags) { 
@@ -131,7 +132,7 @@ View.prototype = {
       }
 
       var trumpSuit;
-      for (suit in conf.suitIcons) {
+      for (trumpSuit in conf.suitIcons) {
         var iconImage = this.getSuitImageFile(trumpSuit);
         loader.addImage(iconImage);
       }
@@ -286,5 +287,9 @@ View.prototype = {
 
   getSuitImageFile: function(trumpSuit) {
     return conf.suitsDirectory + conf.suitIcons[trumpSuit];
+  },
+
+  getTableImageFile: function(trumpSuit) {
+    return conf.imageDir + 'green_poker_skin.png';
   }
 };
