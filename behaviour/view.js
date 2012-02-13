@@ -106,6 +106,15 @@ View.prototype = {
       $('#progressOverlay').show();
     },
 
+    updateProgressOverlay: function(e) {
+      var loadStr = 'Loading';
+      var i;
+      for(i=0; i < e.completedCount % 3; i++) {
+        loadStr += ".";
+      }
+      $('#txtLoading').text(loadStr);
+    },
+
     clearProgressOverlay: function() {
       $('#canvas').show();
       $('#progressOverlay').hide();
@@ -155,6 +164,10 @@ View.prototype = {
 
       loader.addCompletionListener(function() {
           self.clearProgressOverlay();
+      });
+
+      loader.addProgressListener(function(e) {
+          self.updateProgressOverlay(e);
       });
 
       return loader;
