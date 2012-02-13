@@ -1,6 +1,5 @@
 'use strict';
 
-var application;
 var logger;
 
 function Logger() {
@@ -19,7 +18,7 @@ Logger.prototype = {
 };
 
 function Game() {
-    this.view = new View(this);
+    this.view = null;
     this.handler = new MessageHandler();
 
     this.cards = [];
@@ -200,6 +199,10 @@ Game.prototype = {
       var code = "" + (Math.floor(Math.random() * 2500) + 1);
       this.playerName = messages[conf.lang].playerPrefix + code;
     }
+  },
+
+  setView: function(view) {
+    this.view = view;
   }
 };
 
@@ -365,7 +368,16 @@ function Application() {
 Application.prototype = {
   init: function() {
     var self = this;
+
+    this.game = new Game();
+    this.view = new View();
+    
+    this.game.setView(this.view);
+    this.view.setGame(this.game);
+
     $('#welcomeModal').modal('show');
+    
+    this.view.preload();
 
     $('#closePlayerName').click(function(event) {
         event.preventDefault();
@@ -382,17 +394,16 @@ Application.prototype = {
   },
 
   startGame: function(playerName) {
-    var game = new Game();
-    game.setPlayerName(playerName);
-    game.setPlayerTeam("Team Suriname");
-    game.setCpuTeam("Team Nederland");
+    this.game.setPlayerName(playerName);
+    this.game.setPlayerTeam("Team Suriname");
+    this.game.setCpuTeam("Team Nederland");
 
-    game.init();
+    this.game.init();
   }
 };
 
 $(document).ready(function() {
     logger = new Logger();
-    application = new Application();
+    var application = new Application();
     application.init();
 });

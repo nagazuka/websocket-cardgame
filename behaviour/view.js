@@ -83,6 +83,10 @@ function View(game) {
 
 View.prototype = {
 
+    setGame: function(game) {
+      this.game = game;
+    },
+
     getCanvas: function() {
       return this.canvas;
     },
@@ -91,7 +95,13 @@ View.prototype = {
       return this.repository;
     },
 
+    preload: function() {
+      var loader = this.initPxLoader(); 
+      loader.start();
+    },
+
     init: function() {
+
       var bg = this.getCanvas().rect(0, 0, WIDTH, HEIGHT);
       bg.attr({fill: '45-#000-#555'});
 
@@ -100,6 +110,22 @@ View.prototype = {
       var cardArea = this.getCanvas().rect(0, CARD_AREA_Y, WIDTH, CARD_AREA_HEIGHT);
       cardArea.attr({'fill': '90-#161:5-#000:95', 'fill-opacity': 0.5, 'stroke-width': 0, 'opacity': 0.1});
     },
+  
+    initPxLoader: function() {
+      var loader = new PxLoader();
+      loader.addImage('images/green_poker_skin.png');
+      
+      var suit; 
+      var i;
+      for (suit in SUIT_TRANSLATION_TABLE) {
+        for(i=2; i < 13; i++) {
+          loader.addImage('images/cards/simple_' + SUIT_TRANSLATION_TABLE[suit] + '_' + RANK_TRANSLATION_TABLE[i] + '.png');
+        }
+      }
+
+      return loader;
+    },
+
  
   //TODO: don't remove and create, set text to ""
   //TODO: use repository to store text component 
