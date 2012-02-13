@@ -78,6 +78,7 @@ function View(game) {
     this.game = game;
     this.canvas = Raphael('canvas', WIDTH, HEIGHT);
     this.repository = new Repository();
+    this.progressOverlay = null;
 }
 
 View.prototype = {
@@ -95,12 +96,22 @@ View.prototype = {
     },
 
     preload: function() {
+      this.drawProgressOverlay();
       var loader = this.initPxLoader(); 
       loader.start();
     },
 
-    init: function() {
+    drawProgressOverlay: function() {
+      $('#canvas').hide();
+      $('#progressOverlay').show();
+    },
 
+    clearProgressOverlay: function() {
+      $('#canvas').show();
+      $('#progressOverlay').hide();
+    },
+
+    init: function() {
       var bg = this.getCanvas().rect(0, 0, WIDTH, HEIGHT);
       bg.attr({fill: '45-#000-#555'});
 
@@ -108,9 +119,15 @@ View.prototype = {
       
       var cardArea = this.getCanvas().rect(0, CARD_AREA_Y, WIDTH, CARD_AREA_HEIGHT);
       cardArea.attr({'fill': '90-#161:5-#000:95', 'fill-opacity': 0.5, 'stroke-width': 0, 'opacity': 0.1});
+      
+      if (this.progressOverlay) {
+        this.progressOverlay.toFront();
+      }
     },
   
     initPxLoader: function() {
+      var self = this;
+
       var loader = new PxLoader();
       var tableImage = this.getTableImageFile();
       loader.addImage(tableImage);
@@ -135,6 +152,10 @@ View.prototype = {
         var iconImage = this.getSuitImageFile(trumpSuit);
         loader.addImage(iconImage);
       }
+
+      loader.addCompletionListener(function() {
+          self.clearProgressOverlay();
+      });
 
       return loader;
     },
