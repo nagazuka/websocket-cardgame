@@ -117,20 +117,22 @@ View.prototype = {
   
       var teamName; 
       for (teamName in conf.teamFlags) { 
-        loader.addImage(conf.flagDirectory + conf.teamFlags[teamName]);
+        var teamImageFile = this.getTeamImageFile(teamName);
+        loader.addImage(teamImageFile);
       }
       
       var suit; 
       var i;
       for (suit in SUIT_TRANSLATION_TABLE) {
         for(i=2; i < 13; i++) {
-          loader.addImage(conf.cardsDirectory + 'simple_' + SUIT_TRANSLATION_TABLE[suit] + '_' + RANK_TRANSLATION_TABLE[i] + '.png');
+          var cardImageFile = this.getCardImageFile(i, suit);
+          loader.addImage(cardImageFile);
         }
       }
 
       var trumpSuit;
       for (suit in conf.suitIcons) {
-        var iconImage = conf.suitsDirectory + conf.suitIcons[trumpSuit];
+        var iconImage = this.getSuitImageFile(trumpSuit);
         loader.addImage(iconImage);
       }
 
@@ -157,8 +159,7 @@ View.prototype = {
     var content = "Troef"; 
     var trumpSuitText = this.getCanvas().text(TRUMPSUIT_PADDING, TRUMPSUIT_PADDING, content);
     trumpSuitText.attr({'font-size': 20,'text-anchor': 'start','fill': '#fff','font-family' : conf.font, 'font-weight' : 'bold'});
-
-    var iconImage = conf.suitsDirectory + conf.suitIcons[trumpSuit];
+    var iconImage = this.getSuitImageFile(trumpSuit);
     var trumpSuitIcon = this.getCanvas().image(iconImage, TRUMPSUIT_X, TRUMPSUIT_Y, TRUMPSUIT_SIZE, TRUMPSUIT_SIZE);
 
     this.repository.addElement(trumpSuitText, "trumpSuit");
@@ -282,4 +283,8 @@ View.prototype = {
     }
     return conf.flagDirectory + conf.teamFlags[teamName];
   },
+
+  getSuitImageFile: function(trumpSuit) {
+    return conf.suitsDirectory + conf.suitIcons[trumpSuit];
+  }
 };
