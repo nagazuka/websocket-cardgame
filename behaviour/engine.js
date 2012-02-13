@@ -376,8 +376,6 @@ Application.prototype = {
     this.view.setGame(this.game);
 
     $('#welcomeModal').modal('show');
-    
-    this.view.preload();
 
     $('#closePlayerName').click(function(event) {
         event.preventDefault();
@@ -389,6 +387,8 @@ Application.prototype = {
         var playerName =  $('#inputPlayerName').val();
         self.startGame(playerName);
       });
+    
+    this.view.preload();
   },
 
   startGame: function(playerName) {
