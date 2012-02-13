@@ -9,10 +9,12 @@ var conf = {
 	network: {
     wsURL : 'ws://nagazuka.nl:8080/websocket'
 	},
-
+  
+  imageDir: 'images/',
   avatarDirectory: 'images/avatars/',  
   flagDirectory: 'images/flags/64/', 
   suitsDirectory: 'images/suits/', 
+  cardsDirectory: 'images/cards/', 
   
   suitIcons: {
     'SPADES': 'Spades64.png',

@@ -113,14 +113,25 @@ View.prototype = {
   
     initPxLoader: function() {
       var loader = new PxLoader();
-      loader.addImage('images/green_poker_skin.png');
+      loader.addImage(conf.imageDir + 'green_poker_skin.png');
+  
+      var teamName; 
+      for (teamName in conf.teamFlags) { 
+        loader.addImage(conf.flagDirectory + conf.teamFlags[teamName]);
+      }
       
       var suit; 
       var i;
       for (suit in SUIT_TRANSLATION_TABLE) {
         for(i=2; i < 13; i++) {
-          loader.addImage('images/cards/simple_' + SUIT_TRANSLATION_TABLE[suit] + '_' + RANK_TRANSLATION_TABLE[i] + '.png');
+          loader.addImage(conf.cardsDirectory + 'simple_' + SUIT_TRANSLATION_TABLE[suit] + '_' + RANK_TRANSLATION_TABLE[i] + '.png');
         }
+      }
+
+      var trumpSuit;
+      for (suit in conf.suitIcons) {
+        var iconImage = conf.suitsDirectory + conf.suitIcons[trumpSuit];
+        loader.addImage(iconImage);
       }
 
       return loader;
@@ -255,7 +266,7 @@ View.prototype = {
   },
   
   getCardImageFile : function(rank, suit) {
-    return 'images/cards/simple_' + SUIT_TRANSLATION_TABLE[suit] + '_' + RANK_TRANSLATION_TABLE[rank] + '.png';
+    return conf.cardsDirectory + 'simple_' + SUIT_TRANSLATION_TABLE[suit] + '_' + RANK_TRANSLATION_TABLE[rank] + '.png';
   },
   
   getPlayerImageFile: function() {

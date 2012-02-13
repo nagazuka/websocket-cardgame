@@ -381,19 +381,19 @@ Application.prototype = {
 
     $('#closePlayerName').click(function(event) {
         event.preventDefault();
-        $('#welcomeModal').modal('hide');
         self.startGame('');
     });
 
     $('#formPlayerName').submit(function(event) {
         event.preventDefault();
         var playerName =  $('#inputPlayerName').val();
-        $('#welcomeModal').modal('hide');
         self.startGame(playerName);
       });
   },
 
   startGame: function(playerName) {
+    $('#welcomeModal').modal('hide');
+
     this.game.setPlayerName(playerName);
     this.game.setPlayerTeam("Team Suriname");
     this.game.setCpuTeam("Team Nederland");
