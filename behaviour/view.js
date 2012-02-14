@@ -78,6 +78,7 @@ function View(game) {
     this.game = game;
     this.canvas = Raphael('canvas', WIDTH, HEIGHT);
     this.repository = new Repository();
+    this.animationQueue = [];
     this.progressOverlay = null;
 }
 
@@ -210,7 +211,28 @@ View.prototype = {
     }
   },
 
+  processNextAnimation: function() {
+    if (this.animationQueue.length > 0) {
+      var obj = this.animationQueue[0].obj;
+      var anim = this.animationQueue[0].animation;
+      obj.show().stop().animate(anim);
+    }
+  }, 
+
+  animate: function(obj, attr, time) {
+    var self = this;
+    var callback = function () {
+      self.animationQueue.shift();
+      self.processNextAnimation();
+    };
+    var animation = Raphael.animation(attr, time, callback);
+    
+    this.animationQueue.push({'obj': obj, 'animation': animation});
+    this.processNextAnimation();
+  },
+
   drawPlayerMove: function(playerMove) {
+
     var player = playerMove.getPlayer();
     var card = playerMove.getCard();
     var playerIndex = player.getIndex(); 
@@ -222,7 +244,8 @@ View.prototype = {
     var endY = CARD_Y_ARR[playerIndex];
 
     var cardImage = this.drawCard(card, startX, startY, CARD_WIDTH, CARD_HEIGHT, 'playerMoves');
-    cardImage.stop().animate({x: endX, y: endY}, PLAYER_MOVE_ANIMATE_TIME);
+    cardImage.hide();
+    this.animate(cardImage, {x: endX, y: endY}, PLAYER_MOVE_ANIMATE_TIME);
     this.repository.addElement(cardImage, 'playerMoves');
   },
 
