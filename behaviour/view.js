@@ -175,20 +175,16 @@ View.prototype = {
       return loader;
     },
 
- 
-  //TODO: don't remove and create, set text to ""
-  //TODO: use repository to store text component 
-  //or init this.text to null
   drawText : function(content) {
     var x = WIDTH / 2;
     var y = HEIGHT / 2;
 
     if (this.text) {
-      this.text.remove();
+      this.text.attr({'text': content});
+    } else {
+      this.text = this.getCanvas().text(x, y, content);
+      this.text.attr({'fill' : '#fff', 'font-size' : '24', 'font-family' : conf.font, 'font-weight' : 'bold', 'fill-opacity' : '100%', 'stroke' : '#aaa', 'stroke-width' : '1', 'stroke-opacity' : '100%'});
     }
-
-    this.text = this.getCanvas().text(x, y, content);
-    this.text.attr({'fill' : '#fff', 'font-size' : '24', 'font-family' : conf.font, 'font-weight' : 'bold', 'fill-opacity' : '100%', 'stroke' : '#aaa', 'stroke-width' : '1', 'stroke-opacity' : '100%'});
   },
 
   drawTrumpSuit: function(trumpSuit) {
