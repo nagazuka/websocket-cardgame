@@ -175,15 +175,15 @@ class GameServer:
 
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
-        self.render("template/index.html")
+        self.render("template/index.html", settings=settings)
 
 class AboutHandler(tornado.web.RequestHandler):
     def get(self):
-        self.render("template/about.html")
+        self.render("template/about.html", settings=settings)
 
 class ContactHandler(tornado.web.RequestHandler):
     def get(self):
-        self.render("template/contact.html")
+        self.render("template/contact.html", settings=settings)
 
 class MessageHandler(tornado.websocket.WebSocketHandler):
 
