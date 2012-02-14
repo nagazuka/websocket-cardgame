@@ -61,10 +61,9 @@ class Deck:
 
 
 class PlayerMove:
-    def __init__(self, player, card, remainingCards):
+    def __init__(self, player, card):
         self.player = player
         self.card = card
-        self.remainingCards = remainingCards
         self.sequenceNumber = -1
 
     def getPlayer(self):
@@ -72,9 +71,6 @@ class PlayerMove:
 
     def getCard(self):
         return self.card
-
-    def getRemainingCards(self):
-        return self.remainingCards
 
     def setSequenceNumber(self, seqNo):
         self.sequenceNumber = seqNo
@@ -113,8 +109,10 @@ class HandInfo:
 
         firstCard = self.playerMoves[0].getCard() 
         askedSuit = firstCard.suit
-        
-        remainingAskedSuit = [card for card in move.remainingCards if card.suit == askedSuit]
+       
+        player = move.getPlayer()
+        remainingCards = player.getCards() 
+        remainingAskedSuit = [card for card in remainingCards if card.suit == askedSuit]
         if len(remainingAskedSuit) == 0:
             return True
 

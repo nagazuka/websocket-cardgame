@@ -53,7 +53,7 @@ Game.prototype = {
   },
   
   makeMove : function fn_makeMove (card) {
-    this.handler.sendMessage({'command' : 'makeMove', 'rank' : card.rank, 'suit': card.suit, 'playerIndex' : 0, 'playerId' : this.humanPlayer.id, 'remainingCards': this.cards});
+    this.handler.sendMessage({'command' : 'makeMove', 'rank' : card.rank, 'suit': card.suit, 'playerIndex' : 0, 'playerId' : this.humanPlayer.id});
     this.selectedCard = card;
     this.setCardClickHandler(this.noAction);
   },
