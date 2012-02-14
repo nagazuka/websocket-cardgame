@@ -103,6 +103,7 @@ View.prototype = {
 
     drawProgressOverlay: function() {
       $('#canvas').hide();
+      $('#scoreContainer').hide();
       $('#progressOverlay').show();
     },
 
@@ -116,8 +117,9 @@ View.prototype = {
     },
 
     clearProgressOverlay: function() {
-      $('#canvas').show();
       $('#progressOverlay').hide();
+      $('#canvas').show();
+      $('#scoreContainer').show();
     },
 
     init: function() {
