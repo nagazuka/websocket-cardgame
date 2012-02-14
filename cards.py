@@ -120,7 +120,7 @@ class HandInfo:
 
         moveCard = move.getCard()
         moveSuit = moveCard.suit
-        if moveSuit == askedSuit or moveSuit == trumpSuit:
+        if moveSuit == askedSuit:
             return True
 
         logging.debug("PlayedMove %s not valid for current hand %s", move, self)
