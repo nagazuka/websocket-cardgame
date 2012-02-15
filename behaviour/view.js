@@ -189,7 +189,10 @@ View.prototype = {
     this.animate(this.text, {'opacity': 1}, 100); 
   },
 
-  drawError: function(message) {
+  drawError: function(heading, message) {
+    $('#txtAlertHeading').text(heading);
+    $('#txtAlert').text(message);
+
     var offset = $('#canvas').offset();
     var width = $('#alertContainer').width();
     var height = $('#alertContainer').height();
@@ -201,8 +204,7 @@ View.prototype = {
       top: top,
       left: left
     });
-    $('#txtAlert').text(message);
-    $('#alertContainer').show();
+    $('#alertContainer').show('fast');
   },
 
   clearError: function() {
@@ -210,15 +212,11 @@ View.prototype = {
   },
 
   drawTrumpSuit: function(trumpSuit) {
-    var trumpSuitBg = this.getCanvas().rect(TRUMPSUIT_X, TRUMPSUIT_PADDING-10, TRUMPSUIT_X + TRUMPSUIT_SIZE, TRUMPSUIT_Y + TRUMPSUIT_SIZE+10, 25);
-    trumpSuitBg.attr({'fill':'#0f0', 'fill-opacity':0.3,'stroke':'#555','stroke-width': 8});
-
     var content = "Troef"; 
     var trumpSuitText = this.getCanvas().text(TRUMPSUIT_PADDING, TRUMPSUIT_PADDING, content);
     trumpSuitText.attr({'font-size': 20,'text-anchor': 'start','fill': '#fff','font-family' : conf.font, 'font-weight' : 'bold'});
     var iconImage = this.getSuitImageFile(trumpSuit);
     var trumpSuitIcon = this.getCanvas().image(iconImage, TRUMPSUIT_X, TRUMPSUIT_Y, TRUMPSUIT_SIZE, TRUMPSUIT_SIZE);
-    this.repository.addElement(trumpSuitText, "trumpSuit"); 
     this.repository.addElement(trumpSuitText, "trumpSuit");
     this.repository.addElement(trumpSuitIcon, "trumpSuit");
   },

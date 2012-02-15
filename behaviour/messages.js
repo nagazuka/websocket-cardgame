@@ -6,7 +6,8 @@ var messages = {
     youWinHand:  'Jij hebt deze hand gemaakt!',
     otherWinsHand: '\nheeft deze hand gemaakt!',
     errorMessage:  'Ai ai ai!\nEr is een fout opgetreden.',
-    invalidMove:  'Ongeldige kaart.\nKies een andere...',
+    invalidMoveHeading:  'Ongeldige kaart.',
+    invalidMove:  'Kies een andere kaart om verder te spelen',
     playerPrefix:  'Anoniem'
   }
 };
