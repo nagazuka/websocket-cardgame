@@ -325,10 +325,12 @@ View.prototype = {
 
     var overlay = this.getCanvas().rect(0, 0, WIDTH, HEIGHT);
     overlay.attr({fill: "#000", stroke: "none", opacity: '0.1'}); 
+    overlay.hide();
     overlay.mouseup(function(event) {
       self.game.sendReady(); 
       overlay.remove();
     }); 
+    this.animate(overlay, {opacity: '0.3'}, 100);
   },
   
   getCardImageFile : function(rank, suit) {
