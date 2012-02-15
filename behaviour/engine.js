@@ -118,6 +118,14 @@ Game.prototype = {
   drawText: function(text) {
     this.view.drawText(text);
   },
+
+  drawError: function(text) {
+    this.view.drawError(text);
+  },
+
+  clearError: function(text) {
+    this.view.clearError(text);
+  },
   
   drawPlayer: function(player) {
     this.view.drawPlayer(player);
@@ -130,7 +138,6 @@ Game.prototype = {
   waitForEvent: function() {
     this.view.waitForEvent();
   },
-
 
   clearMoves: function(moves) {
     this.view.clearPlayerMoves();
@@ -307,14 +314,13 @@ MessageHandler.prototype = {
   },
 
   invalidMove : function (response) {
-    this.game.drawText(messages[conf.lang].invalidMove);
-    $(".alert-message").alert();
- 
+    this.game.drawError(messages[conf.lang].invalidMove); 
     this.game.setCardClickHandler(this.game.makeMove);
   },
 
   handPlayed : function (response) {
     this.game.removeSelectedCard();
+    this.game.clearError();
 
     var playerMoves = this.transformPlayerMoves(response.hand);
     this.game.addAndDrawMoves(playerMoves);

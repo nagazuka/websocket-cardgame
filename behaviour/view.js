@@ -38,7 +38,7 @@ var CARD_MIDDLE_X = (WIDTH / 2) - (CARD_WIDTH / 2);
 var CARD_X_ARR = [CARD_MIDDLE_X, CARD_MIDDLE_X - 2*CARD_WIDTH,CARD_MIDDLE_X, CARD_MIDDLE_X + 2*CARD_WIDTH];
 var CARD_Y_ARR = [CARD_MIDDLE_Y + 0.5*CARD_HEIGHT, CARD_MIDDLE_Y, CARD_MIDDLE_Y - 0.75*CARD_HEIGHT, CARD_MIDDLE_Y];
 
-var PLAYER_MOVE_ANIMATE_TIME = 1000;
+var PLAYER_MOVE_ANIMATE_TIME = 500;
 var SUIT_TRANSLATION_TABLE = { 'DIAMONDS' : 'd', 'CLUBS' : 'c', 'SPADES' : 's', 'HEARTS' : 'h'};
 var RANK_TRANSLATION_TABLE = [undefined, undefined, '2', '3', '4', '5', '6', '7', '8', '9', '10', 'j', 'q', 'k', 'a'];
 
@@ -187,6 +187,26 @@ View.prototype = {
     }
     this.text.hide();
     this.animate(this.text, {'opacity': 1}, 100); 
+  },
+
+  drawError: function(message) {
+    var offset = $('#canvas').offset();
+    var width = $('#alertContainer').width();
+    var height = $('#alertContainer').height();
+    var top = offset.top + CARD_AREA_Y - CARD_AREA_PADDING - height + "px";
+    var left = offset.left + CARD_AREA_PADDING + "px";
+    
+    $('#alertContainer').css({
+      position: 'absolute',
+      top: top,
+      left: left
+    });
+    $('#txtAlert').text(message);
+    $('#alertContainer').show();
+  },
+
+  clearError: function() {
+    $('#alertContainer').hide();
   },
 
   drawTrumpSuit: function(trumpSuit) {

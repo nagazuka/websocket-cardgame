@@ -2,7 +2,7 @@
   display: none;
 }
 
-#errorContainer {
+#alertContainer {
   display: none;
   z-index: 1000;
 }

@@ -16,9 +16,9 @@
 
     <div id="canvas">
       &nbsp;
-      <div id="errorContainer" class="span4">
-        <div class="alert alert-error">
-          <strong>Well done!</strong> You successfully read this important alert message.
+      <div id="alertContainer" class="span3">
+        <div id="txtAlert" class="alert alert-block alert-error">
+        &nbsp;
         </div>
       </div>
     </div>
@@ -88,5 +88,37 @@
     <p id="error-content">&nbsp;</p>
   </div>
 %}
+      <div id="welcomeModal" class="modal hide fade"> 
+        <div class="modal-header">
+          <a id="closePlayerName" href="#" class="close" data-dismiss="modal">&times;</a>
+          <h3>Welkom bij TroefCall Online</h3>
+        </div>
+        <form id="formPlayerName" class="well">
+        <div class="modal-body">
+          <p>Voordat we beginnen met TroefCall Online, eerst je naam invoeren:</p>
+            <label>Naam</label>
+              <input id="inputPlayerName" type="text" class="span3" placeholder="Typ iets"> <span class="help-inline">&nbsp;</span>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Starten</button>
+        </div>
+        </form>
+      </div>
+      
+      <div id="disconnectModal" class="modal hide fade"> 
+        <div class="modal-header">
+          <a id="closeModalHeader" href="#" class="close" data-dismiss="modal">&times;</a>
+          <h3>Oh oh...</h3>
+        </div>
+        <form id="formPlayerName" class="well">
+        <div class="modal-body">
+          <h3>Verbinding verloren</h3>
+          <p>Het lijkt erop dat de verbinding met TroefCall Online is verloren. Check je internet toegang even en probeer het later opnieuw. Sorry...</p>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Opnieuw laden</button>
+        </div>
+        </form>
+      </div>
 </div>
 {% end %}
