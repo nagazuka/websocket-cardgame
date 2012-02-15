@@ -152,7 +152,7 @@ View.prototype = {
       var suit; 
       var i;
       for (suit in SUIT_TRANSLATION_TABLE) {
-        for(i=2; i < 13; i++) {
+        for(i=2; i < 15; i++) {
           var cardImageFile = this.getCardImageFile(i, suit);
           loader.addImage(cardImageFile);
         }
