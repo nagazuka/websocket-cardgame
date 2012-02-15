@@ -186,6 +186,8 @@ View.prototype = {
       this.text = this.getCanvas().text(x, y, content);
       this.text.attr({'fill' : '#fff', 'font-size' : '24', 'font-family' : conf.font, 'font-weight' : 'bold', 'fill-opacity' : '100%', 'stroke' : '#aaa', 'stroke-width' : '1', 'stroke-opacity' : '100%'});
     }
+    this.text.hide();
+    this.animate(this.text, {'opacity': 1}, 100); 
   },
 
   drawTrumpSuit: function(trumpSuit) {
@@ -223,6 +225,7 @@ View.prototype = {
   }, 
 
   animate: function(obj, attr, time) {
+    logger.debug("Animate object");
     var self = this;
     var callback = function () {
       self.animationQueue.shift();
@@ -235,6 +238,7 @@ View.prototype = {
   },
 
   drawPlayerMove: function(playerMove) {
+    logger.debug("Drawing player move");
 
     var player = playerMove.getPlayer();
     var card = playerMove.getCard();
@@ -253,8 +257,11 @@ View.prototype = {
   },
 
   clearPlayerMoves: function() {
+    logger.debug("Clearing all playerMoves");
     var playerMoves = this.repository.getElementsByCategory('playerMoves');
-    _.each(playerMoves, function (pm) { pm.remove(); });
+    _.each(playerMoves, function (pm) { 
+      pm.remove(); 
+    });
     this.repository.clearCategory('playerMoves');
   },
 
