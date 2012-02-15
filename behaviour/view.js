@@ -109,12 +109,11 @@ View.prototype = {
     },
 
     updateProgressOverlay: function(e) {
-      var loadStr = 'Loading';
-      var i;
-      for(i=0; i < e.completedCount % 3; i++) {
-        loadStr += ".";
+      var percentage = 0;
+      if (e.totalCount != null) {
+        percentage = Math.floor(100.0*e.completedCount / e.totalCount);
       }
-      $('#txtLoading').text(loadStr);
+      $('#progressBar').css('width', percentage + '%');
     },
 
     clearProgressOverlay: function() {
