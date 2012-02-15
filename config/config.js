@@ -21,13 +21,13 @@ var conf = {
     'CLUBS': 'Clubs64.png',
     'DIAMONDS': 'Diamond64.png',
     'HEARTS': 'Hearts64.png',
-    'default': 'default.png',
+    'default': 'default.png'
   },
 
   teamFlags: {
     'Team Suriname': 'Suriname.png',
     'Team Nederland': 'Netherlands.png',
-    'default': 'default.png',
+    'default': 'default.png'
   },
 	
 	// my skins
