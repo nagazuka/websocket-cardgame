@@ -151,6 +151,7 @@ class GameServer:
                 self.writer.sendMessage(response)
             else:
                 self.hand.addPlayerMove(playerMove)
+                player.removeCard(playedCard)
                 self.askPlayers()
 
         except Exception as ex:

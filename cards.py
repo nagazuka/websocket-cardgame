@@ -112,7 +112,10 @@ class HandInfo:
        
         player = move.getPlayer()
         remainingCards = player.getCards() 
+        logging.debug("Asked suit %s", askedSuit)
+        logging.debug("Remaining cards %s", len(remainingCards))
         remainingAskedSuit = [card for card in remainingCards if card.suit == askedSuit]
+        logging.debug("Remaining askedSuit %s", len(remainingAskedSuit))
         if len(remainingAskedSuit) == 0:
             return True
 

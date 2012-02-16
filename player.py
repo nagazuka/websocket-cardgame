@@ -25,6 +25,10 @@ class Player:
         assert cards != None
         self.cards.extend(cards)
 
+    def removeCard(self, card=None):
+        assert card != None
+        self.cards = [c for c in self.cards if c.rank != card.rank and  c.suit != card.suit]
+
     def getCards(self):
         return self.cards
 
