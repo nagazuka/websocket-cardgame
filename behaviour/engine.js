@@ -126,7 +126,7 @@ Game.prototype = {
   clearError: function(text) {
     this.view.clearError(text);
   },
-  
+
   drawPlayer: function(player) {
     this.view.drawPlayer(player);
   },
@@ -289,7 +289,7 @@ MessageHandler.prototype = {
     var cards = this.transformCards(response.cards);
     this.game.addCards(cards);
     this.game.drawCards();
-    this.game.drawText(messages[conf.lang].chooseTrump);
+    this.game.drawText(messages[conf.lang].chooseTrumpHeading);
     this.game.setCardClickHandler(this.game.chooseTrump);
   },
 

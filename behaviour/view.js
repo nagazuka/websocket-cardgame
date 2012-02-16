@@ -190,40 +190,19 @@ View.prototype = {
   },
 
   drawError: function(heading, message) {
-    this.drawPopup(heading, message, 'error');
+    this.drawText(heading);
   },
 
-  drawInfo: function(heading, message) {
-    this.drawPopup(heading, message, 'info');
-  },
-
-  drawPopup: function(heading, message, type) {
-    $('#txtAlertHeading').text(heading);
-    $('#txtAlert').text(message);
-
-    var offset = $('#canvas').offset();
-    var width = $('#alertContainer').width();
-    var height = $('#alertContainer').height();
-    var top = offset.top + CARD_AREA_Y - CARD_AREA_PADDING - height + "px";
-    var left = offset.left + CARD_AREA_PADDING + "px";
-    
-    $('#alertContainer').css({
-      position: 'absolute',
-      top: top,
-      left: left
-    });
-
-    $('#alertComp').removeClass();
-    $('#alertComp').addClass('alert alert-block ' + 'alert-' + type);
-
-    $('#alertClose').live('click',function(){
-        $(this).parent().hide();
-    });
-    $('#alertContainer').show('fast');
+  drawMessage: function(heading, message) {
+    this.drawText(heading);
   },
 
   clearError: function() {
-    $('#alertContainer').hide();
+    this.drawText("");
+  },
+
+  clearMessage: function() {
+    this.drawText("");
   },
 
   drawTrumpSuit: function(trumpSuit) {

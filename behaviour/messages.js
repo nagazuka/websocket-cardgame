@@ -1,7 +1,8 @@
 var messages = {
   nl: {
     noWebSocketSupport: 'Deze browser ondersteunt geen WebSocket.',
-    chooseTrump:  'Kies je troef',
+    chooseTrumpHeading:  'Kies je troef',
+    chooseTrump:  'Klik 1 van je kaarten aan om de troef te kiezen.',
     yourTurn:  'Jij bent aan de beurt...',
     youWinHand:  'Jij hebt deze hand gemaakt!',
     otherWinsHand: '\nheeft deze hand gemaakt!',

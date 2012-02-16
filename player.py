@@ -1,4 +1,5 @@
 import random
+import logging
 
 
 class Player:
@@ -27,7 +28,15 @@ class Player:
 
     def removeCard(self, card=None):
         assert card != None
-        self.cards = [c for c in self.cards if c.rank != card.rank and  c.suit != card.suit]
+        logging.debug("Removing card %s" % card)
+        logging.debug("Before remove card %s", len(self.cards))
+        for c in self.cards:
+          logging.debug("%s", c)
+        #self.cards = [c for c in self.cards if c.rank != card.rank and  c.suit != card.suit]
+        self.cards.remove(card)
+        logging.debug("After remove card %s", len(self.cards))
+        for c in self.cards:
+          logging.debug("%s", c)
 
     def getCards(self):
         return self.cards

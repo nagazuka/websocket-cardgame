@@ -18,6 +18,12 @@ class Card:
     def getSuit(self):
         return self.suit
 
+    def __eq__(self, other):
+        if (other == None):
+          return False
+        else:
+          return self.rank == other.rank and self.suit == other.suit
+
 class Deck:
 
     def __init__(self):
@@ -106,12 +112,19 @@ class HandInfo:
         #the first move is always valid
         if len(self.playerMoves) == 0:
             return True
-
-        askedSuit = self.getAskedSuit()
        
+        firstCard = self.playerMoves[0].getCard()
+        askedSuit = firstCard.suit
+
+        logging.debug("Asked suit %s", askedSuit)
         player = move.getPlayer()
         remainingCards = player.getCards() 
+        logging.debug("Remaining cards %s", remainingCards)
+        for c in remainingCards:
+          logging.debug("%s", c)
+
         remainingAskedSuit = [card for card in remainingCards if card.suit == askedSuit]
+        logging.debug("Remaining asked suit %s", len(remainingAskedSuit))
         if len(remainingAskedSuit) == 0:
             return True
 
