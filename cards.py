@@ -107,15 +107,11 @@ class HandInfo:
         if len(self.playerMoves) == 0:
             return True
 
-        firstCard = self.playerMoves[0].getCard() 
-        askedSuit = firstCard.suit
+        askedSuit = self.getAskedSuit()
        
         player = move.getPlayer()
         remainingCards = player.getCards() 
-        logging.debug("Asked suit %s", askedSuit)
-        logging.debug("Remaining cards %s", len(remainingCards))
         remainingAskedSuit = [card for card in remainingCards if card.suit == askedSuit]
-        logging.debug("Remaining askedSuit %s", len(remainingAskedSuit))
         if len(remainingAskedSuit) == 0:
             return True
 
