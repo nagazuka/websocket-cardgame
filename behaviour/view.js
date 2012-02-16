@@ -190,6 +190,14 @@ View.prototype = {
   },
 
   drawError: function(heading, message) {
+    this.drawPopup(heading, message, 'error');
+  },
+
+  drawInfo: function(heading, message) {
+    this.drawPopup(heading, message, 'info');
+  },
+
+  drawPopup: function(heading, message, type) {
     $('#txtAlertHeading').text(heading);
     $('#txtAlert').text(message);
 
@@ -203,6 +211,13 @@ View.prototype = {
       position: 'absolute',
       top: top,
       left: left
+    });
+
+    $('#alertComp').removeClass();
+    $('#alertComp').addClass('alert alert-block ' + 'alert-' + type);
+
+    $('#alertClose').live('click',function(){
+        $(this).parent().hide();
     });
     $('#alertContainer').show('fast');
   },
