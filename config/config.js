@@ -4,7 +4,7 @@
 var conf = {
   lang: 'nl',
 
-  font: 'Helvetica',	
+  font: 'Ubuntu',	
 
 	network: {
     wsURL : 'ws://nagazuka.nl:8080/websocket'
