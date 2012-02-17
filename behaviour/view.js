@@ -80,6 +80,7 @@ function View(game) {
     this.repository = new Repository();
     this.animationQueue = [];
     this.progressOverlay = null;
+    this.alertPopup = null;
 }
 
 View.prototype = {
@@ -183,7 +184,7 @@ View.prototype = {
       this.text.attr({'text': content});
     } else {
       this.text = this.getCanvas().text(x, y, content);
-      this.text.attr({'fill' : '#fff', 'font-size' : '24', 'font-family' : conf.font, 'font-weight' : 'bold', 'fill-opacity' : '100%', 'stroke' : '#aaa', 'stroke-width' : '1', 'stroke-opacity' : '100%'});
+      this.text.attr({'fill' : '#fff', 'font-size' : '24', 'font-family' : conf.font, 'font-weight' : 'bold','stroke-width' : '1'});
     }
     this.text.hide();
     this.animate(this.text, {'opacity': 1}, 100); 
@@ -194,22 +195,26 @@ View.prototype = {
   },
 
   drawAlert: function(heading, message, type) {
+    var canvas = this.getCanvas();
+    canvas.setStart();
+
     var height = 100;
     var width = 250;
     var x = CARD_AREA_PADDING*2;
     var y = HEIGHT-CARD_AREA_HEIGHT-(CARD_AREA_PADDING*2)-height;
     var radius = 4;
-    var box = this.getCanvas().rect(x,y,width, height, radius);
+    var box = canvas.rect(x,y,width, height, radius);
     box.attr({fill: '#F2DEDE', stroke:'#EED3D7'});
 
     var internalPadding = 10; 
     var textColour = '#B94A48'; 
-    var heading = this.getCanvas().text(x+internalPadding, y+2*internalPadding, heading);
+    var heading = canvas.text(x+internalPadding, y+2*internalPadding, heading);
     heading.attr({'fill' : textColour, 'font-size' : '14', 'font-family' : conf.font, 'font-weight': 'bold', 'text-anchor': 'start'});
 
-    var heading = this.getCanvas().text(x+internalPadding, y+4*internalPadding, message);
-    heading.attr({'fill' : textColour, 'font-size' : '14', 'font-family' : conf.font, 'text-anchor': 'start'});
+    var content = canvas.text(x+internalPadding, y+5*internalPadding, message);
+    content.attr({'fill' : textColour, 'font-size' : '13', 'font-family' : conf.font, 'text-anchor': 'start'});
 
+    this.alertPopup = canvas.setFinish();
   },
 
   drawMessage: function(heading, message) {
@@ -217,7 +222,9 @@ View.prototype = {
   },
 
   clearError: function() {
-    this.drawText("");
+    if (this.alertPopup) {
+      this.alertPopup.remove();
+    }
   },
 
   clearMessage: function() {
