@@ -4,7 +4,6 @@ var HEIGHT = 600;
 var TABLE_WIDTH = 500;
 var TABLE_HEIGHT = 350;
 
-
 var CARD_WIDTH = 45;
 var CARD_HEIGHT = 70;
 
@@ -172,6 +171,16 @@ View.prototype = {
       for (trumpSuit in conf.suitIcons) {
         var iconImage = this.getSuitImageFile(trumpSuit);
         loader.addImage(iconImage);
+      }
+
+      var charCode;
+      var num;
+      for(charCode=65; charCode < 80; charCode++) {
+        for(num=1; num < 5; num++) {
+          var letter = String.fromCharCode(charCode);
+          var avatarImage = this.getAvatarImageFile(letter, num);
+          loader.addImage(avatarImage);
+        }
       }
 
       loader.addCompletionListener(function() {
@@ -404,7 +413,11 @@ View.prototype = {
     var charCode = Math.floor(Math.random() * 15) + 65;
     var letter = String.fromCharCode(charCode);
     var number = Math.floor(Math.random() * 5) + 1;
-    return conf.avatarDirectory + letter + '0' + number + '.png';
+    return this.getAvatarImageFile(letter, number);
+  },
+
+  getAvatarImageFile: function(letter, num) {
+    return conf.avatarDirectory + letter + '0' + num + '.png';
   },
 
   getTeamImageFile: function(teamName) {
