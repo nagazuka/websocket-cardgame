@@ -15,8 +15,8 @@ var CARD_AREA_PADDING = 10;
 var TABLE_X = (WIDTH - TABLE_WIDTH) / 2;
 var TABLE_Y = (HEIGHT - TABLE_HEIGHT - CARD_AREA_HEIGHT) / 2;
 
-var DECK_WIDTH = 143 / 2;
-var DECK_HEIGHT = 194 / 2;
+var DECK_WIDTH = 143 / 3;
+var DECK_HEIGHT = 194 / 3;
 var DECK_X = (WIDTH / 2) - (DECK_WIDTH / 2);
 var DECK_Y = (CARD_AREA_Y / 2) - (DECK_HEIGHT/2);
 
@@ -44,6 +44,8 @@ var CARD_X_ARR = [CARD_MIDDLE_X, CARD_MIDDLE_X - 2*CARD_WIDTH,CARD_MIDDLE_X, CAR
 var CARD_Y_ARR = [CARD_MIDDLE_Y + 0.5*CARD_HEIGHT, CARD_MIDDLE_Y, CARD_MIDDLE_Y - 0.75*CARD_HEIGHT, CARD_MIDDLE_Y];
 
 var PLAYER_MOVE_ANIMATE_TIME = 500;
+var PLAYER_CARD_ANIMATE_TIME = 500;
+
 var SUIT_TRANSLATION_TABLE = { 'DIAMONDS' : 'd', 'CLUBS' : 'c', 'SPADES' : 's', 'HEARTS' : 'h'};
 var RANK_TRANSLATION_TABLE = [undefined, undefined, '2', '3', '4', '5', '6', '7', '8', '9', '10', 'j', 'q', 'k', 'a'];
 
@@ -279,7 +281,14 @@ View.prototype = {
       var offset = 2 * CARD_AREA_PADDING;
       var stepSize = (CARD_AREA_WIDTH - offset) / cards.length;
       _.each(cards, function(card, i) {
-        var cardImage = self.drawCard(card, i * stepSize + offset, CARD_AREA_Y + CARD_AREA_PADDING, CARD_WIDTH, CARD_HEIGHT, 'playerCards');
+        var startX = DECK_X;
+        var startY = DECK_Y;
+        var endX = i * stepSize + offset;
+        var endY = CARD_AREA_Y + CARD_AREA_PADDING;
+
+        var cardImage = self.drawCard(card, startX, startY, CARD_WIDTH, CARD_HEIGHT, 'playerCards');
+        cardImage.hide();
+        self.animate(cardImage, {x: endX, y: endY}, PLAYER_CARD_ANIMATE_TIME);
         self.repository.addElement(cardImage, 'playerCards');
       });
     }
