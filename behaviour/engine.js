@@ -288,6 +288,7 @@ MessageHandler.prototype = {
   dealFirstCards : function (response) {
     var cards = this.transformCards(response.cards);
     this.game.addCards(cards);
+    this.game.view.drawDeck();
     this.game.drawCards();
     this.game.drawText(messages[conf.lang].chooseTrumpHeading);
     this.game.setCardClickHandler(this.game.chooseTrump);
@@ -300,6 +301,7 @@ MessageHandler.prototype = {
     this.game.clearCards();
     this.game.addCards(cards);
     this.game.drawCards();
+    this.game.view.clearDeck();
     this.game.sendReady();
   },
 

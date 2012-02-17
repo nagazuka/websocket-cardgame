@@ -4,6 +4,7 @@ var HEIGHT = 600;
 var TABLE_WIDTH = 500;
 var TABLE_HEIGHT = 350;
 
+
 var CARD_WIDTH = 45;
 var CARD_HEIGHT = 70;
 
@@ -14,6 +15,11 @@ var CARD_AREA_PADDING = 10;
 
 var TABLE_X = (WIDTH - TABLE_WIDTH) / 2;
 var TABLE_Y = (HEIGHT - TABLE_HEIGHT - CARD_AREA_HEIGHT) / 2;
+
+var DECK_WIDTH = 143 / 2;
+var DECK_HEIGHT = 194 / 2;
+var DECK_X = (WIDTH / 2) - (DECK_WIDTH / 2);
+var DECK_Y = (CARD_AREA_Y / 2) - (DECK_HEIGHT/2);
 
 var PLAYER_VERT_PADDING = 10;
 var PLAYER_HORIZ_PADDING = 35;
@@ -143,6 +149,9 @@ View.prototype = {
       var loader = new PxLoader();
       var tableImage = this.getTableImageFile();
       loader.addImage(tableImage);
+
+      var deckImage = this.getDeckImageFile();
+      loader.addImage(deckImage);
   
       var teamName; 
       for (teamName in conf.teamFlags) { 
@@ -177,14 +186,14 @@ View.prototype = {
     },
 
   drawText : function(content) {
-    var x = WIDTH / 2;
-    var y = HEIGHT / 2;
+    var x = WIDTH * 0.8;
+    var y = HEIGHT * 0.7;
 
     if (this.text) {
       this.text.attr({'text': content});
     } else {
       this.text = this.getCanvas().text(x, y, content);
-      this.text.attr({'fill' : '#fff', 'font-size' : '24', 'font-family' : conf.font, 'font-weight' : 'bold','stroke-width' : '1'});
+      this.text.attr({'fill' : '#fff', 'font-size' : '22', 'font-family' : conf.font, 'font-weight' : 'bold','stroke-width' : '1'});
     }
     this.text.hide();
     this.animate(this.text, {'opacity': 1}, 100); 
@@ -239,6 +248,20 @@ View.prototype = {
     var trumpSuitIcon = this.getCanvas().image(iconImage, TRUMPSUIT_X, TRUMPSUIT_Y, TRUMPSUIT_SIZE, TRUMPSUIT_SIZE);
     this.repository.addElement(trumpSuitText, "trumpSuit");
     this.repository.addElement(trumpSuitIcon, "trumpSuit");
+  },
+
+  drawDeck: function() {
+    var image = this.getDeckImageFile();
+    var deck = this.getCanvas().image(image, DECK_X, DECK_Y, DECK_WIDTH, DECK_HEIGHT);
+    this.repository.addElement(deck, "deck");
+  },
+
+  clearDeck: function() {
+    var list = this.repository.getElementsByCategory("deck");
+    if (list.length > 0) {
+      list[0].remove(); 
+    }
+    this.repository.clearCategory("deck");
   },
 
   drawPlayerCards: function(cards) {
@@ -395,7 +418,11 @@ View.prototype = {
     return conf.suitsDirectory + conf.suitIcons[trumpSuit];
   },
 
-  getTableImageFile: function(trumpSuit) {
+  getTableImageFile: function() {
     return conf.imageDir + 'green_poker_skin.png';
+  },
+
+  getDeckImageFile: function() {
+    return conf.imageDir + 'card_back.png';
   }
 };
