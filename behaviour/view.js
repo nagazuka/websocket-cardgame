@@ -190,7 +190,26 @@ View.prototype = {
   },
 
   drawError: function(heading, message) {
-    this.drawText(heading);
+    this.drawAlert(heading, message, 'error');
+  },
+
+  drawAlert: function(heading, message, type) {
+    var height = 100;
+    var width = 250;
+    var x = CARD_AREA_PADDING*2;
+    var y = HEIGHT-CARD_AREA_HEIGHT-(CARD_AREA_PADDING*2)-height;
+    var radius = 4;
+    var box = this.getCanvas().rect(x,y,width, height, radius);
+    box.attr({fill: '#F2DEDE', stroke:'#EED3D7'});
+
+    var internalPadding = 10; 
+    var textColour = '#B94A48'; 
+    var heading = this.getCanvas().text(x+internalPadding, y+2*internalPadding, heading);
+    heading.attr({'fill' : textColour, 'font-size' : '14', 'font-family' : conf.font, 'font-weight': 'bold', 'text-anchor': 'start'});
+
+    var heading = this.getCanvas().text(x+internalPadding, y+4*internalPadding, message);
+    heading.attr({'fill' : textColour, 'font-size' : '14', 'font-family' : conf.font, 'text-anchor': 'start'});
+
   },
 
   drawMessage: function(heading, message) {
@@ -298,9 +317,12 @@ View.prototype = {
     var cardImage = this.getCanvas().image(this.getCardImageFile(card.rank, card.suit), x, y, width, height);
 
     cardImage.mouseover(function(event) {
+        this.translate(0,-1*CARD_HEIGHT);
         this.attr({'height': CARD_HEIGHT * 2, 'width': CARD_WIDTH * 2});
+        this.toFront();
     });
     cardImage.mouseout(function(event) {
+        this.translate(0,CARD_HEIGHT);
         this.attr({'height': CARD_HEIGHT, 'width': CARD_WIDTH});
     });
 

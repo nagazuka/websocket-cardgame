@@ -8,7 +8,7 @@ var messages = {
     otherWinsHand: '\nheeft deze hand gemaakt!',
     errorMessage:  'Ai ai ai!\nEr is een fout opgetreden.',
     invalidMoveHeading:  'Ongeldige kaart.',
-    invalidMove:  'Kies een andere kaart om verder te spelen',
+    invalidMove:  'Kies een andere kaart om verder\nte spelen',
     playerPrefix:  'Anoniem'
   }
 };
