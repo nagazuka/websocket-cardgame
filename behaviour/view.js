@@ -178,7 +178,7 @@ View.prototype = {
       var charCode;
       var num;
       for(charCode=65; charCode < 80; charCode++) {
-        for(num=1; num < 5; num++) {
+        for(num=1; num < 6; num++) {
           var letter = String.fromCharCode(charCode);
           var avatarImage = this.getAvatarImageFile(letter, num);
           loader.addImage(avatarImage);
