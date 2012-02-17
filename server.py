@@ -216,13 +216,12 @@ if __name__ == "__main__":
     application = tornado.web.Application([
     (r"/", MainHandler),
     (r"/index.html", MainHandler),
-    (r"/about.html", AboutHandler),
-    (r"/contact.html", ContactHandler),
+    (r"/about", AboutHandler),
+    (r"/contact", ContactHandler),
     (r"/websocket", MessageHandler),
     (r"/presentation/(.*)", tornado.web.StaticFileHandler,
      {"path": "presentation"}),
     (r"/behaviour/(.*)", tornado.web.StaticFileHandler, {"path": "behaviour"}),
-    (r"/config/(.*)", tornado.web.StaticFileHandler, {"path": "config"}),
     (r"/images/(.*)", tornado.web.StaticFileHandler, {"path": "images"}),
 ], debug=True)
 
