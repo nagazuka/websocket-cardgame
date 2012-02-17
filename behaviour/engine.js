@@ -131,7 +131,7 @@ Game.prototype = {
     this.view.drawPlayer(player);
   },
 
-  drawCards : function() {
+  drawCards: function() {
     this.view.drawPlayerCards(this.cards);
   },
   

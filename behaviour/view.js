@@ -196,7 +196,7 @@ View.prototype = {
       return loader;
     },
 
-  drawText : function(content) {
+  drawText : function(content, x, y) {
     var x = WIDTH * 0.8;
     var y = HEIGHT * 0.7;
 
@@ -210,45 +210,26 @@ View.prototype = {
     this.animate(this.text, {'opacity': 1}, 100); 
   },
 
+  drawInvalidText : function(content, x, y) {
+    var x = WIDTH * 0.2;
+    var y = HEIGHT * 0.7;
+
+    if (this.invalidText) {
+      this.invalidText.attr({'text': content});
+    } else {
+      this.invalidText = this.getCanvas().text(x, y, content);
+      this.invalidText.attr({'fill' : '#f00', 'font-size' : '22', 'font-family' : conf.font, 'font-weight' : 'bold','stroke-width' : '1'});
+    }
+    this.invalidText.hide();
+    this.animate(this.invalidText, {'opacity': 1}, 100); 
+  },
+
   drawError: function(heading, message) {
-    this.drawAlert(heading, message, 'error');
-  },
-
-  drawAlert: function(heading, message, type) {
-    var canvas = this.getCanvas();
-    canvas.setStart();
-
-    var height = 100;
-    var width = 250;
-    var x = CARD_AREA_PADDING*2;
-    var y = HEIGHT-CARD_AREA_HEIGHT-(CARD_AREA_PADDING*2)-height;
-    var radius = 4;
-    var box = canvas.rect(x,y,width, height, radius);
-    box.attr({fill: '#F2DEDE', stroke:'#EED3D7'});
-
-    var internalPadding = 10; 
-    var textColour = '#B94A48'; 
-    var heading = canvas.text(x+internalPadding, y+2*internalPadding, heading);
-    heading.attr({'fill' : textColour, 'font-size' : '14', 'font-family' : conf.font, 'font-weight': 'bold', 'text-anchor': 'start'});
-
-    var content = canvas.text(x+internalPadding, y+5*internalPadding, message);
-    content.attr({'fill' : textColour, 'font-size' : '13', 'font-family' : conf.font, 'text-anchor': 'start'});
-
-    this.alertPopup = canvas.setFinish();
-  },
-
-  drawMessage: function(heading, message) {
-    this.drawText(heading);
+    this.drawInvalidText(heading);
   },
 
   clearError: function() {
-    if (this.alertPopup) {
-      this.alertPopup.remove();
-    }
-  },
-
-  clearMessage: function() {
-    this.drawText("");
+    this.drawInvalidText("");
   },
 
   drawTrumpSuit: function(trumpSuit) {
@@ -372,6 +353,7 @@ View.prototype = {
     cardImage.mouseout(function(event) {
         this.translate(0,CARD_HEIGHT);
         this.attr({'height': CARD_HEIGHT, 'width': CARD_WIDTH});
+        self.clearError();
     });
 
     cardImage.click(function(event) {
