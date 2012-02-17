@@ -157,7 +157,9 @@ View.prototype = {
       var teamName; 
       for (teamName in conf.teamFlags) { 
         var teamImageFile = this.getTeamImageFile(teamName);
+        var smallTeamImageFile = this.getTeamImageFile(teamName, 'small');
         loader.addImage(teamImageFile);
+        loader.addImage(smallTeamImageFile);
       }
       
       var suit; 
@@ -254,6 +256,24 @@ View.prototype = {
       list[0].remove(); 
     }
     this.repository.clearCategory("deck");
+  },
+
+  drawInitialScores: function(teams) {
+    var canvas = this.getCanvas();
+    var padding = 10;
+    for (i in teams) {
+      var size = 32;
+      var x = WIDTH - 100;
+      var y = padding;
+      var smallTeamImage = this.getTeamImageFile(teams[i], 'small');
+      canvas.image(smallTeamImage, x, y, size, size);
+      canvas.text("0", x, y).attr({'font-size': 20,'text-anchor': 'start','fill': '#fff','font-family' : conf.font, 'font-weight' : 'bold'}).toFront();
+      padding += padding + size;
+    }
+  },
+
+  updateScores: function(scores) {
+
   },
 
   drawPlayerCards: function(cards) {
@@ -411,11 +431,18 @@ View.prototype = {
     return conf.avatarDirectory + letter + '0' + num + '.png';
   },
 
-  getTeamImageFile: function(teamName) {
+  getTeamImageFile: function(teamName, size) {
     if (!(teamName in conf.teamFlags)) {
       teamName = 'default';
     }
-    return conf.flagDirectory + conf.teamFlags[teamName];
+
+    var flagDir;
+    if (size == 'small') {
+      flagDir = conf.flagSmallDir;
+    } else {
+      flagDir = conf.flagDir;
+    }
+    return flagDir + conf.teamFlags[teamName];
   },
 
   getSuitImageFile: function(trumpSuit) {

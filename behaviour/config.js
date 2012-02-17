@@ -12,10 +12,9 @@ var conf = {
   
   imageDir: 'images/',
   avatarDirectory: 'images/avatars/',  
-  flagDirectory: 'images/flags/64/', 
-  suitsDirectory: 'images/suits/', 
   cardsDirectory: 'images/cards/', 
   
+  suitsDirectory: 'images/suits/', 
   suitIcons: {
     'SPADES': 'Spades64.png',
     'CLUBS': 'Clubs64.png',
@@ -24,6 +23,8 @@ var conf = {
     'default': 'default.png'
   },
 
+  flagDir: 'images/flags/64/', 
+  flagSmallDir: 'images/flags/32/', 
   teamFlags: {
     'Team Suriname': 'Suriname.png',
     'Team Nederland': 'Netherlands.png',

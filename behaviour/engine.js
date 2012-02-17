@@ -163,6 +163,8 @@ Game.prototype = {
 
     $('#team-score-1').text('0');
     $('#team-score-2').text('0');
+
+    this.view.drawInitialScores([this.playerTeam, this.cpuTeam]);
   },
 
   updateScores: function(scores) {
