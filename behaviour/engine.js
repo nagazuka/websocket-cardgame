@@ -8,12 +8,10 @@ function Logger() {
 Logger.prototype = {
   debug : function(message) {
     console.log("DEBUG " + message);
-    $('#debug-content').append("<p>" + message + "</p>");
   },
 
   error : function(message) {
     console.log("ERROR " + message);
-    $('#error-content').append("<p>" + message + "</p>");
   }
 };
 
