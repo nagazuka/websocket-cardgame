@@ -44,7 +44,16 @@ var CARD_X_ARR = [CARD_MIDDLE_X, CARD_MIDDLE_X - 2*CARD_WIDTH,CARD_MIDDLE_X, CAR
 var CARD_Y_ARR = [CARD_MIDDLE_Y + 0.5*CARD_HEIGHT, CARD_MIDDLE_Y, CARD_MIDDLE_Y - 0.75*CARD_HEIGHT, CARD_MIDDLE_Y];
 
 var PLAYER_MOVE_ANIMATE_TIME = 500;
-var PLAYER_CARD_ANIMATE_TIME = 500;
+var PLAYER_CARD_ANIMATE_TIME = 250;
+
+
+var SCORE_PADDING = 20;
+var SCORE_FLAG_SIZE = 32;
+var SCORE_FLAG_X = [WIDTH - SCORE_FLAG_SIZE - 2*SCORE_PADDING, WIDTH - SCORE_FLAG_SIZE - 2*SCORE_PADDING];
+var SCORE_FLAG_Y = [SCORE_PADDING, SCORE_PADDING + SCORE_FLAG_SIZE];
+
+var SCORE_FONT_SIZE = 20;
+var SCORE_TEXT_PADDING = 15;
 
 var SUIT_TRANSLATION_TABLE = { 'DIAMONDS' : 'd', 'CLUBS' : 'c', 'SPADES' : 's', 'HEARTS' : 'h'};
 var RANK_TRANSLATION_TABLE = [undefined, undefined, '2', '3', '4', '5', '6', '7', '8', '9', '10', 'j', 'q', 'k', 'a'];
@@ -260,20 +269,24 @@ View.prototype = {
 
   drawInitialScores: function(teams) {
     var canvas = this.getCanvas();
-    var padding = 10;
+
     for (i in teams) {
-      var size = 32;
-      var x = WIDTH - 100;
-      var y = padding;
       var smallTeamImage = this.getTeamImageFile(teams[i], 'small');
-      canvas.image(smallTeamImage, x, y, size, size);
-      canvas.text("0", x, y).attr({'font-size': 20,'text-anchor': 'start','fill': '#fff','font-family' : conf.font, 'font-weight' : 'bold'}).toFront();
-      padding += padding + size;
+      canvas.image(smallTeamImage, SCORE_FLAG_X[i], SCORE_FLAG_Y[i], SCORE_FLAG_SIZE, SCORE_FLAG_SIZE);
+      var scoreText = canvas.text(SCORE_FLAG_X[i]+SCORE_FLAG_SIZE+SCORE_TEXT_PADDING, SCORE_FLAG_Y[i]+SCORE_TEXT_PADDING, "0").attr({'font-size': SCORE_FONT_SIZE,'text-anchor': 'start','fill': '#fff','font-family' : conf.font, 'font-weight' : 'bold'});
+      scoreText.id = teams[i];
+      this.repository.addElement(scoreText,"scoreText");
     }
   },
 
   updateScores: function(scores) {
+    var teamScores = scores['teamScore'];
 
+    for (team in teamScores) {
+      console.log("Updating team scores for " + team + " with " + teamScores[team]);
+      var textElement = this.repository.findElement(team, "scoreText");
+      textElement.attr({'text': teamScores[team]});
+    }
   },
 
   drawPlayerCards: function(cards) {

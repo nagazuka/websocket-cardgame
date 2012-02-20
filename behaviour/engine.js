@@ -158,12 +158,13 @@ Game.prototype = {
   },
   
   initScores: function() {
+    /*
     $('#team-name-1').text(this.playerTeam);
     $('#team-name-2').text(this.cpuTeam);
 
     $('#team-score-1').text('0');
     $('#team-score-2').text('0');
-
+    */
     this.view.drawInitialScores([this.playerTeam, this.cpuTeam]);
   },
 
@@ -171,6 +172,7 @@ Game.prototype = {
     var teamScores = scores['teamScore'];
     var playerScores = scores['playerScore'];
 
+    /*
     $('#team-score-1').text(teamScores[this.playerTeam]);
     $('#team-score-2').text(teamScores[this.cpuTeam]);
    
@@ -181,6 +183,9 @@ Game.prototype = {
       $('#player-score-' + count).text(playerScores[player]);
       count += 1;
     }
+    */
+
+    this.view.updateScores(scores);
   },
 
   handleCardClicked : function(card) {
