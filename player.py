@@ -28,15 +28,7 @@ class Player:
 
     def removeCard(self, card=None):
         assert card != None
-        logging.debug("Removing card %s" % card)
-        logging.debug("Before remove card %s", len(self.cards))
-        for c in self.cards:
-          logging.debug("%s", c)
-        #self.cards = [c for c in self.cards if c.rank != card.rank and  c.suit != card.suit]
         self.cards.remove(card)
-        logging.debug("After remove card %s", len(self.cards))
-        for c in self.cards:
-          logging.debug("%s", c)
 
     def getCards(self):
         return self.cards
@@ -44,15 +36,48 @@ class Player:
     def getNumberOfCards(self):
         return len(self.cards)
 
-    def getNextMove(self, hand):
+    def getSameSuitCards(self, suit):
+        return [c for c in self.cards if c.suit == suit]
+
+    @staticmethod
+    def getHighestRankedCard(cards):
+        if (len(cards) > 0):
+          cards.sort(key=lambda c: c.rank)
+          return cards[0]
+        else:
+          return None 
+
+    @staticmethod
+    def getLowestRankedCard(cards):
+        if (len(cards) > 0):
+          cards.sort(key=lambda c: c.rank, reverse=True)
+          return cards[0]
+        else:
+          return None 
+
+    def getHighestCard(self, suit):
+        sameSuit = self.getSameSuitCards(suit)
+        return Player.getHighestRankedCard(sameSuit)
+
+    def getLowestCard(self, suit):
+        sameSuit = self.getSameSuitCards(suit)
+        return Player.getLowestRankedCard(sameSuit)
+
+    #TODO: check whether teammate is making this hand, adjust strategy
+    #TODO: don't always use highest trump card, but keep slightly higher than required
+    #TODO: don't play highest card when somebody already cut with trump
+    def getNextMove(self, hand, trumpSuit):
         choice = None
         if hand.size() > 0:
             candidates = [c for c in self.cards if c.suit ==
                           hand.getAskedSuit()]
             if len(candidates) > 0:
-                choice = random.choice(candidates)
+                choice = Player.getHighestRankedCard(candidates)
+            else:
+                choice = self.getHighestCard(trumpSuit)
+ 
         if choice == None:
-            choice = random.choice(self.cards)
+            choice = Player.getLowestRankedCard(self.cards)
 
         self.cards.remove(choice)
         return choice

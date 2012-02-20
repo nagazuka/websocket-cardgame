@@ -105,6 +105,8 @@ class GameServer:
 
     def askPlayers(self):
         jsonResponse = {'response': 'handPlayed'}
+        trumpSuit = self.cardGame.trumpSuit
+
         while not self.hand.isComplete():
             player = self.cardGame.getNextPlayer(self.hand.getStep())
 
@@ -118,12 +120,12 @@ class GameServer:
                 self.writer.sendMessage(message)
                 break
             else:
-                card = player.getNextMove(self.hand)
+                card = player.getNextMove(self.hand, trumpSuit)
                 self.hand.addPlayerMove(PlayerMove(player, card))
                 logging.debug("%s played %s", player.name, card)
 
         if self.hand.isComplete():
-            winningMove = self.hand.decideWinner(self.cardGame.trumpSuit)
+            winningMove = self.hand.decideWinner(trumpSuit)
             winningPlayer = winningMove.getPlayer()
 
             logging.debug("Winner is %s\n", winningPlayer)
@@ -231,3 +233,5 @@ if __name__ == "__main__":
 
     application.listen(settings.PORT_NUMBER)
     tornado.ioloop.IOLoop.instance().start()
+
+    logging.info("Server started")
