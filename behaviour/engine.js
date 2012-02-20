@@ -158,33 +158,10 @@ Game.prototype = {
   },
   
   initScores: function() {
-    /*
-    $('#team-name-1').text(this.playerTeam);
-    $('#team-name-2').text(this.cpuTeam);
-
-    $('#team-score-1').text('0');
-    $('#team-score-2').text('0');
-    */
     this.view.drawInitialScores([this.playerTeam, this.cpuTeam]);
   },
 
   updateScores: function(scores) {
-    var teamScores = scores['teamScore'];
-    var playerScores = scores['playerScore'];
-
-    /*
-    $('#team-score-1').text(teamScores[this.playerTeam]);
-    $('#team-score-2').text(teamScores[this.cpuTeam]);
-   
-    var player; 
-    var count = 1;
-    for (player in playerScores) {
-      $('#player-name-' + count).text(player);
-      $('#player-score-' + count).text(playerScores[player]);
-      count += 1;
-    }
-    */
-
     this.view.updateScores(scores);
   },
 
@@ -390,20 +367,33 @@ Application.prototype = {
     this.game.setView(this.view);
     this.view.setGame(this.game);
 
-    $('#welcomeModal').modal('show');
-
-    $('#closePlayerName').click(function(event) {
+    var playerName = this.getStoredValue('playerName');
+    
+    if (playerName == null) {
+      $('#welcomeModal').modal('show');
+      $('#closePlayerName').click(function(event) {
         event.preventDefault();
         self.startGame('');
-    });
-
-    $('#formPlayerName').submit(function(event) {
+      });
+      $('#formPlayerName').submit(function(event) {
         event.preventDefault();
         var playerName =  $('#inputPlayerName').val();
+        self.storeValue('playerName', playerName);
         self.startGame(playerName);
       });
+    } else {
+      self.startGame(playerName);
+    }
     
     this.view.preload();
+  },
+
+  getStoredValue: function(key) {  
+    return $.cookie(key);
+  },
+
+  storeValue: function(key, value) {
+    $.cookie(key, value, {expires: 7, path: '/' });
   },
 
   startGame: function(playerName) {
