@@ -213,7 +213,7 @@ if __name__ == "__main__":
 
     gameServer = GameServer()
 
-    application = tornado.web.Application([
+    handlers = [
     (r"/", MainHandler),
     (r"/index.html", MainHandler),
     (r"/about", AboutHandler),
@@ -222,8 +222,12 @@ if __name__ == "__main__":
     (r"/presentation/(.*)", tornado.web.StaticFileHandler,
      {"path": "presentation"}),
     (r"/behaviour/(.*)", tornado.web.StaticFileHandler, {"path": "behaviour"}),
-    (r"/images/(.*)", tornado.web.StaticFileHandler, {"path": "images"}),
-], debug=True)
+    ]
+
+    #if not(settings.SERVE_STATIC_EXTERNAL):
+    #  handlers.append((r"/images/(.*)", tornado.web.StaticFileHandler, {"path": "images"}))
+    
+    application = tornado.web.Application(handlers, debug=True)
 
     application.listen(settings.PORT_NUMBER)
     tornado.ioloop.IOLoop.instance().start()
