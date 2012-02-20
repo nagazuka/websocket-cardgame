@@ -224,6 +224,11 @@ MessageHandler.prototype = {
         logger.debug("Websocket opened, game started");
     };
 
+    this.ws.onclose = function() {
+        logger.debug("Websocket closed, game suspended");
+        $('#disconnectModal').modal('show');
+    }; 
+
     this.ws.onmessage = function(evt) {
         self.receiveMessage(evt.data);
     };
