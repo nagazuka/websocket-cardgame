@@ -66,6 +66,22 @@ class GameServer:
 
         self.writer.sendMessage(jsonResponse)
 
+    def nextGame(self, req):
+        jsonResponse = {'response': 'nextGame'}
+        try:
+            jsonResponse['resultCode'] = 'SUCCESS'
+
+            #self.cardGame.decideOrder()
+            # override to set humanplayer as first
+            self.cardGame.startingPlayerIndex = 0
+            self.cardGame.setPlayingOrder()
+
+        except Exception as ex:
+            self.writer.sendError(ex)
+            raise
+
+        self.writer.sendMessage(jsonResponse)
+
     def dealFirstCards(self, request):
         response = {'response': 'dealFirstCards'}
         try:

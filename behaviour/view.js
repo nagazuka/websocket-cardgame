@@ -437,17 +437,29 @@ View.prototype = {
     nameTxt.attr({'fill' : '#fff', 'font-size' : '14', 'font-family' : conf.font, 'font-weight' : 'bold', 'fill-opacity' : '50%'});
   },
   
-  waitForEvent: function() {
+  waitForEvent: function(callback) {
     var self = this;
 
     var overlay = this.getCanvas().rect(0, 0, WIDTH, HEIGHT);
     overlay.attr({fill: "#000", stroke: "none", opacity: '0.1'}); 
     overlay.hide();
     overlay.mouseup(function(event) {
-      self.game.sendReady(); 
+      self.game[callback]();
+      logger.debug("Removing overlay"); 
       overlay.remove();
     }); 
+    logger.debug("Animating overlay");
     this.animate(overlay, {opacity: '0.3'}, 100);
+  },
+
+  waitForNextHand: function() {
+    var callback = 'sendReady';
+    this.waitForEvent(callback);  
+  },
+
+  waitForNextGame: function() {
+    var callback = 'nextGame';
+    this.waitForEvent(callback);  
   },
   
   getCardImageFile : function(rank, suit) {

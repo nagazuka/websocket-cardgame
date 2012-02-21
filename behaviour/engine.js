@@ -37,20 +37,24 @@ Game.prototype = {
     this.initScores();
   },
 
-  start : function() {
+  start: function() {
     this.handler.sendMessage({'command' : 'startGame', 'playerName' : this.playerName, 'playerTeam': this.playerTeam, 'opponentTeam': this.cpuTeam});
   },
 
-  askFirstCards : function fn_askFirstCards () {
+  nextGame: function() {
+    this.handler.sendMessage({'command' : 'nextGame', 'playerName' : this.playerName, 'playerTeam': this.playerTeam, 'opponentTeam': this.cpuTeam});
+  },
+
+  askFirstCards: function fn_askFirstCards () {
     this.handler.sendMessage({ 'command' : 'dealFirstCards', 'playerId' : this.humanPlayer.id});
   },
 
-  chooseTrump : function fn_chooseTrump (card) {
+  chooseTrump: function fn_chooseTrump (card) {
     this.trumpSuit = card.suit;
     this.handler.sendMessage({'command' : 'chooseTrump', 'suit': card.suit, 'playerId' : this.humanPlayer.id});
   },
   
-  makeMove : function fn_makeMove (card) {
+  makeMove: function fn_makeMove (card) {
     this.handler.sendMessage({'command' : 'makeMove', 'rank' : card.rank, 'suit': card.suit, 'playerIndex' : 0, 'playerId' : this.humanPlayer.id});
     this.selectedCard = card;
     this.setCardClickHandler(this.noAction);
@@ -127,10 +131,6 @@ Game.prototype = {
 
   drawPlayer: function(player) {
     this.view.drawPlayer(player);
-  },
-
-  waitForEvent: function() {
-    this.view.waitForEvent();
   },
 
   clearMoves: function(moves) {
@@ -284,6 +284,10 @@ MessageHandler.prototype = {
     this.game.askFirstCards();
   },
 
+  nextGame: function(response) {
+    this.game.askFirstCards();
+  },
+
   dealFirstCards: function (response) {
     var cards = this.transformCards(response.cards);
     this.game.handleFirstCards(cards);
@@ -326,13 +330,14 @@ MessageHandler.prototype = {
     
     this.game.updateScores(response.scores);
 
-    this.game.waitForEvent();
+    this.game.view.waitForNextHand();
   },
   
   gameDecided: function (response) {
     var winningTeam = response.winningTeam;
     this.game.drawText(messages[conf.lang].gameDecided + winningTeam);
     this.game.updateScores(response.scores);
+    this.game.view.waitForNextGame();
   },
   
   exception: function (response) {
