@@ -120,6 +120,11 @@ class CardGame:
     def getPlayersInOrder(self):
         for i in self.getOrder():
             yield self.players[i]
+    
+    def clearGame(self):
+        self.startingPlayerIndex = 0
+        self.setPlayingOrder()
+        self.deck = CardGame.createDeck() 
 
 if __name__ == "__main__":
     game = CardGame()

@@ -71,10 +71,7 @@ class GameServer:
         try:
             jsonResponse['resultCode'] = 'SUCCESS'
 
-            #self.cardGame.decideOrder()
-            # override to set humanplayer as first
-            self.cardGame.startingPlayerIndex = 0
-            self.cardGame.setPlayingOrder()
+            self.cardGame.clearGame()
             self.scores.clearTeamScores()
 
         except Exception as ex:
