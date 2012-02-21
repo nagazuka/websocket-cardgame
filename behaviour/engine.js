@@ -101,11 +101,7 @@ Game.prototype = {
 
   removeCard: function(card) {
     this.view.removePlayerCard(card);
-
-    var index = _.indexOf(this.cards, card);
-    if (index != -1) {
-      this.cards.splice(index,1);
-    }
+    this.cards = _.without(this.cards, card);
    },
 
   clearCards: function() {
