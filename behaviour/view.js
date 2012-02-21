@@ -283,9 +283,15 @@ View.prototype = {
     var teamScores = scores['teamScore'];
 
     for (team in teamScores) {
-      console.log("Updating team scores for " + team + " with " + teamScores[team]);
       var textElement = this.repository.findElement(team, "scoreText");
-      textElement.attr({'text': teamScores[team]});
+      var oldText = textElement.attr('text');
+      var newText = teamScores[team];
+      if (oldText != newText) {
+        this.animate(textElement, {'opacity': '0'}, 100);
+        this.animate(textElement, {'text': newText}, 100);
+        this.animate(textElement, {'opacity': '1','fill': '#f00'}, 100);
+        this.animate(textElement, {'fill': '#fff'}, 100);
+      }
     }
   },
 
@@ -310,9 +316,17 @@ View.prototype = {
 
   processNextAnimation: function() {
     if (this.animationQueue.length > 0) {
-      var obj = this.animationQueue[0].obj;
-      var anim = this.animationQueue[0].animation;
-      obj.show().stop().animate(anim);
+      var currentItem = this.animationQueue[0];
+      var obj = currentItem['obj'];
+
+      if ("animation" in currentItem) {
+        var anim = currentItem['animation'];
+        obj.show().stop().animate(anim);
+      } else if ("text" in currentItem) {
+        var text = currentItem['text'];
+        obj.attr({'text':  text});
+        currentItem['callback']();
+      }
     }
   }, 
 
@@ -324,7 +338,12 @@ View.prototype = {
       self.processNextAnimation();
     };
     var animation = Raphael.animation(attr, time, callback);
-    
+
+    //text attr is not processed in animation, so handle separately
+    if ("text" in attr) {
+      this.animationQueue.push({'obj': obj, 'text': attr['text'], 'callback': callback});
+    } 
+
     this.animationQueue.push({'obj': obj, 'animation': animation});
     this.processNextAnimation();
   },
