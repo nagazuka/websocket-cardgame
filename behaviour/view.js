@@ -260,6 +260,10 @@ View.prototype = {
     this.repository.addElement(trumpSuitIcon, "trumpSuit");
   },
 
+  clearTrumpSuit: function() {
+    this.clearAllFromCategory("trumpSuit");
+  },
+
   drawDeck: function() {
     var image = this.getDeckImageFile();
     var deck = this.getCanvas().image(image, DECK_X, DECK_Y, DECK_WIDTH, DECK_HEIGHT);
@@ -267,11 +271,15 @@ View.prototype = {
   },
 
   clearDeck: function() {
-    var list = this.repository.getElementsByCategory("deck");
+    this.clearAllFromCategory("deck");
+  },
+
+  clearAllFromCategory: function(category) {
+    var list = this.repository.getElementsByCategory(category);
     if (list.length > 0) {
       list[0].remove(); 
     }
-    this.repository.clearCategory("deck");
+    this.repository.clearCategory(category);
   },
 
   drawInitialScores: function(teams) {

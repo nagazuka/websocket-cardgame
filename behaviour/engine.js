@@ -175,6 +175,7 @@ Game.prototype = {
   handleNextGame: function(cards) {
     this.clearCards();
     this.clearMoves();
+    this.view.clearTrumpSuit();
     this.askFirstCards();
   },
 
