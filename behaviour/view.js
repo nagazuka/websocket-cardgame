@@ -269,6 +269,8 @@ View.prototype = {
 
   drawInitialScores: function(teams) {
     var canvas = this.getCanvas();
+    var scoreTitle = canvas.text(SCORE_FLAG_X[0], 10, messages[conf.lang].score);
+    scoreTitle.attr({'font-size': SCORE_FONT_SIZE,'text-anchor': 'start','fill': '#fff','font-family' : conf.font, 'font-weight' : 'bold'});
 
     for (i in teams) {
       var smallTeamImage = this.getTeamImageFile(teams[i], 'small');
