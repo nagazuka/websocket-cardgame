@@ -41,7 +41,7 @@ Game.prototype = {
     this.handler.sendMessage({'command' : 'startGame', 'playerName' : this.playerName, 'playerTeam': this.playerTeam, 'opponentTeam': this.cpuTeam});
   },
 
-  dealFirstCards : function fn_dealFirstCards () {
+  askFirstCards : function fn_askFirstCards () {
     this.handler.sendMessage({ 'command' : 'dealFirstCards', 'playerId' : this.humanPlayer.id});
   },
 
@@ -129,10 +129,6 @@ Game.prototype = {
     this.view.drawPlayer(player);
   },
 
-  drawCards: function() {
-    this.view.drawPlayerCards(this.cards);
-  },
-  
   waitForEvent: function() {
     this.view.waitForEvent();
   },
@@ -163,8 +159,24 @@ Game.prototype = {
     this.view.updateScores(scores);
   },
 
+  handleFirstCards: function(cards) {
+    this.addCards(cards);
+    this.view.drawDeck();
+    this.view.drawPlayerCards(this.cards);
+    this.drawText(messages[conf.lang].chooseTrumpHeading);
+    this.setCardClickHandler(this.chooseTrump);
+  },
+
+  handleAllCards: function(cards, trumpSuit) {
+    this.drawTrumpSuit(trumpSuit);
+    this.clearCards();
+    this.addCards(cards);
+    this.view.drawPlayerCards(this.cards);
+    this.view.clearDeck();
+    this.sendReady();
+  },
+
   handleCardClicked : function(card) {
-        console.log("DEBUG in game handleCardClicked");
     this.cardClickHandler(card);
   },
 
@@ -259,7 +271,7 @@ MessageHandler.prototype = {
     this[handlerName](json);
   },
   
-  startGame : function (response) {
+  startGame: function (response) {
     var self = this;
     var playerList = response.players;
 
@@ -269,27 +281,18 @@ MessageHandler.prototype = {
       self.game.drawPlayer(player);
     });
 
-    this.game.dealFirstCards();
+    this.game.askFirstCards();
   },
 
-  dealFirstCards : function (response) {
+  dealFirstCards: function (response) {
     var cards = this.transformCards(response.cards);
-    this.game.addCards(cards);
-    this.game.view.drawDeck();
-    this.game.drawCards();
-    this.game.drawText(messages[conf.lang].chooseTrumpHeading);
-    this.game.setCardClickHandler(this.game.chooseTrump);
+    this.game.handleFirstCards(cards);
   },
 
-  allCards : function (response) {
+  allCards: function (response) {
     var cards = this.transformCards(response.cards);
     var trumpSuit = response.trumpSuit
-    this.game.drawTrumpSuit(trumpSuit);
-    this.game.clearCards();
-    this.game.addCards(cards);
-    this.game.drawCards();
-    this.game.view.clearDeck();
-    this.game.sendReady();
+    this.game.handleAllCards(cards, trumpSuit);
   },
 
   askMove: function (response) {
@@ -326,13 +329,13 @@ MessageHandler.prototype = {
     this.game.waitForEvent();
   },
   
-  gameDecided : function (response) {
+  gameDecided: function (response) {
     var winningTeam = response.winningTeam;
-    this.game.drawText("Spel afgelopen!.\n Winaar is " + winningTeam);
+    this.game.drawText(messages[conf.lang].gameDecided + winningTeam);
     this.game.updateScores(response.scores);
   },
   
-  exception : function (response) {
+  exception: function (response) {
     this.game.drawText(messages[conf.lang].errorMessage);
     logger.error(response.resultMessage);
   },

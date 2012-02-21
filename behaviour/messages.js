@@ -10,6 +10,7 @@ var messages = {
     invalidMoveHeading:  'Ongeldige kaart!',
     invalidMove:  'Kies een andere kaart om verder\nte spelen',
     playerPrefix:  'Anoniem',
-    score:  'Stand'
+    score:  'Stand',
+    gameDecided: "Spel afgelopen!.\n Winaar is " 
   }
 };
