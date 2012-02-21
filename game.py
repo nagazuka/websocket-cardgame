@@ -125,6 +125,8 @@ class CardGame:
         self.startingPlayerIndex = 0
         self.setPlayingOrder()
         self.deck = CardGame.createDeck() 
+        for player in self.players:
+          player.clearCards()
 
 if __name__ == "__main__":
     game = CardGame()

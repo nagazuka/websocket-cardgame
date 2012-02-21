@@ -30,6 +30,9 @@ class Player:
         assert card != None
         self.cards.remove(card)
 
+    def clearCards(self):
+        self.cards = []
+
     def getCards(self):
         return self.cards
 
