@@ -223,6 +223,7 @@ View.prototype = {
       this.text.attr({'fill' : '#fff', 'font-size' : '22', 'font-family' : conf.font, 'font-weight' : 'bold','stroke-width' : '1'});
     }
     this.text.hide();
+    logger.debug("Drawing text");
     this.animate(this.text, {'opacity': 1}, 100); 
   },
 
@@ -237,6 +238,7 @@ View.prototype = {
       this.invalidText.attr({'fill' : '#f00', 'font-size' : '22', 'font-family' : conf.font, 'font-weight' : 'bold','stroke-width' : '1'});
     }
     this.invalidText.hide();
+    logger.debug("Drawing invalid text");
     this.animate(this.invalidText, {'opacity': 1}, 100); 
   },
 
@@ -294,6 +296,7 @@ View.prototype = {
       var oldText = textElement.attr('text');
       var newText = teamScores[team];
       if (oldText != newText) {
+        logger.debug("Drawing scores");
         this.animate(textElement, {'opacity': '0'}, 100);
         this.animate(textElement, {'text': newText}, 100);
         this.animate(textElement, {'opacity': '1','fill': '#f00'}, 100);
@@ -327,7 +330,6 @@ View.prototype = {
       var obj = currentItem['obj'];
 
       if ("animation" in currentItem) {
-        logger.debug("Animate object: " + obj);
         var anim = currentItem['animation'];
         obj.show().stop().animate(anim);
       } else if ("text" in currentItem) {
@@ -356,8 +358,6 @@ View.prototype = {
   },
 
   drawPlayerMove: function(playerMove) {
-    logger.debug("Drawing player move");
-
     var player = playerMove.getPlayer();
     var card = playerMove.getCard();
     var playerIndex = player.getIndex(); 
@@ -370,6 +370,7 @@ View.prototype = {
 
     var cardImage = this.drawCard(card, startX, startY, CARD_WIDTH, CARD_HEIGHT, 'playerMoves');
     cardImage.hide();
+    logger.debug("Drawing playerMove"); 
     this.animate(cardImage, {x: endX, y: endY}, PLAYER_MOVE_ANIMATE_TIME);
     this.repository.addElement(cardImage, 'playerMoves');
   },
