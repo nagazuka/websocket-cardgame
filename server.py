@@ -25,8 +25,8 @@ class GameServer:
     @staticmethod
     def createPlayers(playerName="John Doe", team1Name="Team Suriname", team2Name="Team Nederland"):
         p1 = HumanPlayer(1, playerName, team1Name)
-        p2 = Player(2, "Elvis Presley", team1Name)
-        p3 = Player(3, "Bob Marley", team2Name)
+        p2 = Player(2, "Bob Marley", team1Name)
+        p3 = Player(3, "Tupac Shakur", team2Name)
         p4 = Player(4, "Jimi Hendrix", team2Name)
         return [p1, p3, p2, p4]
 
@@ -75,6 +75,7 @@ class GameServer:
             # override to set humanplayer as first
             self.cardGame.startingPlayerIndex = 0
             self.cardGame.setPlayingOrder()
+            self.scores.clearTeamScores()
 
         except Exception as ex:
             self.writer.sendError(ex)

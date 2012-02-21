@@ -174,6 +174,7 @@ Game.prototype = {
   
   handleNextGame: function(cards) {
     this.clearCards();
+    this.clearMoves();
     this.askFirstCards();
   },
 

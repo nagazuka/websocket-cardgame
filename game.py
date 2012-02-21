@@ -23,6 +23,10 @@ class ScoreKeeper:
                 return True
         return False
 
+    def clearTeamScores(self):
+        for team in self.teamScore:
+          self.teamScore[team] = 0
+
     def getWinningTeam(self):
         return max(self.teamScore, key=self.teamScore.get)
 
