@@ -83,6 +83,13 @@ Repository.prototype = {
     return element;
   },
 
+  removeElementFromCategory: function(id, category) {
+    var allElements = this[category];
+    var element =  _.find(allElements, function(e) { return e.id == id }); 
+    this[category] = _.without(allElements, element);
+    return element;
+  },
+
   addElement: function(element, category) {
     this.createIfEmpty(category);
     this[category].push(element);
@@ -121,7 +128,6 @@ View.prototype = {
 
     drawProgressOverlay: function() {
       $('#canvas').hide();
-      $('#scoreContainer').hide();
       $('#progressOverlay').show();
     },
 
@@ -136,7 +142,6 @@ View.prototype = {
     clearProgressOverlay: function() {
       $('#progressOverlay').hide();
       $('#canvas').show();
-      $('#scoreContainer').show();
     },
 
     init: function() {
@@ -322,6 +327,7 @@ View.prototype = {
       var obj = currentItem['obj'];
 
       if ("animation" in currentItem) {
+        logger.debug("Animate object: " + obj);
         var anim = currentItem['animation'];
         obj.show().stop().animate(anim);
       } else if ("text" in currentItem) {
@@ -333,7 +339,6 @@ View.prototype = {
   }, 
 
   animate: function(obj, attr, time) {
-    logger.debug("Animate object");
     var self = this;
     var callback = function () {
       self.animationQueue.shift();
@@ -385,7 +390,7 @@ View.prototype = {
 
   removePlayerCard: function(card) {
     var id = this.getCardId(card,'playerCards');
-    var cardImage = this.repository.findElement(id, 'playerCards');
+    var cardImage = this.repository.removeElementFromCategory(id, 'playerCards');
     cardImage.remove();
   },
 

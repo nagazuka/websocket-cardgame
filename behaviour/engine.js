@@ -175,6 +175,11 @@ Game.prototype = {
     this.view.clearDeck();
     this.sendReady();
   },
+  
+  handleNextGame: function(cards) {
+    this.clearCards();
+    this.askFirstCards();
+  },
 
   handleCardClicked : function(card) {
     this.cardClickHandler(card);
@@ -285,7 +290,7 @@ MessageHandler.prototype = {
   },
 
   nextGame: function(response) {
-    this.game.askFirstCards();
+    this.game.handleNextGame();
   },
 
   dealFirstCards: function (response) {
