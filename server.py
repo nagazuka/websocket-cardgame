@@ -225,7 +225,8 @@ class MessageHandler(tornado.websocket.WebSocketHandler):
         self.gameServer = None
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.DEBUG, 
+                        format='%(asctime)s %(levelname)s %(message)s')
 
     gameServer = GameServer()
 
@@ -244,8 +245,8 @@ if __name__ == "__main__":
     #  handlers.append((r"/images/(.*)", tornado.web.StaticFileHandler, {"path": "images"}))
     
     application = tornado.web.Application(handlers, debug=True)
+    logging.info("Server started")
 
     application.listen(settings.PORT_NUMBER)
     tornado.ioloop.IOLoop.instance().start()
 
-    logging.info("Server started")
