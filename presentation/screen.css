@@ -17,3 +17,9 @@ svg {
   margin: auto;
   width: 728px;
 }
+
+#copyright {
+  display: block;
+  margin: auto;
+  width: 200px;
+}

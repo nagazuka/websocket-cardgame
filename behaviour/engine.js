@@ -1,5 +1,7 @@
 'use strict';
 
+var WEB_SOCKET_SWF_LOCATION = "behaviour/WebSocketMain.swf";
+
 var logger;
 
 function Logger() {
@@ -224,16 +226,9 @@ MessageHandler.prototype = {
 
   setupWebSocket: function() {
     var self = this;
-   
-    if (window.WebSocket) {
-      this.ws = new WebSocket(conf.network.wsURL);
-    }
-    else if (window.MozWebSocket) { 
-      this.ws = new MozWebSocket(conf.network.wsURL);
-    } else {
-      logger.error(messages[conf.lang].noWebSocketSupport);
-    }
-
+ 
+    this.ws = new WebSocket(conf.network.wsURL);
+    
     this.ws.onopen = function() {
         self.game.start();
         logger.debug("Websocket opened, game started");
