@@ -1,63 +1,3 @@
-var WIDTH = 760;
-var HEIGHT = 600;
-
-var TABLE_WIDTH = 500;
-var TABLE_HEIGHT = 350;
-
-var CARD_WIDTH = 45;
-var CARD_HEIGHT = 70;
-
-var CARD_AREA_WIDTH = WIDTH;
-var CARD_AREA_HEIGHT = CARD_WIDTH * 2;
-var CARD_AREA_Y = HEIGHT - CARD_AREA_HEIGHT;
-var CARD_AREA_PADDING = 10;
-
-var TABLE_X = (WIDTH - TABLE_WIDTH) / 2;
-var TABLE_Y = (HEIGHT - TABLE_HEIGHT - CARD_AREA_HEIGHT) / 2;
-
-var DECK_WIDTH = 143 / 3;
-var DECK_HEIGHT = 194 / 3;
-var DECK_X = (WIDTH / 2) - (DECK_WIDTH / 2);
-var DECK_Y = (CARD_AREA_Y / 2) - (DECK_HEIGHT/2);
-
-var PLAYER_VERT_PADDING = 10;
-var PLAYER_HORIZ_PADDING = 35;
-var PLAYER_SIZE = 100;
-var TEAM_FLAG_SIZE = 64;
-var TRUMPSUIT_SIZE = 64;
-
-var TRUMPSUIT_X = 10;
-var TRUMPSUIT_Y = 35;
-var TRUMPSUIT_PADDING = 16;
-
-var PLAYER_MIDDLE_Y = (CARD_AREA_Y / 2) - (PLAYER_SIZE / 2);
-var PLAYER_MIDDLE_X = (WIDTH / 2) - (PLAYER_SIZE / 2);
-var PLAYER_END_X = WIDTH - PLAYER_SIZE - PLAYER_HORIZ_PADDING;
-var PLAYER_END_Y = CARD_AREA_Y - PLAYER_SIZE - (4 * PLAYER_VERT_PADDING);
-
-var PLAYER_X_ARR = [PLAYER_MIDDLE_X, PLAYER_HORIZ_PADDING, PLAYER_MIDDLE_X, PLAYER_END_X];
-var PLAYER_Y_ARR = [PLAYER_END_Y, PLAYER_MIDDLE_Y, PLAYER_VERT_PADDING, PLAYER_MIDDLE_Y];
-
-var CARD_MIDDLE_Y = (CARD_AREA_Y / 2) - (CARD_HEIGHT / 2);
-var CARD_MIDDLE_X = (WIDTH / 2) - (CARD_WIDTH / 2);
-var CARD_X_ARR = [CARD_MIDDLE_X, CARD_MIDDLE_X - 2*CARD_WIDTH,CARD_MIDDLE_X, CARD_MIDDLE_X + 2*CARD_WIDTH];
-var CARD_Y_ARR = [CARD_MIDDLE_Y + 0.5*CARD_HEIGHT, CARD_MIDDLE_Y, CARD_MIDDLE_Y - 0.75*CARD_HEIGHT, CARD_MIDDLE_Y];
-
-var PLAYER_MOVE_ANIMATE_TIME = 500;
-var PLAYER_CARD_ANIMATE_TIME = 250;
-
-
-var SCORE_PADDING = 20;
-var SCORE_FLAG_SIZE = 32;
-var SCORE_FLAG_X = [WIDTH - SCORE_FLAG_SIZE - 2*SCORE_PADDING, WIDTH - SCORE_FLAG_SIZE - 2*SCORE_PADDING];
-var SCORE_FLAG_Y = [SCORE_PADDING, SCORE_PADDING + SCORE_FLAG_SIZE];
-
-var SCORE_FONT_SIZE = 20;
-var SCORE_TEXT_PADDING = 15;
-
-var SUIT_TRANSLATION_TABLE = { 'DIAMONDS' : 'd', 'CLUBS' : 'c', 'SPADES' : 's', 'HEARTS' : 'h'};
-var RANK_TRANSLATION_TABLE = [undefined, undefined, '2', '3', '4', '5', '6', '7', '8', '9', '10', 'j', 'q', 'k', 'a'];
-
 function Repository() {
 }
 
@@ -99,7 +39,7 @@ Repository.prototype = {
 
 function View(game) {
     this.game = game;
-    this.canvas = Raphael('canvas', WIDTH, HEIGHT);
+    this.canvas = Raphael('canvas', constants.WIDTH, constants.HEIGHT);
     this.repository = new Repository();
     this.animationQueue = [];
     this.progressOverlay = null;
@@ -145,12 +85,12 @@ View.prototype = {
     },
 
     init: function() {
-      var bg = this.getCanvas().rect(0, 0, WIDTH, HEIGHT);
+      var bg = this.getCanvas().rect(0, 0, constants.WIDTH, constants.HEIGHT);
       bg.attr({fill: '45-#000-#555'});
 
-      var table = this.getCanvas().image(this.getTableImageFile(), TABLE_X, TABLE_Y, TABLE_WIDTH, TABLE_HEIGHT);
+      var table = this.getCanvas().image(this.getTableImageFile(), constants.TABLE_X, constants.TABLE_Y, constants.TABLE_WIDTH, constants.TABLE_HEIGHT);
       
-      var cardArea = this.getCanvas().rect(0, CARD_AREA_Y, WIDTH, CARD_AREA_HEIGHT);
+      var cardArea = this.getCanvas().rect(0, constants.CARD_AREA_Y, constants.WIDTH, constants.CARD_AREA_HEIGHT);
       cardArea.attr({'fill': '90-#161:5-#000:95', 'fill-opacity': 0.5, 'stroke-width': 0, 'opacity': 0.1});
       
       if (this.progressOverlay) {
@@ -178,7 +118,7 @@ View.prototype = {
       
       var suit; 
       var i;
-      for (suit in SUIT_TRANSLATION_TABLE) {
+      for (suit in constants.SUIT_TRANSLATION_TABLE) {
         for(i=2; i < 15; i++) {
           var cardImageFile = this.getCardImageFile(i, suit);
           loader.addImage(cardImageFile);
@@ -213,8 +153,8 @@ View.prototype = {
     },
 
   drawText : function(content, x, y) {
-    var x = WIDTH * 0.8;
-    var y = HEIGHT * 0.7;
+    var x = constants.WIDTH * 0.8;
+    var y = constants.HEIGHT * 0.7;
 
     if (this.text) {
       this.text.attr({'text': content});
@@ -228,8 +168,8 @@ View.prototype = {
   },
 
   drawInvalidText : function(content, x, y) {
-    var x = WIDTH * 0.2;
-    var y = HEIGHT * 0.7;
+    var x = constants.WIDTH * 0.2;
+    var y = constants.HEIGHT * 0.7;
 
     if (this.invalidText) {
       this.invalidText.attr({'text': content});
@@ -252,10 +192,10 @@ View.prototype = {
 
   drawTrumpSuit: function(trumpSuit) {
     var content = "Troef"; 
-    var trumpSuitText = this.getCanvas().text(TRUMPSUIT_PADDING, TRUMPSUIT_PADDING, content);
+    var trumpSuitText = this.getCanvas().text(constants.TRUMPSUIT_PADDING, constants.TRUMPSUIT_PADDING, content);
     trumpSuitText.attr({'font-size': 20,'text-anchor': 'start','fill': '#fff','font-family' : conf.font, 'font-weight' : 'bold'});
     var iconImage = this.getSuitImageFile(trumpSuit);
-    var trumpSuitIcon = this.getCanvas().image(iconImage, TRUMPSUIT_X, TRUMPSUIT_Y, TRUMPSUIT_SIZE, TRUMPSUIT_SIZE);
+    var trumpSuitIcon = this.getCanvas().image(iconImage, constants.TRUMPSUIT_X, constants.TRUMPSUIT_Y, constants.TRUMPSUIT_SIZE, constants.TRUMPSUIT_SIZE);
     this.repository.addElement(trumpSuitText, "trumpSuit");
     this.repository.addElement(trumpSuitIcon, "trumpSuit");
   },
@@ -266,7 +206,7 @@ View.prototype = {
 
   drawDeck: function() {
     var image = this.getDeckImageFile();
-    var deck = this.getCanvas().image(image, DECK_X, DECK_Y, DECK_WIDTH, DECK_HEIGHT);
+    var deck = this.getCanvas().image(image, constants.DECK_X, constants.DECK_Y, constants.DECK_WIDTH, constants.DECK_HEIGHT);
     this.repository.addElement(deck, "deck");
   },
 
@@ -284,13 +224,13 @@ View.prototype = {
 
   drawInitialScores: function(teams) {
     var canvas = this.getCanvas();
-    var scoreTitle = canvas.text(SCORE_FLAG_X[0], 10, messages[conf.lang].score);
-    scoreTitle.attr({'font-size': SCORE_FONT_SIZE,'text-anchor': 'start','fill': '#fff','font-family' : conf.font, 'font-weight' : 'bold'});
+    var scoreTitle = canvas.text(constants.SCORE_FLAG_X[0], 10, messages[conf.lang].score);
+    scoreTitle.attr({'font-size': constants.SCORE_FONT_SIZE,'text-anchor': 'start','fill': '#fff','font-family' : conf.font, 'font-weight' : 'bold'});
 
     for (i in teams) {
       var smallTeamImage = this.getTeamImageFile(teams[i], 'small');
-      canvas.image(smallTeamImage, SCORE_FLAG_X[i], SCORE_FLAG_Y[i], SCORE_FLAG_SIZE, SCORE_FLAG_SIZE);
-      var scoreText = canvas.text(SCORE_FLAG_X[i]+SCORE_FLAG_SIZE+SCORE_TEXT_PADDING, SCORE_FLAG_Y[i]+SCORE_TEXT_PADDING, "0").attr({'font-size': SCORE_FONT_SIZE,'text-anchor': 'start','fill': '#fff','font-family' : conf.font, 'font-weight' : 'bold'});
+      canvas.image(smallTeamImage, constants.SCORE_FLAG_X[i], constants.SCORE_FLAG_Y[i], constants.SCORE_FLAG_SIZE, constants.SCORE_FLAG_SIZE);
+      var scoreText = canvas.text(constants.SCORE_FLAG_X[i]+constants.SCORE_FLAG_SIZE+ constants.SCORE_TEXT_PADDING, constants.SCORE_FLAG_Y[i]+constants.SCORE_TEXT_PADDING, "0").attr({'font-size': constants.SCORE_FONT_SIZE,'text-anchor': 'start','fill': '#fff','font-family' : conf.font, 'font-weight' : 'bold'});
       scoreText.id = teams[i];
       this.repository.addElement(scoreText,"scoreText");
     }
@@ -316,17 +256,17 @@ View.prototype = {
   drawPlayerCards: function(cards) {
     var self = this;
     if (cards.length > 0) {
-      var offset = 2 * CARD_AREA_PADDING;
-      var stepSize = (CARD_AREA_WIDTH - offset) / cards.length;
+      var offset = 2 * constants.CARD_AREA_PADDING;
+      var stepSize = (constants.CARD_AREA_WIDTH - offset) / cards.length;
       _.each(cards, function(card, i) {
-        var startX = DECK_X;
-        var startY = DECK_Y;
+        var startX = constants.DECK_X;
+        var startY = constants.DECK_Y;
         var endX = i * stepSize + offset;
-        var endY = CARD_AREA_Y + CARD_AREA_PADDING;
+        var endY = constants.CARD_AREA_Y + constants.CARD_AREA_PADDING;
 
-        var cardImage = self.drawCard(card, startX, startY, CARD_WIDTH, CARD_HEIGHT, 'playerCards');
+        var cardImage = self.drawCard(card, startX, startY, constants.CARD_WIDTH, constants.CARD_HEIGHT, 'playerCards');
         cardImage.hide();
-        self.animate(cardImage, {x: endX, y: endY}, PLAYER_CARD_ANIMATE_TIME);
+        self.animate(cardImage, {x: endX, y: endY}, constants.PLAYER_CARD_ANIMATE_TIME);
         self.repository.addElement(cardImage, 'playerCards');
       });
     }
@@ -370,16 +310,16 @@ View.prototype = {
     var card = playerMove.getCard();
     var playerIndex = player.getIndex(); 
 
-    var startX = PLAYER_X_ARR[playerIndex];
-    var startY = PLAYER_Y_ARR[playerIndex];
+    var startX = constants.PLAYER_X_ARR[playerIndex];
+    var startY = constants.PLAYER_Y_ARR[playerIndex];
 
-    var endX = CARD_X_ARR[playerIndex];
-    var endY = CARD_Y_ARR[playerIndex];
+    var endX = constants.CARD_X_ARR[playerIndex];
+    var endY = constants.CARD_Y_ARR[playerIndex];
 
-    var cardImage = this.drawCard(card, startX, startY, CARD_WIDTH, CARD_HEIGHT, 'playerMoves');
+    var cardImage = this.drawCard(card, startX, startY, constants.CARD_WIDTH, constants.CARD_HEIGHT, 'playerMoves');
     cardImage.hide();
     logger.debug("Drawing playerMove"); 
-    this.animate(cardImage, {x: endX, y: endY}, PLAYER_MOVE_ANIMATE_TIME);
+    this.animate(cardImage, {x: endX, y: endY}, constants.PLAYER_MOVE_ANIMATE_TIME);
     this.repository.addElement(cardImage, 'playerMoves');
   },
 
@@ -414,13 +354,13 @@ View.prototype = {
     var cardImage = this.getCanvas().image(this.getCardImageFile(card.rank, card.suit), x, y, width, height);
 
     cardImage.mouseover(function(event) {
-        this.translate(0,-1*CARD_HEIGHT);
-        this.attr({'height': CARD_HEIGHT * 2, 'width': CARD_WIDTH * 2});
+        this.translate(0,-1*constants.CARD_HEIGHT);
+        this.attr({'height': constants.CARD_HEIGHT * 2, 'width': constants.CARD_WIDTH * 2});
         this.toFront();
     });
     cardImage.mouseout(function(event) {
-        this.translate(0,CARD_HEIGHT);
-        this.attr({'height': CARD_HEIGHT, 'width': CARD_WIDTH});
+        this.translate(0,constants.CARD_HEIGHT);
+        this.attr({'height': constants.CARD_HEIGHT, 'width': constants.constants.CARD_WIDTH});
         self.clearError();
     });
 
@@ -435,26 +375,26 @@ View.prototype = {
 
   drawPlayer: function(player) {
     var canvas = this.getCanvas();
-    var playerX = PLAYER_X_ARR[player.getIndex()];
-    var playerY = PLAYER_Y_ARR[player.getIndex()];
-    var flagX = playerX - 0.25*TEAM_FLAG_SIZE;
-    var flagY = playerY - 0.25*TEAM_FLAG_SIZE;
+    var playerX = constants.PLAYER_X_ARR[player.getIndex()];
+    var playerY = constants.PLAYER_Y_ARR[player.getIndex()];
+    var flagX = playerX - 0.25*constants.TEAM_FLAG_SIZE;
+    var flagY = playerY - 0.25*constants.TEAM_FLAG_SIZE;
 
     var teamName = player.getTeamName();
     var teamImage = this.getTeamImageFile(teamName);
-    var teamFlag = canvas.image(teamImage, flagX, flagY,  TEAM_FLAG_SIZE, TEAM_FLAG_SIZE);
+    var teamFlag = canvas.image(teamImage, flagX, flagY,  constants.TEAM_FLAG_SIZE, constants.TEAM_FLAG_SIZE);
 
-    var playerImage = canvas.image(this.getPlayerImageFile(), playerX, playerY, PLAYER_SIZE, PLAYER_SIZE);
+    var playerImage = canvas.image(this.getPlayerImageFile(), playerX, playerY, constants.PLAYER_SIZE, constants.PLAYER_SIZE);
 
     var playerName = player.getName();
-    var nameTxt = canvas.text(playerX + PLAYER_SIZE / 2, playerY + PLAYER_SIZE + PLAYER_VERT_PADDING, playerName);
+    var nameTxt = canvas.text(playerX + constants.PLAYER_SIZE / 2, playerY + constants.PLAYER_SIZE + constants.PLAYER_VERT_PADDING, playerName);
     nameTxt.attr({'fill' : '#fff', 'font-size' : '14', 'font-family' : conf.font, 'font-weight' : 'bold', 'fill-opacity' : '50%'});
   },
   
   waitForEvent: function(callback) {
     var self = this;
 
-    var overlay = this.getCanvas().rect(0, 0, WIDTH, HEIGHT);
+    var overlay = this.getCanvas().rect(0, 0, constants.WIDTH, constants.HEIGHT);
     overlay.attr({fill: "#000", stroke: "none", opacity: '0.1'}); 
     overlay.hide();
     overlay.mouseup(function(event) {
@@ -477,7 +417,7 @@ View.prototype = {
   },
   
   getCardImageFile : function(rank, suit) {
-    return conf.cardsDirectory + 'simple_' + SUIT_TRANSLATION_TABLE[suit] + '_' + RANK_TRANSLATION_TABLE[rank] + '.png';
+    return conf.cardsDirectory + 'simple_' + constants.SUIT_TRANSLATION_TABLE[suit] + '_' + constants.RANK_TRANSLATION_TABLE[rank] + '.png';
   },
   
   getPlayerImageFile: function() {
