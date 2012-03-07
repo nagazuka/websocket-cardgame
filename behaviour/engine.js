@@ -173,7 +173,43 @@ Game.prototype = {
     this.view.clearDeck();
     this.sendReady();
   },
+
+  handleAskMove: function (playerMoves) {
+    this.clearMoves();
+    this.addAndDrawMoves(playerMoves);
+
+    this.drawText(messages[conf.lang].yourTurn);
+    this.setCardClickHandler(this.makeMove);
+  },
   
+  handleInvalidMove: function (response) {
+    this.drawError(messages[conf.lang].invalidMoveHeading, messages[conf.lang].invalidMove); 
+    this.setCardClickHandler(this.makeMove);
+  },
+
+  handleHandPlayed: function (playerMoves, winningPlayerId, scores) {
+    this.removeSelectedCard();
+    this.clearError();
+
+    this.addAndDrawMoves(playerMoves);
+
+    var winningPlayer = this.getPlayerById(winningPlayerId);
+    if (winningPlayer.id == this.humanPlayer.id) {
+      this.drawText(messages[conf.lang].youWinHand);
+    } else {
+      this.drawText(winningPlayer.name + messages[conf.lang].otherWinsHand);
+    }
+    
+    this.updateScores(scores);
+    this.view.waitForNextHand();
+  },  
+
+  handleGameDecided: function (winningTeam, scores) {
+    this.drawText(messages[conf.lang].gameDecided + winningTeam);
+    this.updateScores(scores);
+    this.view.waitForNextGame();
+  },
+
   handleNextGame: function(cards) {
     this.clearCards();
     this.clearMoves();
@@ -299,43 +335,26 @@ MessageHandler.prototype = {
 
   askMove: function (response) {
     var playerMoves = this.transformPlayerMoves(response.hand);
-
-    this.game.clearMoves();
-    this.game.addAndDrawMoves(playerMoves);
-
-    this.game.drawText(messages[conf.lang].yourTurn);
-    this.game.setCardClickHandler(this.game.makeMove);
+    this.game.handleAskMove(playerMoves);
   },
 
   invalidMove: function (response) {
-    this.game.drawError(messages[conf.lang].invalidMoveHeading, messages[conf.lang].invalidMove); 
-    this.game.setCardClickHandler(this.game.makeMove);
+    this.game.handleInvalidMove();
   },
 
   handPlayed: function (response) {
-    this.game.removeSelectedCard();
-    this.game.clearError();
-
     var playerMoves = this.transformPlayerMoves(response.hand);
-    this.game.addAndDrawMoves(playerMoves);
+    var winningPlayerId = response.winningPlayerId;
+    var scores = response.scores;
 
-    var winningPlayer = this.game.getPlayerById(response.winningPlayerId);
-    if (winningPlayer.id == this.game.humanPlayer.id) {
-      this.game.drawText(messages[conf.lang].youWinHand);
-    } else {
-      this.game.drawText(winningPlayer.name + messages[conf.lang].otherWinsHand);
-    }
-    
-    this.game.updateScores(response.scores);
-
-    this.game.view.waitForNextHand();
+    this.game.handleHandPlayed(playerMoves, winningPlayerId, scores);
   },
-  
+
   gameDecided: function (response) {
     var winningTeam = response.winningTeam;
-    this.game.drawText(messages[conf.lang].gameDecided + winningTeam);
-    this.game.updateScores(response.scores);
-    this.game.view.waitForNextGame();
+    var scores = response.scores;
+
+    this.game.handleGameDecided(winningTeam, scores);
   },
   
   exception: function (response) {
