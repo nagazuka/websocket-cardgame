@@ -312,12 +312,7 @@ View.prototype = {
     });
   },
 
-  drawPlayerCards: function(cards, playingOrder) {
-    var self = this;
-
-    if (cards.length == 0) {
-      return;
-    } else if (cards.length == 5) {
+  drawDealCards: function(cards, playingOrder, num) {
       for (index in playingOrder) {
         if (index == 0) {
           this.drawHumanPlayerCards(cards);
@@ -325,6 +320,15 @@ View.prototype = {
           this.drawOtherPlayerCards(index, 5);
         }
       }
+  },
+
+  drawPlayerCards: function(cards, playingOrder) {
+    var self = this;
+
+    if (cards.length == 0) {
+      return;
+    } else if (cards.length == 5) {
+      this.drawDealCards(cards, playingOrder, 5);
     } else {
       var i;
       var offset = 5;
@@ -333,13 +337,7 @@ View.prototype = {
         var start = offset + i * step;
         var end = start + step; 
         var currentCards = cards.slice(start, end);
-        for (index in playingOrder) {
-          if (index == 0) {
-            this.drawHumanPlayerCards(currentCards);
-          } else {
-            this.drawOtherPlayerCards(index, 5);
-          }
-        }
+        this.drawDealCards(currentCards, playingOrder, 4);
       }
     }
   },
