@@ -298,26 +298,48 @@ View.prototype = {
     }
   },
   
-  drawOtherPlayerCards: function(num) {
+  drawOtherPlayerCards: function(playerIndex, num) {
+    var startX = constants.DECK_X;
+    var startY = constants.DECK_Y;
+    var endX = constants.PLAYER_X_ARR[playerIndex];
+    var endY = constants.PLAYER_Y_ARR[playerIndex];
+    var deckImage = this.getDeckImageFile();
+
+    var self = this;
+    _.times(num, function() {
+      var deckEl = self.getCanvas().image(deckImage, startX, startY, constants.DECK_WIDTH, constants.DECK_HEIGHT);
+      self.animate(deckEl, {x: endX, y: endY}, constants.PLAYER_CARD_ANIMATE_TIME, deckEl.remove);
+    });
   },
 
-  drawPlayerCards: function(cards) {
+  drawPlayerCards: function(cards, playingOrder) {
     var self = this;
 
     if (cards.length == 0) {
       return;
     } else if (cards.length == 5) {
-      this.drawHumanPlayerCards(cards);
+      for (index in playingOrder) {
+        if (index == 0) {
+          this.drawHumanPlayerCards(cards);
+        } else {
+          this.drawOtherPlayerCards(index, 5);
+        }
+      }
     } else {
       var i;
       var offset = 5;
       var step = 4;
       for (i=0; i < 2; i++) {
-        this.drawOtherPlayerCards();
         var start = offset + i * step;
         var end = start + step; 
         var currentCards = cards.slice(start, end);
-        this.drawHumanPlayerCards(currentCards);
+        for (index in playingOrder) {
+          if (index == 0) {
+            this.drawHumanPlayerCards(currentCards);
+          } else {
+            this.drawOtherPlayerCards(index, 5);
+          }
+        }
       }
     }
   },
@@ -338,17 +360,20 @@ View.prototype = {
     }
   }, 
 
-  animate: function(obj, attr, time) {
+  animate: function(obj, attr, time, callback) {
     var self = this;
-    var callback = function () {
+    var compositeCallback = function () {
+      if (callback) {
+        callback.apply(this);
+      }
       self.animationQueue.shift();
       self.processNextAnimation();
     };
-    var animation = Raphael.animation(attr, time, callback);
+    var animation = Raphael.animation(attr, time, compositeCallback);
 
     //text attr is not processed in animation, so handle separately
     if ("text" in attr) {
-      this.animationQueue.push({'obj': obj, 'text': attr['text'], 'callback': callback});
+      this.animationQueue.push({'obj': obj, 'text': attr['text'], 'callback': compositeCallback});
     } 
 
     this.animationQueue.push({'obj': obj, 'animation': animation});

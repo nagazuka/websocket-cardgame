@@ -24,7 +24,7 @@ function Game() {
     this.cards = [];
     this.players = [];
     this.playerMoves = [];
-
+    this.playingOrder = [];
     this.selectedCard = null;
     this.playerName = null;
     this.playerTeam = null;
@@ -165,7 +165,7 @@ Game.prototype = {
   handleFirstCards: function(cards) {
     this.addCards(cards);
     this.view.drawDeck();
-    this.view.drawPlayerCards(this.cards);
+    this.view.drawPlayerCards(this.cards, this.playingOrder);
     this.drawText(messages[conf.lang].chooseTrumpHeading);
     this.setCardClickHandler(this.chooseTrump);
   },
@@ -173,7 +173,7 @@ Game.prototype = {
   handleAllCards: function(cards, trumpSuit) {
     this.drawTrumpSuit(trumpSuit);
     this.addCards(cards);
-    this.view.drawPlayerCards(this.cards);
+    this.view.drawPlayerCards(this.cards, this.playingOrder);
     this.view.clearDeck();
     this.sendReady();
   },
@@ -312,13 +312,12 @@ MessageHandler.prototype = {
   startGame: function (response) {
     var self = this;
     var playerList = response.players;
-
+    this.game.playingOrder = response.playingOrder;
     _.each(response.players, function (p) {
       var player = new Player(p.id, p.index, p.name, p.isHuman, p.team);
       self.game.addPlayer(player);
       self.game.drawPlayer(player);
     });
-
     this.game.askFirstCards();
   },
 
