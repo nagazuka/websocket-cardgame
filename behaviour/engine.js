@@ -71,8 +71,13 @@ Game.prototype = {
   },
 
   addCards: function(newCards) {
+    logger.debug("Before addCards cards size: " + this.cards.length);
     this.cards = this.cards.concat(newCards);
-    this.sortCards();
+    this.cards = _.uniq(this.cards, false, function(c) {
+      return c.suit + '_' + c.rank;
+    });
+    logger.debug("After addCards cards size: " + this.cards.length);
+    //this.sortCards();
   },
 
   sortCards: function() {
@@ -167,7 +172,6 @@ Game.prototype = {
 
   handleAllCards: function(cards, trumpSuit) {
     this.drawTrumpSuit(trumpSuit);
-    this.clearCards();
     this.addCards(cards);
     this.view.drawPlayerCards(this.cards);
     this.view.clearDeck();

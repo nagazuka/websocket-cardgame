@@ -7,6 +7,14 @@ Repository.prototype = {
       return this[category];
   },
 
+  getCategorySize: function(category) {
+    if (this.hasOwnProperty(category)) {
+      return this[category].length;
+    } else {
+      return 0;
+    }
+  },
+
   clearCategory: function(category) {
       this[category] = [];
   },
@@ -253,15 +261,33 @@ View.prototype = {
     }
   },
 
-  drawPlayerCards: function(cards) {
+  drawHumanPlayerCards: function(cards) {
     var self = this;
-    if (cards.length > 0) {
-      var offset = 2 * constants.CARD_AREA_PADDING;
-      var stepSize = (constants.CARD_AREA_WIDTH - offset) / cards.length;
+
+    var numExistingCards = this.repository.getCategorySize('playerCards');
+    var numCards = cards.length + numExistingCards;
+    logger.debug("numExistingCards " + numExistingCards + " numCards " + numCards);
+    var stepSize = constants.CARD_WIDTH + constants.CARD_PADDING;
+    var offset = (constants.CARD_AREA_WIDTH - (numCards * stepSize))/2;
+    var newCardsOffset = offset + (numExistingCards * stepSize);
+    logger.debug("offset " + offset + " newCardsOffset " + newCardsOffset + " stepSize " + stepSize);
+
+    if (numExistingCards > 0) {
+      var oldOffset = (constants.CARD_AREA_WIDTH - (numExistingCards * stepSize))/2;
+      var dx = offset - oldOffset;
+      logger.debug("oldOffset " + oldOffset + " dx " + dx);
+      var existingCards = this.repository.getElementsByCategory('playerCards');
+      _.each(existingCards, function(c) {
+        c.translate(dx, 0);
+      });
+    }
+
+    if (numCards > 0) {
+
       _.each(cards, function(card, i) {
         var startX = constants.DECK_X;
         var startY = constants.DECK_Y;
-        var endX = i * stepSize + offset;
+        var endX = (i * stepSize) + newCardsOffset;
         var endY = constants.CARD_AREA_Y + constants.CARD_AREA_PADDING;
 
         var cardImage = self.drawCard(card, startX, startY, constants.CARD_WIDTH, constants.CARD_HEIGHT, 'playerCards');
@@ -269,6 +295,30 @@ View.prototype = {
         self.animate(cardImage, {x: endX, y: endY}, constants.PLAYER_CARD_ANIMATE_TIME);
         self.repository.addElement(cardImage, 'playerCards');
       });
+    }
+  },
+  
+  drawOtherPlayerCards: function(num) {
+  },
+
+  drawPlayerCards: function(cards) {
+    var self = this;
+
+    if (cards.length == 0) {
+      return;
+    } else if (cards.length == 5) {
+      this.drawHumanPlayerCards(cards);
+    } else {
+      var i;
+      var offset = 5;
+      var step = 4;
+      for (i=0; i < 2; i++) {
+        this.drawOtherPlayerCards();
+        var start = offset + i * step;
+        var end = start + step; 
+        var currentCards = cards.slice(start, end);
+        this.drawHumanPlayerCards(currentCards);
+      }
     }
   },
 
@@ -360,7 +410,7 @@ View.prototype = {
     });
     cardImage.mouseout(function(event) {
         this.translate(0,constants.CARD_HEIGHT);
-        this.attr({'height': constants.CARD_HEIGHT, 'width': constants.constants.CARD_WIDTH});
+        this.attr({'height': constants.CARD_HEIGHT, 'width': constants.CARD_WIDTH});
         self.clearError();
     });
 

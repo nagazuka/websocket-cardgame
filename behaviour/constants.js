@@ -13,6 +13,7 @@ function Constants() {
   this.CARD_AREA_HEIGHT = this.CARD_WIDTH * 2;
   this.CARD_AREA_Y = this.HEIGHT - this.CARD_AREA_HEIGHT;
   this.CARD_AREA_PADDING = 10;
+  this.CARD_PADDING = 5;
 
   this.TABLE_X = (this.WIDTH - this.TABLE_WIDTH) / 2;
   this.TABLE_Y = (this.HEIGHT - this.TABLE_HEIGHT - this.CARD_AREA_HEIGHT) / 2;
