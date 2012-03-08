@@ -224,9 +224,9 @@ View.prototype = {
 
   clearAllFromCategory: function(category) {
     var list = this.repository.getElementsByCategory(category);
-    if (list.length > 0) {
-      list[0].remove(); 
-    }
+    _.each(list, function(el) {
+      el.remove();
+    });
     this.repository.clearCategory(category);
   },
 
