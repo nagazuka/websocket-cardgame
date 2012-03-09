@@ -2929,7 +2929,7 @@ button.btn.small, input[type="submit"].btn.small {
 .modal-footer {
   padding: 14px 15px 15px;
   margin-bottom: 0;
-  background-color: #f5f5f5;
+  /* background-color: #f5f5f5; */
   border-top: 1px solid #ddd;
   -webkit-border-radius: 0 0 6px 6px;
   -moz-border-radius: 0 0 6px 6px;
