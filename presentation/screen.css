@@ -12,6 +12,12 @@ svg {
   margin: auto;
 }
 
+#fbContainer {
+  width: 728px;
+  display: block;
+  margin: auto;
+}
+
 #progressOverlay {
   display: block;
   margin: auto;
