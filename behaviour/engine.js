@@ -8,6 +8,21 @@ function Logger() {
 }
 
 Logger.prototype = {
+
+  init: function() {
+   var alertFallback = false;
+   if (typeof console === "undefined" || typeof console.log === "undefined") {
+     console = {};
+     if (alertFallback) {
+         console.log = function(msg) {
+              alert(msg);
+         };
+     } else {
+         console.log = function() {};
+     }
+   }
+  },
+
   debug : function(message) {
     console.log("DEBUG " + message);
   },
@@ -268,7 +283,7 @@ MessageHandler.prototype = {
     var self = this;
  
     this.ws = new WebSocket(conf.network.wsURL);
-    
+   
     this.ws.onopen = function() {
         self.game.start();
         logger.debug("Websocket opened, game started");
@@ -440,6 +455,7 @@ Application.prototype = {
 
 $(document).ready(function() {
     logger = new Logger();
+    logger.init();
     var application = new Application();
     application.init();
 });
