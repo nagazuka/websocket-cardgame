@@ -1,3 +1,5 @@
+'use strict';
+
 /**
  * External configuration file. 
  */ 
@@ -20,7 +22,6 @@ var conf = {
     'CLUBS': 'Clubs64.png',
     'DIAMONDS': 'Diamond64.png',
     'HEARTS': 'Hearts64.png',
-    'default': 'default.png'
   },
 
   flagDir: 'images/flags/64/', 
@@ -28,7 +29,6 @@ var conf = {
   teamFlags: {
     'Team Suriname': 'Suriname.png',
     'Team Nederland': 'Netherlands.png',
-    'default': 'default.png'
   },
 	
 	// my skins

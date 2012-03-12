@@ -1,3 +1,5 @@
+'use strict';
+
 var messages = {
   nl: {
     noWebSocketSupport: 'Deze browser ondersteunt geen WebSocket.',

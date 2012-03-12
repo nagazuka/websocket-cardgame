@@ -1,3 +1,5 @@
+'use strict';
+
 function Player(id, index, name, isHuman, teamName) {
   this.index = index;
   this.id = id;

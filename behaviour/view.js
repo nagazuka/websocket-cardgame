@@ -1,3 +1,5 @@
+'use strict';
+
 function Repository() {
 }
 
@@ -44,6 +46,70 @@ Repository.prototype = {
   }
 };
 
+
+function Task() {
+    this.queue = null;
+}
+
+Task.prototype = {
+    onStart: function() {
+    },
+
+    onExecute: function() {
+      this.onStart();
+      this.run();
+      this.onEnd();
+
+      if (this.queue) {
+        this.queue.processNextTask(); 
+      } else {
+        logger.error("Task queue not correctly set for task"); 
+      }
+    },
+
+    onEnd: function() {
+    },
+
+    run: function() {
+      //actual task code
+    },
+
+    setQueue: function(queue) {
+      this.queue = queue;
+    }
+};
+
+function TaskQueue() {
+  this.q = [];
+  this.state = "INITIALIZED";
+}
+
+TaskQueue.prototype = {
+  addTask: function(task) {
+    if (task) {
+      task.setQueue(this);
+      this.q.push(task);
+
+      if (this.state !== "RUNNING") {
+          this.state = "READY";
+      }
+
+    } else {
+      logger.error("Called addTask with empty task");
+    }
+  },
+
+  processNextTask: function() {
+    if (this.q.length > 0) {
+      var nextTask = this.q.shift();
+      this.state = "RUNNING";
+      nextTask.execute();
+    } else {
+      logger.debug("No tasks to process");
+      this.state = "STOPPED";
+    }
+  }
+}; 
 
 function View(game) {
     this.game = game;
@@ -235,6 +301,7 @@ View.prototype = {
     var scoreTitle = canvas.text(constants.SCORE_FLAG_X[0], 10, messages[conf.lang].score);
     scoreTitle.attr({'font-size': constants.SCORE_FONT_SIZE,'text-anchor': 'start','fill': '#fff','font-family' : conf.font, 'font-weight' : 'bold'});
 
+    var i;
     for (i in teams) {
       var smallTeamImage = this.getTeamImageFile(teams[i], 'small');
       canvas.image(smallTeamImage, constants.SCORE_FLAG_X[i], constants.SCORE_FLAG_Y[i], constants.SCORE_FLAG_SIZE, constants.SCORE_FLAG_SIZE);
@@ -247,6 +314,7 @@ View.prototype = {
   updateScores: function(scores) {
     var teamScores = scores['teamScore'];
 
+    var team;
     for (team in teamScores) {
       var textElement = this.repository.findElement(team, "scoreText");
       var oldText = textElement.attr('text');
@@ -313,6 +381,7 @@ View.prototype = {
   },
 
   drawDealCards: function(cards, playingOrder, num) {
+      var index;
       for (index in playingOrder) {
         if (index == 0) {
           this.drawHumanPlayerCards(cards);
@@ -468,7 +537,7 @@ View.prototype = {
     var self = this;
 
     var overlay = this.getCanvas().rect(0, 0, constants.WIDTH, constants.HEIGHT);
-    overlay.attr({fill: "#000", stroke: "none", opacity: '0.1'}); 
+    overlay.attr({fill: "#000", stroke: "none", opacity: '0'}); 
     overlay.hide();
     overlay.mouseup(function(event) {
       self.game[callback]();
@@ -476,7 +545,7 @@ View.prototype = {
       overlay.remove();
     }); 
     logger.debug("Animating overlay");
-    this.animate(overlay, {opacity: '0.3'}, 100);
+    this.animate(overlay, {opacity: '0'}, 1);
   },
 
   waitForNextHand: function() {

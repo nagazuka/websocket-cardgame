@@ -1,3 +1,5 @@
+'use strict';
+
 function Constants() {
 
   this.WIDTH = 760;
