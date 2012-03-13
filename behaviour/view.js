@@ -29,13 +29,13 @@ Repository.prototype = {
 
   findElement: function(id, category) {
     var allElements = this.getElementsByCategory(category);
-    var element =  _.find(allElements, function(e) { return e.id == id }); 
+    var element =  _.find(allElements, function(e) { return e.id == id; }); 
     return element;
   },
 
   removeElementFromCategory: function(id, category) {
     var allElements = this[category];
-    var element =  _.find(allElements, function(e) { return e.id == id }); 
+    var element =  _.find(allElements, function(e) { return e.id == id; }); 
     this[category] = _.without(allElements, element);
     return element;
   },
@@ -79,6 +79,25 @@ Task.prototype = {
     }
 };
 
+function TextTask() {
+
+}
+
+TextTask.prototype = _.extend(Task.prototype, {
+
+});
+
+function AnimationTask(element, attr, time, callback) {
+  this.element = element;
+  this.attr = attr;
+  this.time = time;
+  this.callback = callback;
+}
+
+AnimationTask.prototype = _.extend(Task.prototype, {
+
+});
+
 function TaskQueue() {
   this.q = [];
   this.state = "INITIALIZED";
@@ -113,7 +132,7 @@ TaskQueue.prototype = {
 
 function View(game) {
     this.game = game;
-    this.canvas = Raphael('canvas', constants.WIDTH, constants.HEIGHT);
+    this.canvas = new Raphael('canvas', constants.WIDTH, constants.HEIGHT);
     this.repository = new Repository();
     this.animationQueue = [];
     this.progressOverlay = null;
@@ -147,7 +166,7 @@ View.prototype = {
 
     updateProgressOverlay: function(e) {
       var percentage = 0;
-      if (e.totalCount != null) {
+      if (e.totalCount !== null) {
         percentage = Math.floor(100.0*e.completedCount / e.totalCount);
       }
       $('#progressBar').css('width', percentage + '%');
@@ -226,7 +245,8 @@ View.prototype = {
       return loader;
     },
 
-  drawText : function(content, x, y) {
+  drawText : function(content) {
+    //TODO: move to constants
     var x = constants.WIDTH * 0.8;
     var y = constants.HEIGHT * 0.7;
 
@@ -241,7 +261,8 @@ View.prototype = {
     this.animate(this.text, {'opacity': 1}, 100); 
   },
 
-  drawInvalidText : function(content, x, y) {
+  drawInvalidText : function(content) {
+    //TODO: move to constants
     var x = constants.WIDTH * 0.2;
     var y = constants.HEIGHT * 0.7;
 
