@@ -46,45 +46,15 @@ Repository.prototype = {
   }
 };
 
-
-function Task() {
-    this.queue = null;
-}
-
-Task.prototype = {
-    onStart: function() {
-    },
-
-    onExecute: function() {
-      this.onStart();
-      this.run();
-      this.onEnd();
-
-      if (this.queue) {
-        this.queue.processNextTask(); 
-      } else {
-        logger.error("Task queue not correctly set for task"); 
-      }
-    },
-
-    onEnd: function() {
-    },
-
-    run: function() {
-      //actual task code
-    },
-
-    setQueue: function(queue) {
-      this.queue = queue;
-    }
-};
-
-function TextTask() {
-
+function TextTask(element, attr) {
+    this.element = element;
+    this.attr = attr;
 }
 
 TextTask.prototype = _.extend(Task.prototype, {
-
+    run: function() {
+        this.element.attr(this.attr);
+    }
 });
 
 function AnimationTask(element, attr, time, callback) {
@@ -94,49 +64,26 @@ function AnimationTask(element, attr, time, callback) {
   this.callback = callback;
 }
 
-AnimationTask.prototype = _.extend(Task.prototype, {
-
+AnimationTask.prototype = _.extend(AsyncTask.prototype, {
+    run: function() {
+      var self = this;
+      var compositeCallback = function () {
+        if (self.callback) {
+          self.callback.apply(this);
+        }
+        self.finish();
+      };
+      var animation = Raphael.animation(this.attr, this.time, compositeCallback);
+      this.element.show().stop().animate(animation);
+    }
 });
-
-function TaskQueue() {
-  this.q = [];
-  this.state = "INITIALIZED";
-}
-
-TaskQueue.prototype = {
-  addTask: function(task) {
-    if (task) {
-      task.setQueue(this);
-      this.q.push(task);
-
-      if (this.state !== "RUNNING") {
-          this.state = "READY";
-      }
-
-    } else {
-      logger.error("Called addTask with empty task");
-    }
-  },
-
-  processNextTask: function() {
-    if (this.q.length > 0) {
-      var nextTask = this.q.shift();
-      this.state = "RUNNING";
-      nextTask.execute();
-    } else {
-      logger.debug("No tasks to process");
-      this.state = "STOPPED";
-    }
-  }
-}; 
 
 function View(game) {
     this.game = game;
     this.canvas = new Raphael('canvas', constants.WIDTH, constants.HEIGHT);
     this.repository = new Repository();
-    this.animationQueue = [];
+    this.taskQueue = new TaskQueue();
     this.progressOverlay = null;
-    this.alertPopup = null;
 }
 
 View.prototype = {
@@ -432,40 +379,14 @@ View.prototype = {
     }
   },
 
-  processNextAnimation: function() {
-    if (this.animationQueue.length > 0) {
-      var currentItem = this.animationQueue[0];
-      var obj = currentItem['obj'];
-
-      if ("animation" in currentItem) {
-        var anim = currentItem['animation'];
-        obj.show().stop().animate(anim);
-      } else if ("text" in currentItem) {
-        var text = currentItem['text'];
-        obj.attr({'text':  text});
-        currentItem['callback']();
-      }
-    }
-  }, 
-
   animate: function(obj, attr, time, callback) {
-    var self = this;
-    var compositeCallback = function () {
-      if (callback) {
-        callback.apply(this);
-      }
-      self.animationQueue.shift();
-      self.processNextAnimation();
-    };
-    var animation = Raphael.animation(attr, time, compositeCallback);
-
-    //text attr is not processed in animation, so handle separately
+    var task;
     if ("text" in attr) {
-      this.animationQueue.push({'obj': obj, 'text': attr['text'], 'callback': compositeCallback});
-    } 
-
-    this.animationQueue.push({'obj': obj, 'animation': animation});
-    this.processNextAnimation();
+      task = new TextTask(obj, attr, time);
+    }  else {
+      task = new AnimationTask(obj, attr, time, callback);
+    }
+    this.taskQueue.addTask(task);
   },
 
   drawPlayerMove: function(playerMove) {
