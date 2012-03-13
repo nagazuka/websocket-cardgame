@@ -46,14 +46,14 @@ Repository.prototype = {
   }
 };
 
-function TextTask(element, attr) {
+function TextTask(element, text) {
     this.element = element;
-    this.attr = attr;
+    this.text = text;
 }
 
 TextTask.prototype = _.extend(Task.prototype, {
     run: function() {
-        this.element.attr(this.attr);
+        this.element.attr({'text': this.text});
     }
 });
 
@@ -194,7 +194,7 @@ View.prototype = {
 
   drawText : function(content) {
     //TODO: move to constants
-    var x = constants.WIDTH * 0.8;
+    var x = constants.WIDTH * 0.77;
     var y = constants.HEIGHT * 0.7;
 
     if (this.text) {
@@ -204,7 +204,6 @@ View.prototype = {
       this.text.attr({'fill' : '#fff', 'font-size' : '22', 'font-family' : conf.font, 'font-weight' : 'bold','stroke-width' : '1'});
     }
     this.text.hide();
-    logger.debug("Drawing text");
     this.animate(this.text, {'opacity': 1}, 100); 
   },
 
@@ -220,7 +219,7 @@ View.prototype = {
       this.invalidText.attr({'fill' : '#f00', 'font-size' : '22', 'font-family' : conf.font, 'font-weight' : 'bold','stroke-width' : '1'});
     }
     this.invalidText.hide();
-    logger.debug("Drawing invalid text");
+    logger.debug("Drawing invalid text: " + content);
     this.animate(this.invalidText, {'opacity': 1}, 100); 
   },
 
@@ -288,11 +287,13 @@ View.prototype = {
       var oldText = textElement.attr('text');
       var newText = teamScores[team];
       if (oldText != newText) {
-        logger.debug("Drawing scores");
-        this.animate(textElement, {'opacity': '0'}, 100);
-        this.animate(textElement, {'text': newText}, 100);
-        this.animate(textElement, {'opacity': '1','fill': '#f00'}, 100);
-        this.animate(textElement, {'fill': '#fff'}, 100);
+        logger.debug("Drawing scores " + newText + " instead of " + oldText);
+        //this.animate(textElement, {'opacity': '0'}, 100);
+        //this.animate(textElement, {'text': newText}, 100);
+        //this.animate(textElement, {'text': newText}, 100);
+        textElement.attr({'text': newText});
+        //this.animate(textElement, {'opacity': '1','fill': '#f00'}, 100);
+        //this.animate(textElement, {'fill': '#fff'}, 100);
       }
     }
   },
@@ -344,6 +345,7 @@ View.prototype = {
     var self = this;
     _.times(num, function() {
       var deckEl = self.getCanvas().image(deckImage, startX, startY, constants.DECK_WIDTH, constants.DECK_HEIGHT);
+      deckEl.hide();
       self.animate(deckEl, {x: endX, y: endY}, constants.PLAYER_CARD_ANIMATE_TIME, deckEl.remove);
     });
   },
@@ -382,7 +384,7 @@ View.prototype = {
   animate: function(obj, attr, time, callback) {
     var task;
     if ("text" in attr) {
-      task = new TextTask(obj, attr, time);
+      task = new TextTask(obj, attr.text);
     }  else {
       task = new AnimationTask(obj, attr, time, callback);
     }
