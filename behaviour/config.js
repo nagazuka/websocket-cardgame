@@ -21,14 +21,14 @@ var conf = {
     'SPADES': 'Spades64.png',
     'CLUBS': 'Clubs64.png',
     'DIAMONDS': 'Diamond64.png',
-    'HEARTS': 'Hearts64.png',
+    'HEARTS': 'Hearts64.png'
   },
 
   flagDir: 'images/flags/64/', 
   flagSmallDir: 'images/flags/32/', 
   teamFlags: {
     'Team Suriname': 'Suriname.png',
-    'Team Nederland': 'Netherlands.png',
+    'Team Nederland': 'Netherlands.png'
   },
 	
 	// my skins
