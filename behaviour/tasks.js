@@ -26,19 +26,15 @@ TaskQueue.prototype = {
   },
 
   processNextTask: function() {
-    logger.debug("TaskQueue state in processNextTask: " + this.state);
     if  (this.state !== "RUNNING")  {
       if (this.q.length > 0) {
         var nextTask = this.q.shift();
         this.state = "RUNNING";
         nextTask.execute();
       } else {
-        logger.debug("No tasks to process, number of tasks in q: " + this.q.length);
         this.state = "STOPPED";
       }
-    } else {
-      logger.debug("Not executing, cause already running");
-    }
+    } 
   }
 }; 
 
