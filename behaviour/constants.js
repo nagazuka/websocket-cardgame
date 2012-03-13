@@ -45,7 +45,7 @@ function Constants() {
   
   this.TEXT_X_ARR = [this.PLAYER_MIDDLE_X + 0.5*this.PLAYER_SIZE, this.PLAYER_HORIZ_PADDING + 0.5*this.PLAYER_SIZE, this.PLAYER_MIDDLE_X + 0.5*this.PLAYER_SIZE, this.PLAYER_END_X + 0.5*this.PLAYER_SIZE];
   this.TEXT_MIDDLE_Y = this.CARD_AREA_Y / 2;
-  this.TEXT_Y_ARR = [this.PLAYER_END_Y + this.PLAYER_SIZE, this.TEXT_MIDDLE_Y + 0.5*this.PLAYER_SIZE, this.PLAYER_VERT_PADDING + this.PLAYER_SIZE, this.TEXT_MIDDLE_Y + 0.5*this.PLAYER_SIZE];
+  this.TEXT_Y_ARR = [this.PLAYER_END_Y + this.PLAYER_SIZE + this.PLAYER_VERT_PADDING, this.TEXT_MIDDLE_Y + 0.5*this.PLAYER_SIZE + this.PLAYER_VERT_PADDING, 2*this.PLAYER_VERT_PADDING + this.PLAYER_SIZE, this.TEXT_MIDDLE_Y + 0.5*this.PLAYER_SIZE + this.PLAYER_VERT_PADDING];
 
   this.CARD_MIDDLE_Y = (this.CARD_AREA_Y / 2) - (this.CARD_HEIGHT / 2);
   this.CARD_MIDDLE_X = (this.WIDTH / 2) - (this.CARD_WIDTH / 2);

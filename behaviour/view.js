@@ -461,13 +461,12 @@ View.prototype = {
     var canvas = this.getCanvas();
     var playerX = constants.PLAYER_X_ARR[player.getIndex()];
     var playerY = constants.PLAYER_Y_ARR[player.getIndex()];
-    logger.debug("playerIndex: " + player.getIndex() + " playerX " + playerX + " playerY " + playerY);
+
     var flagX = playerX - 0.25*constants.TEAM_FLAG_SIZE;
     var flagY = playerY - 0.25*constants.TEAM_FLAG_SIZE;
-    logger.debug("playerIndex: " + player.getIndex() + " playerX " + playerX + " playerY " + playerY);
+
     var textX  = constants.TEXT_X_ARR[player.getIndex()];
     var textY = constants.TEXT_Y_ARR[player.getIndex()];
-    logger.debug("playerIndex: " + player.getIndex() + " textX " + textX + " textY " + textY);
 
     var teamName = player.getTeamName();
     var teamImage = this.getTeamImageFile(teamName);
