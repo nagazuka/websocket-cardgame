@@ -2,14 +2,7 @@
 
 var WEB_SOCKET_SWF_LOCATION = "behaviour/WebSocketMain.swf";
 
-var logger;
-
-function Logger() {
-}
-
-Logger.prototype = {
-
-  init: function() {
+function initConsole() {
    var alertFallback = false;
    if (typeof console === "undefined" || typeof console.log === "undefined") {
      console = {};
@@ -21,16 +14,8 @@ Logger.prototype = {
          console.log = function() {};
      }
    }
-  },
+}
 
-  debug : function(message) {
-    console.log("DEBUG " + message);
-  },
-
-  error : function(message) {
-    console.log("ERROR " + message);
-  }
-};
 
 function Game() {
     this.view = null;
@@ -86,12 +71,12 @@ Game.prototype = {
   },
 
   addCards: function(newCards) {
-    logger.debug("Before addCards cards size: " + this.cards.length);
+    console.debug("Before addCards cards size: " + this.cards.length);
     this.cards = this.cards.concat(newCards);
     this.cards = _.uniq(this.cards, false, function(c) {
       return c.suit + '_' + c.rank;
     });
-    logger.debug("After addCards cards size: " + this.cards.length);
+    console.debug("After addCards cards size: " + this.cards.length);
     //this.sortCards();
   },
 
@@ -241,7 +226,7 @@ Game.prototype = {
   },
 
   setCardClickHandler : function(handler) {
-    logger.debug("Setting cardClickHandler to: " + handler.name);
+    console.debug("Setting cardClickHandler to: " + handler.name);
     this.cardClickHandler = handler;
   },
   
@@ -286,11 +271,11 @@ MessageHandler.prototype = {
    
     this.ws.onopen = function() {
         self.game.start();
-        logger.debug("Websocket opened, game started");
+        console.debug("Websocket opened, game started");
     };
 
     this.ws.onclose = function() {
-        logger.debug("Websocket closed, game suspended");
+        console.debug("Websocket closed, game suspended");
         $('#disconnectModal').modal('show');
     }; 
 
@@ -303,11 +288,11 @@ MessageHandler.prototype = {
     var messageStr = JSON.stringify(message);
     this.ws.send(messageStr);
 
-    logger.debug("Sent: " + messageStr);
+    console.debug("Sent: " + messageStr);
   },
 
   receiveMessage : function(msg) {
-    logger.debug("Received: " + msg);
+    console.debug("Received: " + msg);
 
     var json = JSON.parse(msg);
     var handlerName = json.response;
@@ -315,9 +300,9 @@ MessageHandler.prototype = {
 
     //check whether handler function exists
     if (typeof functionCall != 'function') {
-        logger.error('Unknown response: ' + handlerName);
+        console.error('Unknown response: ' + handlerName);
     } else {
-        logger.debug('Calling method handler: ' + handlerName);
+        console.debug('Calling method handler: ' + handlerName);
     }
 
     //call handler function
@@ -377,7 +362,7 @@ MessageHandler.prototype = {
   
   exception: function (response) {
     this.game.drawText(messages[conf.lang].errorMessage);
-    logger.error(response.resultMessage);
+    console.error(response.resultMessage);
   },
   
   transformPlayerMoves : function (hand) {
@@ -454,8 +439,7 @@ Application.prototype = {
 };
 
 $(document).ready(function() {
-    logger = new Logger();
-    logger.init();
+    initConsole();
     var application = new Application();
     application.init();
 });
