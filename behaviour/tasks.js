@@ -15,7 +15,7 @@ TaskQueue.prototype = {
       this.processNextTask();
 
     } else {
-      logger.error("Called addTask with empty task");
+      console.error("Called addTask with empty task");
     }
 
   },
@@ -64,7 +64,7 @@ Task.prototype = {
       if (this.queue) {
         this.queue.processNextTask(); 
       } else {
-        logger.error("Task queue not correctly set for task"); 
+        console.error("Task queue not correctly set for task"); 
       }
     },
 
@@ -79,7 +79,6 @@ function AsyncTask() {
 
 AsyncTask.prototype = _.extend(Task.prototype, {
     execute: function() {
-      console.debug("Executing task with type " + this.type);
       this.onStart();
       this.run();
     },

@@ -499,7 +499,7 @@ View.prototype = {
       overlay.remove();
     }); 
     console.debug("Animating overlay");
-    this.animate(overlay, {opacity: '0.3'}, 100);
+    this.animate(overlay, {opacity: '0'}, 100);
   },
 
   waitForNextHand: function() {
