@@ -40,7 +40,7 @@ Repository.prototype = {
     return element;
   },
 
-  addElement: function(element, category) {
+  addElement: function(element, id, category) {
     this.createIfEmpty(category);
     this[category].push(element);
   }
@@ -49,12 +49,10 @@ function TextTask(element, text) {
     this.element = element;
     this.text = text;
     this.type = "TextTask";
-    console.debug("create text task element " + this.element +  " text " + this.text);
 };
 
 TextTask.prototype = new AsyncTask;
 TextTask.prototype.run = function() {
-        console.debug("running in text task element " + this.element +  " text " + this.text);
         //this.element.hide();
         this.element.attr({'text': this.text});
         this.element.attr({'opacity': '1','fill': '#fff'});
@@ -67,12 +65,10 @@ function AnimationTask(element, attr, time, callback) {
   this.attr = attr;
   this.time = time;
   this.callback = callback;
-  console.debug("create animation task element [" + this.element +  "] attr " + this.attr);
 };
 
 AnimationTask.prototype = new AsyncTask;
 AnimationTask.prototype.run  =function() {
-      console.debug("running animation task element[ " + this.element +  "] attr " + this.attr);
       var self = this;
       var compositeCallback = function () {
         if (self.callback) {
@@ -211,7 +207,7 @@ View.prototype = {
     }
     this.text.hide();
     console.debug("Draw text: " + content);
-    this.animate(this.text, {'opacity': 1}, 100); 
+    this.queueAnimate(this.text, {'opacity': 1}, 100); 
   },
 
   drawInvalidText: function(content) {
@@ -227,7 +223,7 @@ View.prototype = {
     }
     this.invalidText.hide();
     console.debug("Draw invalid text");
-    this.animate(this.invalidText, {'opacity': 1}, 100); 
+    this.queueAnimate(this.invalidText, {'opacity': 1}, 100); 
   },
 
   drawError: function(heading, message) {
@@ -246,8 +242,8 @@ View.prototype = {
     trumpSuitText.attr({'font-size': 20,'text-anchor': 'start','fill': '#fff','font-family' : conf.font, 'font-weight' : 'bold'});
     var iconImage = this.getSuitImageFile(trumpSuit);
     var trumpSuitIcon = this.getCanvas().image(iconImage, constants.TRUMPSUIT_X, constants.TRUMPSUIT_Y, constants.TRUMPSUIT_SIZE, constants.TRUMPSUIT_SIZE);
-    this.repository.addElement(trumpSuitText, "trumpSuit");
-    this.repository.addElement(trumpSuitIcon, "trumpSuit");
+    this.repository.addElement(trumpSuitText, "trumpSuitText", "trumpSuit");
+    this.repository.addElement(trumpSuitIcon, "trumpSuitIcon", "trumpSuit");
   },
 
   clearTrumpSuit: function() {
@@ -257,7 +253,7 @@ View.prototype = {
   drawDeck: function() {
     var image = this.getDeckImageFile();
     var deck = this.getCanvas().image(image, constants.DECK_X, constants.DECK_Y, constants.DECK_WIDTH, constants.DECK_HEIGHT);
-    this.repository.addElement(deck, "deck");
+    this.repository.addElement(deck, "tableDeck", "deck");
   },
 
   clearDeck: function() {
@@ -283,7 +279,7 @@ View.prototype = {
       canvas.image(smallTeamImage, constants.SCORE_FLAG_X[i], constants.SCORE_FLAG_Y[i], constants.SCORE_FLAG_SIZE, constants.SCORE_FLAG_SIZE);
       var scoreText = canvas.text(constants.SCORE_FLAG_X[i]+constants.SCORE_FLAG_SIZE+ constants.SCORE_TEXT_PADDING, constants.SCORE_FLAG_Y[i]+constants.SCORE_TEXT_PADDING, "0").attr({'font-size': constants.SCORE_FONT_SIZE,'text-anchor': 'start','fill': '#fff','font-family' : conf.font, 'font-weight' : 'bold'});
       scoreText.id = teams[i];
-      this.repository.addElement(scoreText,"scoreText");
+      this.repository.addElement(scoreText,teams[i],"scoreText");
     }
   },
 
@@ -304,6 +300,7 @@ View.prototype = {
 
   drawHumanPlayerCards: function(cards) {
     var self = this;
+    var category = "playerCards";
 
     var numExistingCards = this.repository.getCategorySize('playerCards');
     var numCards = cards.length + numExistingCards;
@@ -331,10 +328,11 @@ View.prototype = {
         var endX = (i * stepSize) + newCardsOffset;
         var endY = constants.CARD_AREA_Y + constants.CARD_AREA_PADDING;
 
-        var cardImage = self.drawCard(card, startX, startY, constants.CARD_WIDTH, constants.CARD_HEIGHT, 'playerCards');
+        var cardId = self.getCardId(card, category);
+        var cardImage = self.drawCard(card, startX, startY, constants.CARD_WIDTH, constants.CARD_HEIGHT, category);
         cardImage.hide();
-        self.animate(cardImage, {x: endX, y: endY}, constants.PLAYER_CARD_ANIMATE_TIME);
-        self.repository.addElement(cardImage, 'playerCards');
+        self.queueAnimate(cardImage, {x: endX, y: endY}, constants.PLAYER_CARD_ANIMATE_TIME);
+        self.repository.addElement(cardImage, cardId, category);
       });
     }
   },
@@ -350,7 +348,7 @@ View.prototype = {
     _.times(num, function() {
       var deckEl = self.getCanvas().image(deckImage, startX, startY, constants.DECK_WIDTH, constants.DECK_HEIGHT);
       deckEl.hide();
-      self.animate(deckEl, {x: endX, y: endY}, constants.PLAYER_CARD_ANIMATE_TIME, deckEl.remove);
+      self.queueAnimate(deckEl, {x: endX, y: endY}, constants.PLAYER_CARD_ANIMATE_TIME, deckEl.remove);
     });
   },
 
@@ -386,18 +384,18 @@ View.prototype = {
   },
   
   queueText: function(obj, text) {
-    console.debug("queue text: obj = " + obj + " text =  " + text);
     var task = new TextTask(obj, text);
     this.taskQueue.addTask(task);
   },
 
-  animate: function(obj, attr, time, callback) {
-    console.debug("queue animate");
+  queueAnimate: function(obj, attr, time, callback) {
     var task = new AnimationTask(obj, attr, time, callback);
     this.taskQueue.addTask(task);
   },
 
   drawPlayerMove: function(playerMove) {
+    var category = "playerMoves";
+
     var player = playerMove.getPlayer();
     var card = playerMove.getCard();
     var playerIndex = player.getIndex(); 
@@ -408,11 +406,12 @@ View.prototype = {
     var endX = constants.CARD_X_ARR[playerIndex];
     var endY = constants.CARD_Y_ARR[playerIndex];
 
-    var cardImage = this.drawCard(card, startX, startY, constants.CARD_WIDTH, constants.CARD_HEIGHT, 'playerMoves');
+    var cardId = this.getCardId(card, category);
+    var cardImage = this.drawCard(card, startX, startY, constants.CARD_WIDTH, constants.CARD_HEIGHT, category);
     cardImage.hide();
     console.debug("Drawing playerMove"); 
-    this.animate(cardImage, {x: endX, y: endY}, constants.PLAYER_MOVE_ANIMATE_TIME);
-    this.repository.addElement(cardImage, 'playerMoves');
+    this.queueAnimate(cardImage, {x: endX, y: endY}, constants.PLAYER_MOVE_ANIMATE_TIME);
+    this.repository.addElement(cardImage, cardId, category);
   },
 
   clearPlayerMoves: function() {
@@ -499,7 +498,7 @@ View.prototype = {
       overlay.remove();
     }); 
     console.debug("Animating overlay");
-    this.animate(overlay, {opacity: '0'}, 100);
+    this.queueAnimate(overlay, {opacity: '0'}, 100);
   },
 
   waitForNextHand: function() {
