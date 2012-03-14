@@ -29,19 +29,20 @@ Repository.prototype = {
 
   findElement: function(id, category) {
     var allElements = this.getElementsByCategory(category);
-    var element =  _.find(allElements, function(e) { return e.id == id; }); 
+    var element =  _.find(allElements, function(e) { return e.data("id") == id; }); 
     return element;
   },
 
   removeElementFromCategory: function(id, category) {
     var allElements = this[category];
-    var element =  _.find(allElements, function(e) { return e.id == id; }); 
+    var element =  _.find(allElements, function(e) { return e.data("id") == id; }); 
     this[category] = _.without(allElements, element);
     return element;
   },
 
   addElement: function(element, id, category) {
     this.createIfEmpty(category);
+    element.data("id", id);
     this[category].push(element);
   }
 };
