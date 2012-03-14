@@ -45,27 +45,34 @@ Repository.prototype = {
     this[category].push(element);
   }
 };
-
 function TextTask(element, text) {
     this.element = element;
     this.text = text;
-}
+    this.type = "TextTask";
+    console.debug("create text task element " + this.element +  " text " + this.text);
+};
 
-TextTask.prototype = _.extend(Task.prototype, {
-    run: function() {
+TextTask.prototype = new AsyncTask;
+TextTask.prototype.run = function() {
+        console.debug("running in text task element " + this.element +  " text " + this.text);
+        //this.element.hide();
         this.element.attr({'text': this.text});
-    }
-});
+        this.element.attr({'opacity': '1','fill': '#fff'});
+        this.finish();
+};
 
 function AnimationTask(element, attr, time, callback) {
   this.element = element;
+  this.type = "AnimationTask";
   this.attr = attr;
   this.time = time;
   this.callback = callback;
-}
+  console.debug("create animation task element [" + this.element +  "] attr " + this.attr);
+};
 
-AnimationTask.prototype = _.extend(AsyncTask.prototype, {
-    run: function() {
+AnimationTask.prototype = new AsyncTask;
+AnimationTask.prototype.run  =function() {
+      console.debug("running animation task element[ " + this.element +  "] attr " + this.attr);
       var self = this;
       var compositeCallback = function () {
         if (self.callback) {
@@ -75,8 +82,7 @@ AnimationTask.prototype = _.extend(AsyncTask.prototype, {
       };
       var animation = Raphael.animation(this.attr, this.time, compositeCallback);
       this.element.show().stop().animate(animation);
-    }
-});
+    };
 
 function View(game) {
     this.game = game;
@@ -194,7 +200,7 @@ View.prototype = {
 
   drawText : function(content) {
     //TODO: move to constants
-    var x = constants.WIDTH * 0.77;
+    var x = constants.WIDTH * 0.78;
     var y = constants.HEIGHT * 0.7;
 
     if (this.text) {
@@ -204,10 +210,11 @@ View.prototype = {
       this.text.attr({'fill' : '#fff', 'font-size' : '22', 'font-family' : conf.font, 'font-weight' : 'bold','stroke-width' : '1'});
     }
     this.text.hide();
+    console.debug("Draw text: " + content);
     this.animate(this.text, {'opacity': 1}, 100); 
   },
 
-  drawInvalidText : function(content) {
+  drawInvalidText: function(content) {
     //TODO: move to constants
     var x = constants.WIDTH * 0.2;
     var y = constants.HEIGHT * 0.7;
@@ -219,15 +226,17 @@ View.prototype = {
       this.invalidText.attr({'fill' : '#f00', 'font-size' : '22', 'font-family' : conf.font, 'font-weight' : 'bold','stroke-width' : '1'});
     }
     this.invalidText.hide();
-    logger.debug("Drawing invalid text: " + content);
+    console.debug("Draw invalid text");
     this.animate(this.invalidText, {'opacity': 1}, 100); 
   },
 
   drawError: function(heading, message) {
+    console.debug("Drawing invalid text: " + heading);
     this.drawInvalidText(heading);
   },
 
   clearError: function() {
+    console.debug("Clearing invalid text");
     this.drawInvalidText("");
   },
 
@@ -287,13 +296,8 @@ View.prototype = {
       var oldText = textElement.attr('text');
       var newText = teamScores[team];
       if (oldText != newText) {
-        logger.debug("Drawing scores " + newText + " instead of " + oldText);
-        //this.animate(textElement, {'opacity': '0'}, 100);
-        //this.animate(textElement, {'text': newText}, 100);
-        //this.animate(textElement, {'text': newText}, 100);
-        textElement.attr({'text': newText});
-        //this.animate(textElement, {'opacity': '1','fill': '#f00'}, 100);
-        //this.animate(textElement, {'fill': '#fff'}, 100);
+        console.debug("updating scores");
+        this.queueText(textElement, newText);
       }
     }
   },
@@ -303,16 +307,16 @@ View.prototype = {
 
     var numExistingCards = this.repository.getCategorySize('playerCards');
     var numCards = cards.length + numExistingCards;
-    logger.debug("numExistingCards " + numExistingCards + " numCards " + numCards);
+    console.debug("numExistingCards " + numExistingCards + " numCards " + numCards);
     var stepSize = constants.CARD_WIDTH + constants.CARD_PADDING;
     var offset = (constants.CARD_AREA_WIDTH - (numCards * stepSize))/2;
     var newCardsOffset = offset + (numExistingCards * stepSize);
-    logger.debug("offset " + offset + " newCardsOffset " + newCardsOffset + " stepSize " + stepSize);
+    console.debug("offset " + offset + " newCardsOffset " + newCardsOffset + " stepSize " + stepSize);
 
     if (numExistingCards > 0) {
       var oldOffset = (constants.CARD_AREA_WIDTH - (numExistingCards * stepSize))/2;
       var dx = offset - oldOffset;
-      logger.debug("oldOffset " + oldOffset + " dx " + dx);
+      console.debug("oldOffset " + oldOffset + " dx " + dx);
       var existingCards = this.repository.getElementsByCategory('playerCards');
       _.each(existingCards, function(c) {
         c.translate(dx, 0);
@@ -380,14 +384,16 @@ View.prototype = {
       }
     }
   },
+  
+  queueText: function(obj, text) {
+    console.debug("queue text: obj = " + obj + " text =  " + text);
+    var task = new TextTask(obj, text);
+    this.taskQueue.addTask(task);
+  },
 
   animate: function(obj, attr, time, callback) {
-    var task;
-    if ("text" in attr) {
-      task = new TextTask(obj, attr.text);
-    }  else {
-      task = new AnimationTask(obj, attr, time, callback);
-    }
+    console.debug("queue animate");
+    var task = new AnimationTask(obj, attr, time, callback);
     this.taskQueue.addTask(task);
   },
 
@@ -404,13 +410,13 @@ View.prototype = {
 
     var cardImage = this.drawCard(card, startX, startY, constants.CARD_WIDTH, constants.CARD_HEIGHT, 'playerMoves');
     cardImage.hide();
-    logger.debug("Drawing playerMove"); 
+    console.debug("Drawing playerMove"); 
     this.animate(cardImage, {x: endX, y: endY}, constants.PLAYER_MOVE_ANIMATE_TIME);
     this.repository.addElement(cardImage, 'playerMoves');
   },
 
   clearPlayerMoves: function() {
-    logger.debug("Clearing all playerMoves");
+    console.debug("Clearing all playerMoves");
     var playerMoves = this.repository.getElementsByCategory('playerMoves');
     _.each(playerMoves, function (pm) { 
       pm.remove(); 
@@ -478,7 +484,6 @@ View.prototype = {
 
     var playerName = player.getName();
     var nameTxt = canvas.text(textX, textY , playerName);
-    logger.debug("playerIndex: " + player.getIndex() + " textX " + textX + " textY " + textY);
     nameTxt.attr({'fill' : '#fff', 'font-size' : '14', 'font-family' : conf.font, 'font-weight' : 'bold', 'fill-opacity' : '50%'});
   },
   
@@ -490,11 +495,11 @@ View.prototype = {
     overlay.hide();
     overlay.mouseup(function(event) {
       self.game[callback]();
-      logger.debug("Removing overlay"); 
+      console.debug("Removing overlay"); 
       overlay.remove();
     }); 
-    logger.debug("Animating overlay");
-    this.animate(overlay, {opacity: '0'}, 1);
+    console.debug("Animating overlay");
+    this.animate(overlay, {opacity: '0.3'}, 100);
   },
 
   waitForNextHand: function() {

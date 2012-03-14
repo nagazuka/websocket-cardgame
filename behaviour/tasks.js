@@ -12,7 +12,6 @@ TaskQueue.prototype = {
       if (this.state !== "RUNNING") {
           this.state = "READY";
       }
-      
       this.processNextTask();
 
     } else {
@@ -32,7 +31,7 @@ TaskQueue.prototype = {
         this.state = "RUNNING";
         nextTask.execute();
       } else {
-        this.state = "STOPPED";
+        this.state = "FINISHED";
       }
     } 
   }
@@ -75,10 +74,12 @@ Task.prototype = {
 };
 
 function AsyncTask() {
+    this.type = "AsyncTask";
 };
 
 AsyncTask.prototype = _.extend(Task.prototype, {
     execute: function() {
+      console.debug("Executing task with type " + this.type);
       this.onStart();
       this.run();
     },
