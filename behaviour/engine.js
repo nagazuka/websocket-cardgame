@@ -10,8 +10,16 @@ function initConsole() {
          console.log = function(msg) {
               alert(msg);
          };
+         console.debug = function(msg) {
+              alert(msg);
+         };
+         console.error = function(msg) {
+              alert(msg);
+         };
      } else {
          console.log = function() {};
+         console.debug = function() {};
+         console.error = function() {};
      }
    }
 }
