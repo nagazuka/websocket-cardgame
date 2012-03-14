@@ -195,20 +195,44 @@ View.prototype = {
       return loader;
     },
 
-  drawText : function(content) {
+  drawSubText: function(subscript) {
+    var x = constants.WIDTH * 0.78;
+    var y = constants.HEIGHT * 0.7;
+    var subY = y + 32;
+
+    console.debug("drawSubText: " + subscript);
+
+    var subText = this.repository.findElement("subText","text");
+    if (subText) {
+      subText.attr({'text': subscript});
+    } else {
+      subText = this.getCanvas().text(x, subY, subscript);
+      subText.attr({'fill' : '#fff', 'font-size' : '16', 'font-family' : conf.font, 'font-weight' : 'bold','stroke-width' : '1'});
+      this.repository.addElement(subText, "subText", "text");
+    }
+    subText.hide();
+    this.queueAnimate(subText, {'opacity': 1}, 100); 
+  },
+
+  drawText: function(content, subscript) {
     //TODO: move to constants
     var x = constants.WIDTH * 0.78;
     var y = constants.HEIGHT * 0.7;
 
-    if (this.text) {
-      this.text.attr({'text': content});
+    console.debug("Draw text: " + content + " subscript " + subscript);
+
+    var mainText = this.repository.findElement("mainText", "text");
+    if (mainText) {
+      mainText.attr({'text': content});
     } else {
-      this.text = this.getCanvas().text(x, y, content);
-      this.text.attr({'fill' : '#fff', 'font-size' : '22', 'font-family' : conf.font, 'font-weight' : 'bold','stroke-width' : '1'});
+      mainText = this.getCanvas().text(x, y, content);
+      mainText.attr({'fill' : '#fff', 'font-size' : '22', 'font-family' : conf.font, 'font-weight' : 'bold','stroke-width' : '1'});
+      this.repository.addElement(mainText, "mainText", "text");
     }
-    this.text.hide();
-    console.debug("Draw text: " + content);
-    this.queueAnimate(this.text, {'opacity': 1}, 100); 
+    mainText.hide();
+    this.queueAnimate(mainText, {'opacity': 1}, 100); 
+
+    this.drawSubText(subscript);
   },
 
   drawInvalidText: function(content) {

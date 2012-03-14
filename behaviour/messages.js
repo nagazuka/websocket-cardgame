@@ -13,6 +13,7 @@ var messages = {
     invalidMove:  'Kies een andere kaart om verder\nte spelen',
     playerPrefix:  'Anoniem',
     score:  'Stand',
+    clickToAdvance:  'Klik om door te gaan...',
     gameDecided: "Spel afgelopen!.\n Winaar is " 
   }
 };

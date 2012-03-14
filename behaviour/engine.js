@@ -128,8 +128,8 @@ Game.prototype = {
     this.view.drawTrumpSuit(this.trumpSuit);
   },
   
-  drawText: function(text) {
-    this.view.drawText(text);
+  drawText: function(text, subscript) {
+    this.view.drawText(text, subscript);
   },
 
   drawError: function(heading, text) {
@@ -174,7 +174,7 @@ Game.prototype = {
     this.addCards(cards);
     this.view.drawDeck();
     this.view.drawPlayerCards(this.cards, this.playingOrder);
-    this.drawText(messages[conf.lang].chooseTrumpHeading);
+    this.drawText(messages[conf.lang].chooseTrumpHeading, "");
     this.setCardClickHandler(this.chooseTrump);
   },
 
@@ -190,7 +190,7 @@ Game.prototype = {
     this.clearMoves();
     this.addAndDrawMoves(playerMoves);
 
-    this.drawText(messages[conf.lang].yourTurn);
+    this.drawText(messages[conf.lang].yourTurn, "");
     this.setCardClickHandler(this.makeMove);
   },
   
@@ -207,9 +207,9 @@ Game.prototype = {
 
     var winningPlayer = this.getPlayerById(winningPlayerId);
     if (winningPlayer.id == this.humanPlayer.id) {
-      this.drawText(messages[conf.lang].youWinHand);
+      this.drawText(messages[conf.lang].youWinHand, messages[conf.lang].clickToAdvance);
     } else {
-      this.drawText(winningPlayer.name + messages[conf.lang].otherWinsHand);
+      this.drawText(winningPlayer.name + messages[conf.lang].otherWinsHand, messages[conf.lang].clickToAdvance);
     }
     
     this.updateScores(scores);
@@ -217,7 +217,7 @@ Game.prototype = {
   },  
 
   handleGameDecided: function (winningTeam, scores) {
-    this.drawText(messages[conf.lang].gameDecided + winningTeam);
+    this.drawText(messages[conf.lang].gameDecided + winningTeam, "");
     this.updateScores(scores);
     this.view.waitForNextGame();
   },
