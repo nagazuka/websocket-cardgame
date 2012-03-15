@@ -195,18 +195,14 @@ View.prototype = {
       return loader;
     },
 
-  drawSubText: function(subscript) {
-    var x = constants.WIDTH * 0.78;
-    var y = constants.HEIGHT * 0.7;
-    var subY = y + 32;
-
+  drawSubText: function(subscript, x, y) {
     console.debug("drawSubText: " + subscript);
 
     var subText = this.repository.findElement("subText","text");
     if (subText) {
       subText.attr({'text': subscript});
     } else {
-      subText = this.getCanvas().text(x, subY, subscript);
+      subText = this.getCanvas().text(x, y, subscript);
       subText.attr({'fill' : '#fff', 'font-size' : '16', 'font-family' : conf.font, 'font-weight' : 'bold','stroke-width' : '1'});
       this.repository.addElement(subText, "subText", "text");
     }
@@ -214,13 +210,7 @@ View.prototype = {
     this.queueAnimate(subText, {'opacity': 1}, 100); 
   },
 
-  drawText: function(content, subscript) {
-    //TODO: move to constants
-    var x = constants.WIDTH * 0.78;
-    var y = constants.HEIGHT * 0.7;
-
-    console.debug("Draw text: " + content + " subscript " + subscript);
-
+  drawMainText: function(content, x, y) {
     var mainText = this.repository.findElement("mainText", "text");
     if (mainText) {
       mainText.attr({'text': content});
@@ -231,8 +221,20 @@ View.prototype = {
     }
     mainText.hide();
     this.queueAnimate(mainText, {'opacity': 1}, 100); 
+  },
 
-    this.drawSubText(subscript);
+  drawText: function(content, subscript) {
+    //TODO: move to constants
+    var x = constants.WIDTH * 0.78;
+    var y = constants.HEIGHT * 0.7;
+
+    console.debug("Draw text: " + content + " subscript " + subscript);
+    this.drawMainText(content, x, y);
+    var matches = content.match(/\n/);
+    var newLineCount = matches === null ? 1 : matches.length+1;
+    console.debug("content [" + content + "] has newLineCount [" + newLineCount + "]");
+    var subY = y + 10 + (newLineCount*30);
+    this.drawSubText(subscript, x, subY);
   },
 
   drawInvalidText: function(content) {
