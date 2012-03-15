@@ -196,6 +196,7 @@ View.prototype = {
     },
 
   drawSubText: function(subscript, x, y) {
+    var self = this;
     console.debug("drawSubText: " + subscript);
 
     var subText = this.repository.findElement("subText","text");
@@ -236,10 +237,13 @@ View.prototype = {
     var y = constants.HEIGHT * 0.7;
 
     this.drawMainText(content, x, y);
+
     var newLineCount = this.countNewLines(content);
     var subY = y + 12 + (newLineCount*32);
     this.drawSubText(subscript, x, subY);
   },
+
+  
 
   drawInvalidText: function(content) {
     //TODO: move to constants
@@ -523,11 +527,19 @@ View.prototype = {
     var overlay = this.getCanvas().rect(0, 0, constants.WIDTH, constants.HEIGHT);
     overlay.attr({fill: "#000", stroke: "none", opacity: '0'}); 
     overlay.hide();
+
     overlay.mouseup(function(event) {
       self.game[callback]();
       console.debug("Removing overlay"); 
       overlay.remove();
     }); 
+
+    setTimeout(function() {
+      self.game[callback]();
+      console.debug("Timeout kicked in"); 
+      overlay.remove();
+    }, 5000);
+
     console.debug("Animating overlay");
     this.queueAnimate(overlay, {opacity: '0'}, 100);
   },
