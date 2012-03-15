@@ -69,7 +69,7 @@ function AnimationTask(element, attr, time, callback) {
 };
 
 AnimationTask.prototype = new AsyncTask;
-AnimationTask.prototype.run  =function() {
+AnimationTask.prototype.run = function() {
       var self = this;
       var compositeCallback = function () {
         if (self.callback) {
@@ -79,7 +79,37 @@ AnimationTask.prototype.run  =function() {
       };
       var animation = Raphael.animation(this.attr, this.time, ">", compositeCallback);
       this.element.show().stop().animate(animation);
-    };
+};
+
+function CompositeAnimationTask(animationList) {
+  this.animationList = animationList;
+  this.type = "CompositeAnimationTask";
+  this.animCount = animationList.length;
+  this.finishedAnimCount = 0;
+};
+
+CompositeAnimationTask.prototype = new AsyncTask;
+CompositeAnimationTask.prototype.run = function() {
+      var self = this;
+
+      var i;
+      for (i in self.animationList) {
+        var currAnim = self.animationList[i];
+        var compositeCallback = function () {
+          if (currAnim.callback) {
+            currAnim.callback.apply(this);
+            self.finishedAnimCount += 1;
+            console.debug("finishedAnimCount updated by ["+i+"] to ["+self.finishedAnimCount+"]" + " limit ["+self.animCount+"]");
+            if (self.finishedAnimCount == self.animCount) {
+              console.debug("finishing composite anim by ["+i+"]" );
+              self.finish();
+            }
+          }
+        };
+        var animation = Raphael.animation(currAnim.attr, currAnim.time, ">", compositeCallback);
+        currAnim.element.show().stop().animate(animation);
+      }
+};
 
 function View(game) {
     this.game = game;
@@ -357,6 +387,7 @@ View.prototype = {
 
     if (numCards > 0) {
 
+    var compositeAnimation = [];
       _.each(cards, function(card, i) {
         var startX = constants.DECK_X;
         var startY = constants.DECK_Y;
@@ -380,11 +411,16 @@ View.prototype = {
     var deckImage = this.getDeckImageFile();
 
     var self = this;
+    var compositeAnimation = [];
+
     _.times(num, function() {
       var deckEl = self.getCanvas().image(deckImage, startX, startY, constants.DECK_WIDTH, constants.DECK_HEIGHT);
       deckEl.hide();
-      self.queueAnimate(deckEl, {x: endX, y: endY}, constants.PLAYER_CARD_ANIMATE_TIME, deckEl.remove);
+
+      compositeAnimation.push({'element': deckEl, 'attr': {x: endX, y: endY}, 'time': constants.PLAYER_CARD_ANIMATE_TIME, 'callback': deckEl.remove});
+      //self.queueAnimate(deckEl, {x: endX, y: endY}, constants.PLAYER_CARD_ANIMATE_TIME, deckEl.remove);
     });
+    self.queueCompositeAnimation(compositeAnimation);
   },
 
   drawDealCards: function(cards, playingOrder, num) {
@@ -425,6 +461,11 @@ View.prototype = {
 
   queueAnimate: function(obj, attr, time, callback) {
     var task = new AnimationTask(obj, attr, time, callback);
+    this.taskQueue.addTask(task);
+  },
+
+  queueCompositeAnimation: function(animationList) {
+    var task = new CompositeAnimationTask(animationList);
     this.taskQueue.addTask(task);
   },
 
@@ -528,20 +569,22 @@ View.prototype = {
     overlay.attr({fill: "#000", stroke: "none", opacity: '0'}); 
     overlay.hide();
 
-    overlay.mouseup(function(event) {
-      self.game[callback]();
-      console.debug("Removing overlay"); 
-      overlay.remove();
-    }); 
-
-    setTimeout(function() {
-      self.game[callback]();
-      console.debug("Timeout kicked in"); 
-      overlay.remove();
-    }, 5000);
-
     console.debug("Animating overlay");
-    this.queueAnimate(overlay, {opacity: '0'}, 100);
+    this.queueAnimate(overlay, {opacity: '0'}, 100, function() {
+      var timeoutId = setTimeout(function() {
+        self.game[callback]();
+        console.debug("Timeout kicked in"); 
+        overlay.remove();
+      }, 5000);
+
+      overlay.mouseup(function(event) {
+        clearTimeout(timeoutId);
+        self.game[callback]();
+        console.debug("Removing overlay"); 
+        overlay.remove();
+      }); 
+
+    });
   },
 
   waitForNextHand: function() {
