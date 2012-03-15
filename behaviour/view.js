@@ -77,7 +77,7 @@ AnimationTask.prototype.run  =function() {
         }
         self.finish();
       };
-      var animation = Raphael.animation(this.attr, this.time, compositeCallback);
+      var animation = Raphael.animation(this.attr, this.time, ">", compositeCallback);
       this.element.show().stop().animate(animation);
     };
 
@@ -223,17 +223,21 @@ View.prototype = {
     this.queueAnimate(mainText, {'opacity': 1}, 100); 
   },
 
+  countNewLines: function(content) {
+    var matches = content.match(/\n/);
+    var newLineCount = matches === null ? 1 : matches.length+1;
+    console.debug("content [" + content + "] has newLineCount [" + newLineCount + "]");
+    return newLineCount;
+  },
+
   drawText: function(content, subscript) {
     //TODO: move to constants
     var x = constants.WIDTH * 0.78;
     var y = constants.HEIGHT * 0.7;
 
-    console.debug("Draw text: " + content + " subscript " + subscript);
     this.drawMainText(content, x, y);
-    var matches = content.match(/\n/);
-    var newLineCount = matches === null ? 1 : matches.length+1;
-    console.debug("content [" + content + "] has newLineCount [" + newLineCount + "]");
-    var subY = y + 10 + (newLineCount*30);
+    var newLineCount = this.countNewLines(content);
+    var subY = y + 12 + (newLineCount*32);
     this.drawSubText(subscript, x, subY);
   },
 
