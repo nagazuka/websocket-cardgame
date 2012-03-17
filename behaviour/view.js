@@ -99,9 +99,9 @@ CompositeAnimationTask.prototype.run = function() {
           if (currAnim.callback) {
             currAnim.callback.apply(this);
             self.finishedAnimCount += 1;
-            console.debug("finishedAnimCount updated by ["+i+"] to ["+self.finishedAnimCount+"]" + " limit ["+self.animCount+"]");
+            //console.debug("finishedAnimCount updated by ["+i+"] to ["+self.finishedAnimCount+"]" + " limit ["+self.animCount+"]");
             if (self.finishedAnimCount == self.animCount) {
-              console.debug("finishing composite anim by ["+i+"]" );
+              //console.debug("finishing composite anim by ["+i+"]" );
               self.finish();
             }
           }
@@ -269,7 +269,8 @@ View.prototype = {
     this.drawMainText(content, x, y);
 
     var newLineCount = this.countNewLines(content);
-    var subY = y + 12 + (newLineCount*32);
+    var subY = y + (newLineCount*36);
+    console.debug("subY"+ subY);
     this.drawSubText(subscript, x, subY);
   },
 
