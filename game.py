@@ -120,10 +120,28 @@ class CardGame:
     def getPlayersInOrder(self):
         for i in self.getOrder():
             yield self.players[i]
+
+    def processWin(self, winningTeam):
+        currentStartingPlayer = self.getStartingPlayer()
+        logging.debug("startingPlayerIndex %s", self.startingPlayerIndex)
+        logging.debug("startingPlayer name %s", currentStartingPlayer.name)
+        logging.debug("startingPlayer team %s", currentStartingPlayer.team)
+        logging.debug("winningTeam %s", winningTeam)
+        if currentStartingPlayer.team == winningTeam:
+          logging.debug("Current starting player is in winning team, not changing playing order")
+        else:
+          logging.debug("Winning is opposing team, advancing playing order")
+          self.advancePlayingOrder()
     
-    def clearGame(self):
-        self.startingPlayerIndex = 0
+    def advancePlayingOrder(self):
+        logging.debug("Before advancing playingOrder: %s", this.playingOrder)
+        this.startingPlayerIndex = self.playingOrder[1]
         self.setPlayingOrder()
+        logging.debug("After advancing playingOrder: %s", this.playingOrder)
+ 
+    def clearGame(self):
+        #self.startingPlayerIndex = 0
+        #self.setPlayingOrder()
         self.deck = CardGame.createDeck() 
         for player in self.players:
           player.clearCards()
