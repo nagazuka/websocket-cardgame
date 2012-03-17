@@ -229,16 +229,7 @@ if __name__ == "__main__":
 
     gameServer = GameServer()
 
-    handlers = [
-    (r"/", MainHandler),
-    (r"/index.html", MainHandler),
-    (r"/about", AboutHandler),
-    (r"/contact", ContactHandler),
-    (r"/websocket", MessageHandler),
-    (r"/presentation/(.*)", tornado.web.StaticFileHandler,
-     {"path": "presentation"}),
-    (r"/behaviour/(.*)", tornado.web.StaticFileHandler, {"path": "behaviour"}),
-    ]
+    handlers = [ (r"/websocket", MessageHandler) ]
 
     application = tornado.web.Application(handlers, debug=True)
     logging.info("Server started")
