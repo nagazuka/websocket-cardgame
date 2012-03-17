@@ -179,6 +179,7 @@ class GameServer:
             if self.scores.isGameDecided():
                 scores = self.scores.getScores()
                 winningTeam = self.scores.getWinningTeam()
+                self.cardGame.processWin(winningTeam)
                 response = {'response': 'gameDecided', 'scores': scores,
                             'winningTeam': winningTeam}
                 self.writer.sendMessage(response)
