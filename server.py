@@ -8,8 +8,6 @@ from message import MessageWriter
 from game import CardGame, ScoreKeeper
 from cards import Card, HandInfo, PlayerMove
 from player import HumanPlayer, Player
-import settings
-
 
 class GameServer:
     def __init__(self):
@@ -193,15 +191,15 @@ class GameServer:
 
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
-        self.render("template/index.html", settings=settings)
+        self.render("template/index.html")
 
 class AboutHandler(tornado.web.RequestHandler):
     def get(self):
-        self.render("template/about.html", settings=settings)
+        self.render("template/about.html")
 
 class ContactHandler(tornado.web.RequestHandler):
     def get(self):
-        self.render("template/contact.html", settings=settings)
+        self.render("template/contact.html")
 
 class MessageHandler(tornado.websocket.WebSocketHandler):
 
@@ -242,12 +240,9 @@ if __name__ == "__main__":
     (r"/behaviour/(.*)", tornado.web.StaticFileHandler, {"path": "behaviour"}),
     ]
 
-    #if not(settings.SERVE_STATIC_EXTERNAL):
-    #  handlers.append((r"/images/(.*)", tornado.web.StaticFileHandler, {"path": "images"}))
-    
     application = tornado.web.Application(handlers, debug=True)
     logging.info("Server started")
 
-    application.listen(settings.PORT_NUMBER)
+    application.listen(8080)
     tornado.ioloop.IOLoop.instance().start()
 
