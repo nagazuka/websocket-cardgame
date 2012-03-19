@@ -1,6 +1,6 @@
 'use strict';
 
-var WEB_SOCKET_SWF_LOCATION = "behaviour/WebSocketMain.swf";
+var WEB_SOCKET_SWF_LOCATION = "behaviour/lib/WebSocketMain.swf";
 
 function initConsole() {
    var alertFallback = false;
