@@ -30,3 +30,31 @@ svg {
   margin: auto;
   width: 200px;
 }
+
+body {
+  font-family: "Ubuntu", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+p {
+  font-family: "Vollkorn", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Ubuntu", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+input,
+button,
+select,
+textarea {
+  font-family: "Ubuntu", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.navbar-search .search-query {
+  font-family: "Vollkorn", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
