@@ -408,7 +408,9 @@ Application.prototype = {
 
     var playerName = this.getStoredValue('playerName');
     
-    if (playerName == null) {
+    if (playerName != null) {
+      self.startGame(playerName);
+    } else {
       $('#welcomeModal').modal('show');
       $('#closePlayerName').click(function(event) {
         event.preventDefault();
@@ -420,19 +422,20 @@ Application.prototype = {
         self.storeValue('playerName', playerName);
         self.startGame(playerName);
       });
-    } else {
-      self.startGame(playerName);
     }
     
     this.view.preload();
   },
 
   getStoredValue: function(key) {  
-    return $.cookie(key);
+    var value = localStorage.getItem(key);
+    console.debug("Retrieved " + key + " with value " + value);
+    return value;
   },
 
   storeValue: function(key, value) {
-    $.cookie(key, value, {expires: 7, path: '/' });
+    console.debug("Storing  "+ key + " with value " + value);
+    localStorage.setItem(key, value);
   },
 
   startGame: function(playerName) {
