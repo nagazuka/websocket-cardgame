@@ -36,7 +36,7 @@ body {
 }
 
 p {
-  font-family: "Vollkorn", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family: "Ubuntu", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 h1,
@@ -56,5 +56,5 @@ textarea {
 }
 
 .navbar-search .search-query {
-  font-family: "Vollkorn", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family: "Ubuntu", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }

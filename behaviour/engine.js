@@ -2,27 +2,6 @@
 
 var WEB_SOCKET_SWF_LOCATION = "behaviour/lib/WebSocketMain.swf";
 
-function initConsole() {
-   var alertFallback = false;
-   if (typeof console === "undefined" || typeof console.log === "undefined") {
-     console = {};
-     if (alertFallback) {
-         console.log = function(msg) {
-              alert(msg);
-         };
-         console.debug = function(msg) {
-              alert(msg);
-         };
-         console.error = function(msg) {
-              alert(msg);
-         };
-     } else {
-         console.log = function() {};
-         console.debug = function() {};
-         console.error = function() {};
-     }
-   }
-}
 
 
 function Game() {
@@ -392,65 +371,3 @@ MessageHandler.prototype = {
     return _.map(cards, function (c) { return  new Card(c.rank, c.suit); });
   }
 };
-
-function Application() {
-}
-
-Application.prototype = {
-  init: function() {
-    var self = this;
-
-    this.game = new Game();
-    this.view = new View();
-    
-    this.game.setView(this.view);
-    this.view.setGame(this.game);
-
-    var playerName = this.getStoredValue('playerName');
-    
-    if (playerName != null) {
-      self.startGame(playerName);
-    } else {
-      $('#welcomeModal').modal('show');
-      $('#closePlayerName').click(function(event) {
-        event.preventDefault();
-        self.startGame('');
-      });
-      $('#formPlayerName').submit(function(event) {
-        event.preventDefault();
-        var playerName =  $('#inputPlayerName').val();
-        self.storeValue('playerName', playerName);
-        self.startGame(playerName);
-      });
-    }
-    
-    this.view.preload();
-  },
-
-  getStoredValue: function(key) {  
-    var value = localStorage.getItem(key);
-    console.debug("Retrieved " + key + " with value " + value);
-    return value;
-  },
-
-  storeValue: function(key, value) {
-    console.debug("Storing  "+ key + " with value " + value);
-    localStorage.setItem(key, value);
-  },
-
-  startGame: function(playerName) {
-    $('#welcomeModal').modal('hide');
-
-    this.game.setPlayerName(playerName);
-    this.game.setPlayerTeam("Team Suriname");
-    this.game.setCpuTeam("Team Nederland");
-
-    this.game.init();
-  }
-};
-
-$(document).ready(function() {
-    initConsole();
-    var application = new Application();
-    application.init();
-});
