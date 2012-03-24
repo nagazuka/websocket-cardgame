@@ -7,6 +7,10 @@
   z-index: 1000;
 }
 
+#browserLinks {
+  display: none;
+}
+
 svg {
   display: block;
   margin: auto;
