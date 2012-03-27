@@ -55,23 +55,19 @@ Application.prototype = {
     
     this.game.setView(this.view);
     this.view.setGame(this.game);
+    
+    this.game.setPlayerTeam("Team Suriname");
+    this.game.setCpuTeam("Team Nederland");
 
     var playerName = this.getStoredValue('playerName');
-    
+
     if (playerName != null) {
-      self.startGame(playerName);
+      this.game.setPlayerName(playerName);
     } else {
-      $('#welcomeModal').modal('show');
-      $('#closePlayerName').click(function(event) {
-        event.preventDefault();
-        self.startGame('');
-      });
-      $('#formPlayerName').submit(function(event) {
-        event.preventDefault();
-        var playerName =  $('#inputPlayerName').val();
-        self.storeValue('playerName', playerName);
-        self.startGame(playerName);
-      });
+        this.view.askPlayerName( function(p) {
+          self.game.setPlayerName(p);
+          self.storeValue('playerName', p);
+        });
     }
     
     this.view.preload();
@@ -86,17 +82,8 @@ Application.prototype = {
   storeValue: function(key, value) {
     console.debug("Storing  "+ key + " with value " + value);
     localStorage.setItem(key, value);
-  },
-
-  startGame: function(playerName) {
-    $('#welcomeModal').modal('hide');
-
-    this.game.setPlayerName(playerName);
-    this.game.setPlayerTeam("Team Suriname");
-    this.game.setCpuTeam("Team Nederland");
-
-    this.game.init();
   }
+
 };
 
 $(document).ready(function() {

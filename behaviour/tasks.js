@@ -87,6 +87,5 @@ AsyncTask.prototype = _.extend(Task.prototype, {
       this.onEnd();
       this.queue.setReady();
       this.processNext();
-    },
-
+    }
 });

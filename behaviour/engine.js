@@ -22,7 +22,7 @@ Game.prototype = {
 
   init: function() {
     this.handler.init(this);
-    this.view.init();
+    this.view.drawBackground();
     this.initScores();
   },
 

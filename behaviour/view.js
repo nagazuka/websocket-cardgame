@@ -116,7 +116,7 @@ function View(game) {
     this.canvas = new Raphael('canvas', constants.WIDTH, constants.HEIGHT);
     this.repository = new Repository();
     this.taskQueue = new TaskQueue();
-    this.progressOverlay = null;
+    this.splashVisible = false;
 }
 
 View.prototype = {
@@ -139,6 +139,25 @@ View.prototype = {
       loader.start();
     },
 
+    askPlayerName: function(callback) {
+      var self = this;
+
+      $('#welcomeModal').modal('show');
+      $('#closePlayerName').click(function(event) {
+        event.preventDefault();
+        callback('');
+        $('#welcomeModal').modal('hide');
+        self.showSplash();
+      });
+      $('#formPlayerName').submit(function(event) {
+        event.preventDefault();
+        var playerName =  $('#inputPlayerName').val();
+        callback(playerName);
+        $('#welcomeModal').modal('hide');
+        self.showSplash();
+      });
+    },
+
     drawProgressOverlay: function() {
       $('#canvas').hide();
       $('#progressOverlay').show();
@@ -157,7 +176,27 @@ View.prototype = {
       $('#canvas').show();
     },
 
-    init: function() {
+    showSplash: function() {
+      if (!this.splashVisible) {
+        this.splashVisible = true;
+        console.debug("Drawing new splash");
+
+        var bg = this.getCanvas().rect(0, 0, constants.WIDTH, constants.HEIGHT);
+        bg.attr({fill: '45-#000-#555'});
+        this.repository.addElement(bg, "splashBackground", "splash");
+
+        var logoText = this.getCanvas().text(constants.WIDTH/2, constants.HEIGHT/2, messages[conf.lang].gameTitle);
+        logoText.attr({'fill' : '#fff', 'font-size' : '32', 'font-family' : conf.font, 'font-weight' : 'bold','stroke-width' : '1'});
+        this.repository.addElement(logoText, "logoText", "splash");
+
+        this.waitForStartGame();
+      } else {
+        console.debug("Splash already visible, not drawing");
+      }
+    },
+
+    drawBackground: function() {
+      this.clearAllFromCategory("splash");
       var bg = this.getCanvas().rect(0, 0, constants.WIDTH, constants.HEIGHT);
       bg.attr({fill: '45-#000-#555'});
 
@@ -165,10 +204,6 @@ View.prototype = {
       
       var cardArea = this.getCanvas().rect(0, constants.CARD_AREA_Y, constants.WIDTH, constants.CARD_AREA_HEIGHT);
       cardArea.attr({'fill': '90-#161:5-#000:95', 'fill-opacity': 0.5, 'stroke-width': 0, 'opacity': 0.1});
-      
-      if (this.progressOverlay) {
-        this.progressOverlay.toFront();
-      }
     },
   
     initPxLoader: function() {
@@ -216,6 +251,7 @@ View.prototype = {
 
       loader.addCompletionListener(function() {
           self.clearProgressOverlay();
+          self.showSplash();
       });
 
       loader.addProgressListener(function(e) {
@@ -586,6 +622,11 @@ View.prototype = {
       }); 
 
     });
+  },
+  
+  waitForStartGame: function() {
+    var callback = 'init';
+    this.waitForEvent(callback);  
   },
 
   waitForNextHand: function() {
