@@ -52,9 +52,13 @@ Application.prototype = {
 
     this.game = new Game();
     this.view = new View();
+    this.messageHandler = new MessageHandler();
     
     this.game.setView(this.view);
+    this.game.setMessageHandler(this.messageHandler);
+
     this.view.setGame(this.game);
+    this.messageHandler.setGame(this.game);
     
     this.game.setPlayerTeam("Team Suriname");
     this.game.setCpuTeam("Team Nederland");
