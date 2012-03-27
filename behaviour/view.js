@@ -189,6 +189,10 @@ View.prototype = {
         logoText.attr({'fill' : '#fff', 'font-size' : '32', 'font-family' : conf.font, 'font-weight' : 'bold','stroke-width' : '1'});
         this.repository.addElement(logoText, "logoText", "splash");
 
+        var subText = this.getCanvas().text(constants.WIDTH/2, 40 + constants.HEIGHT/2, messages[conf.lang].clickToStart);
+        subText.attr({'fill' : '#fff', 'font-size' : '24', 'font-family' : conf.font, 'font-weight' : 'bold','stroke-width' : '1'});
+        this.repository.addElement(subText, "subText", "splash");
+
         this.waitForStartGame();
       } else {
         console.debug("Splash already visible, not drawing");
