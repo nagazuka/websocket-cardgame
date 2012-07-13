@@ -34,6 +34,7 @@ MessageHandler.prototype = {
     this.ws.send(messageStr);
 
     console.debug("Sent: " + messageStr);
+    window.cardGame.trigger('message:' + message.command);
   },
 
   receiveMessage : function(msg) {

@@ -1,20 +1,20 @@
 'use strict';
+(function(window, $, undefined) {
 
-function Game() {
-    this.view = null;
-    this.handler = null;
+var Game = Backbone.Model.extend({
 
-    this.cards = [];
-    this.players = [];
-    this.playerMoves = [];
-    this.playingOrder = [];
-    this.selectedCard = null;
-    this.playerName = null;
-    this.playerTeam = null;
-    this.cpuTeam = null;
-}
-
-Game.prototype = {
+  defaults: {
+    view : null,
+    handler : null,
+    cards : [],
+    players : [],
+    playerMoves : [],
+    playingOrder : [],
+    selectedCard : null,
+    playerName : null,
+    playerTeam : null,
+    cpuTeam : null
+  },
 
   init: function() {
     this.handler.connect();
@@ -237,4 +237,9 @@ Game.prototype = {
   setMessageHandler: function(handler) {
     this.handler = handler;
   }
-};
+
+});
+
+window.game = new Game();
+
+})(window, jQuery);

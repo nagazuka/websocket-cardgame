@@ -50,26 +50,25 @@ Application.prototype = {
   init: function() {
     var self = this;
 
-    this.game = new Game();
     this.view = new View();
     this.messageHandler = new MessageHandler();
     
-    this.game.setView(this.view);
-    this.game.setMessageHandler(this.messageHandler);
+    window.game.setView(this.view);
+    window.game.setMessageHandler(this.messageHandler);
 
-    this.view.setGame(this.game);
-    this.messageHandler.setGame(this.game);
+    this.view.setGame(window.game);
+    this.messageHandler.setGame(window.game);
     
-    this.game.setPlayerTeam("Team Suriname");
-    this.game.setCpuTeam("Team Nederland");
+    window.game.setPlayerTeam("Team Suriname");
+    window.game.setCpuTeam("Team Nederland");
 
     var playerName = this.getStoredValue('playerName');
 
     if (playerName != null) {
-      this.game.setPlayerName(playerName);
+      window.game.setPlayerName(playerName);
     } else {
         this.view.askPlayerName( function(p) {
-          self.game.setPlayerName(p);
+          window.game.setPlayerName(p);
           self.storeValue('playerName', p);
         });
     }
