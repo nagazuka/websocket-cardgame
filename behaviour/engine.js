@@ -212,7 +212,7 @@ var Game = Backbone.Model.extend({
     if (winningPlayer.get('id') == this.get('humanPlayer').get('id')) {
       this.drawText(messages[conf.lang].youWinHand, messages[conf.lang].clickToAdvance);
     } else {
-      this.drawText(winningPlayer.name + messages[conf.lang].otherWinsHand, messages[conf.lang].clickToAdvance);
+      this.drawText(winningPlayer.get('name') + messages[conf.lang].otherWinsHand, messages[conf.lang].clickToAdvance);
     }
     
     this.updateScores(scores);
