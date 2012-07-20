@@ -1,5 +1,34 @@
 'use strict';
+
 (function(window, $, undefined) {
+
+window.Card = Backbone.Model.extend({
+});
+
+var CardList = Backbone.Collection.extend({
+  model: Card
+});
+
+window.cards = new CardList();
+
+window.Player = Backbone.Model.extend({
+});
+
+var PlayerList = Backbone.Collection.extend({
+  model: Player
+});
+
+window.players = new PlayerList();
+
+
+var PlayerMove = Backbone.Model.extend({
+});
+
+var PlayerMoveList = Backbone.Collection.extend({
+  model: PlayerMove
+});
+
+window.playerMoves = new PlayerMoveList();
 
 var Game = Backbone.Model.extend({
 
@@ -31,7 +60,7 @@ var Game = Backbone.Model.extend({
   },
 
   askFirstCards: function fn_askFirstCards () {
-    this.handler.sendMessage({ 'command' : 'dealFirstCards', 'playerId' : this.humanPlayer.id});
+    this.handler.sendMessage({ 'command' : 'dealFirstCards', 'playerId' : this.get('humanPlayer').get('id')});
   },
 
   chooseTrump: function fn_chooseTrump (card) {
@@ -54,13 +83,15 @@ var Game = Backbone.Model.extend({
   },
 
   addCards: function(newCards) {
-    console.debug("Before addCards cards size: " + this.cards.length);
-    this.cards = this.cards.concat(newCards);
-    this.cards = _.uniq(this.cards, false, function(c) {
+    var cards = this.get('cards');
+    console.debug("Before addCards cards size: " + cards.length);
+    cards = cards.concat(newCards);
+    //TODO: why the unique?
+    cards = _.uniq(cards, false, function(c) {
       return c.suit + '_' + c.rank;
     });
-    console.debug("After addCards cards size: " + this.cards.length);
-    //this.sortCards();
+    this.set({'cards': cards});
+    console.debug("After addCards cards size: " + this.get('cards').length);
   },
 
   sortCards: function() {
@@ -75,9 +106,10 @@ var Game = Backbone.Model.extend({
   
   addPlayer: function(player) {
     if (player.isHuman) {
-      this.humanPlayer = player;
+      this.set('humanPlayer') = player;
     }
-    this.players.push(player);
+    this.get('players').push(player);
+    //this.players.push(player);
   },
 
   getPlayerById: function(id) {
@@ -148,7 +180,7 @@ var Game = Backbone.Model.extend({
   handleFirstCards: function(cards) {
     this.addCards(cards);
     this.view.drawDeck();
-    this.view.drawPlayerCards(this.cards, this.playingOrder);
+    this.view.drawPlayerCards(this.get('cards'), this.playingOrder);
     this.drawText(messages[conf.lang].chooseTrumpHeading, "");
     this.setCardClickHandler(this.chooseTrump);
   },
@@ -156,7 +188,7 @@ var Game = Backbone.Model.extend({
   handleAllCards: function(cards, trumpSuit) {
     this.drawTrumpSuit(trumpSuit);
     this.addCards(cards);
-    this.view.drawPlayerCards(this.cards, this.playingOrder);
+    this.view.drawPlayerCards(this.get('cards'), this.playingOrder);
     this.view.clearDeck();
     this.sendReady();
   },

@@ -515,7 +515,7 @@ View.prototype = {
 
     var player = playerMove.getPlayer();
     var card = playerMove.getCard();
-    var playerIndex = player.getIndex(); 
+    var playerIndex = player.get('index'); 
 
     var startX = constants.PLAYER_X_ARR[playerIndex];
     var startY = constants.PLAYER_Y_ARR[playerIndex];
@@ -583,22 +583,22 @@ View.prototype = {
 
   drawPlayer: function(player) {
     var canvas = this.getCanvas();
-    var playerX = constants.PLAYER_X_ARR[player.getIndex()];
-    var playerY = constants.PLAYER_Y_ARR[player.getIndex()];
+    var playerX = constants.PLAYER_X_ARR[player.get('index')];
+    var playerY = constants.PLAYER_Y_ARR[player.get('index')];
 
     var flagX = playerX - 0.25*constants.TEAM_FLAG_SIZE;
     var flagY = playerY - 0.25*constants.TEAM_FLAG_SIZE;
 
-    var textX  = constants.TEXT_X_ARR[player.getIndex()];
-    var textY = constants.TEXT_Y_ARR[player.getIndex()];
+    var textX  = constants.TEXT_X_ARR[player.get('index')];
+    var textY = constants.TEXT_Y_ARR[player.get('index')];
 
-    var teamName = player.getTeamName();
+    var teamName = player.get('team');
     var teamImage = this.getTeamImageFile(teamName);
     var teamFlag = canvas.image(teamImage, flagX, flagY,  constants.TEAM_FLAG_SIZE, constants.TEAM_FLAG_SIZE);
 
     var playerImage = canvas.image(this.getPlayerImageFile(), playerX, playerY, constants.PLAYER_SIZE, constants.PLAYER_SIZE);
 
-    var playerName = player.getName();
+    var playerName = player.get('name');
     var nameTxt = canvas.text(textX, textY , playerName);
     nameTxt.attr({'fill' : '#fff', 'font-size' : '14', 'font-family' : conf.font, 'font-weight' : 'bold', 'fill-opacity' : '50%'});
   },

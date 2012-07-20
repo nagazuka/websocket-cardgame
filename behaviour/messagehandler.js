@@ -5,17 +5,13 @@ function MessageHandler() {
 
 MessageHandler.prototype = {
 
-  setGame: function(game) {
-    this.game = game;
-  },
-
   connect: function() {
     var self = this;
  
     this.ws = new WebSocket(conf.network.wsURL);
    
     this.ws.onopen = function() {
-        self.game.start();
+        game.start();
         console.debug("Websocket opened, game started");
     };
 
@@ -34,7 +30,6 @@ MessageHandler.prototype = {
     this.ws.send(messageStr);
 
     console.debug("Sent: " + messageStr);
-    window.cardGame.trigger('message:' + message.command);
   },
 
   receiveMessage : function(msg) {
@@ -58,37 +53,37 @@ MessageHandler.prototype = {
   startGame: function (response) {
     var self = this;
     var playerList = response.players;
-    this.game.playingOrder = response.playingOrder;
+    game.playingOrder = response.playingOrder;
     _.each(response.players, function (p) {
-      var player = new Player(p.id, p.index, p.name, p.isHuman, p.team);
-      self.game.addPlayer(player);
-      self.game.drawPlayer(player);
+      var player = new Player({'id': p.id, 'index': p.index, 'name': p.name, 'ísHuman': p.isHuman, 'team': p.team});
+      game.addPlayer(player);
+      game.drawPlayer(player);
     });
-    this.game.askFirstCards();
+    game.askFirstCards();
   },
 
   nextGame: function(response) {
-    this.game.handleNextGame();
+    game.handleNextGame();
   },
 
   dealFirstCards: function (response) {
     var cards = this.transformCards(response.cards);
-    this.game.handleFirstCards(cards);
+    game.handleFirstCards(cards);
   },
 
   allCards: function (response) {
     var cards = this.transformCards(response.cards);
     var trumpSuit = response.trumpSuit
-    this.game.handleAllCards(cards, trumpSuit);
+    game.handleAllCards(cards, trumpSuit);
   },
 
   askMove: function (response) {
     var playerMoves = this.transformPlayerMoves(response.hand);
-    this.game.handleAskMove(playerMoves);
+    game.handleAskMove(playerMoves);
   },
 
   invalidMove: function (response) {
-    this.game.handleInvalidMove();
+    game.handleInvalidMove();
   },
 
   handPlayed: function (response) {
@@ -96,18 +91,18 @@ MessageHandler.prototype = {
     var winningPlayerId = response.winningPlayerId;
     var scores = response.scores;
 
-    this.game.handleHandPlayed(playerMoves, winningPlayerId, scores);
+    game.handleHandPlayed(playerMoves, winningPlayerId, scores);
   },
 
   gameDecided: function (response) {
     var winningTeam = response.winningTeam;
     var scores = response.scores;
 
-    this.game.handleGameDecided(winningTeam, scores);
+    game.handleGameDecided(winningTeam, scores);
   },
   
   exception: function (response) {
-    this.game.drawText(messages[conf.lang].errorMessage);
+    game.drawText(messages[conf.lang].errorMessage);
     console.error(response.resultMessage);
   },
   
@@ -119,7 +114,7 @@ MessageHandler.prototype = {
         var jsonCard = move['card'];
         var seqNo = move['sequenceNumber'];
         var card = new Card(jsonCard['rank'], jsonCard['suit']);
-        var player = self.game.getPlayerById(move['playerId']);
+        var player = game.getPlayerById(move['playerId']);
         
         moves.push(new PlayerMove(player, card, seqNo));
     });

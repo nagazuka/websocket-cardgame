@@ -57,7 +57,6 @@ Application.prototype = {
     window.game.setMessageHandler(this.messageHandler);
 
     this.view.setGame(window.game);
-    this.messageHandler.setGame(window.game);
     
     window.game.setPlayerTeam("Team Suriname");
     window.game.setCpuTeam("Team Nederland");
