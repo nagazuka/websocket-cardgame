@@ -249,7 +249,7 @@ View.prototype = {
         for(num=1; num < 6; num++) {
           var letter = String.fromCharCode(charCode);
           var avatarImage = this.getAvatarImageFile(letter, num);
-          loader.addImage(avatarImage);
+          //loader.addImage(avatarImage);
         }
       }
 
@@ -541,7 +541,7 @@ View.prototype = {
   },
 
   getCardId: function(card, category) {
-    var id = category + "_" + card.rank + "_" + card.suit;
+    var id = category + "_" + card.get('rank') + "_" + card.get('suit');
     return id;
   },
 
@@ -559,7 +559,7 @@ View.prototype = {
 
   drawCard: function(card, x, y, width, height, category) {
     var self = this;
-    var cardImage = this.getCanvas().image(this.getCardImageFile(card.rank, card.suit), x, y, width, height);
+    var cardImage = this.getCanvas().image(this.getCardImageFile(card.get('rank'), card.get('suit')), x, y, width, height);
 
     cardImage.mouseover(function(event) {
         this.translate(0,-1*constants.CARD_HEIGHT);

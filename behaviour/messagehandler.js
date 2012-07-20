@@ -122,6 +122,6 @@ MessageHandler.prototype = {
   },
 
   transformCards : function (cards) {
-    return _.map(cards, function (c) { return  new Card(c.rank, c.suit); });
+    return _.map(cards, function (c) { return  new Card({'rank': c.rank, 'suit': c.suit}); });
   }
 };
