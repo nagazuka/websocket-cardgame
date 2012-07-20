@@ -99,9 +99,7 @@ CompositeAnimationTask.prototype.run = function() {
           if (currAnim.callback) {
             currAnim.callback.apply(this);
             self.finishedAnimCount += 1;
-            //console.debug("finishedAnimCount updated by ["+i+"] to ["+self.finishedAnimCount+"]" + " limit ["+self.animCount+"]");
             if (self.finishedAnimCount == self.animCount) {
-              //console.debug("finishing composite anim by ["+i+"]" );
               self.finish();
             }
           }
@@ -112,7 +110,6 @@ CompositeAnimationTask.prototype.run = function() {
 };
 
 function View(game) {
-    this.game = game;
     this.canvas = new Raphael('canvas', constants.WIDTH, constants.HEIGHT);
     this.repository = new Repository();
     this.taskQueue = new TaskQueue();
@@ -120,10 +117,6 @@ function View(game) {
 }
 
 View.prototype = {
-
-    setGame: function(game) {
-      this.game = game;
-    },
 
     getCanvas: function() {
       return this.canvas;
@@ -328,17 +321,14 @@ View.prototype = {
       this.invalidText.attr({'fill' : '#f00', 'font-size' : '22', 'font-family' : conf.font, 'font-weight' : 'bold','stroke-width' : '1'});
     }
     this.invalidText.hide();
-    console.debug("Draw invalid text");
     this.queueAnimate(this.invalidText, {'opacity': 1}, 100); 
   },
 
   drawError: function(heading, message) {
-    console.debug("Drawing invalid text: " + heading);
     this.drawInvalidText(heading);
   },
 
   clearError: function() {
-    console.debug("Clearing invalid text");
     this.drawInvalidText("");
   },
 
@@ -414,12 +404,10 @@ View.prototype = {
     var stepSize = constants.CARD_WIDTH + constants.CARD_PADDING;
     var offset = (constants.CARD_AREA_WIDTH - (numCards * stepSize))/2;
     var newCardsOffset = offset + (numExistingCards * stepSize);
-    console.debug("offset " + offset + " newCardsOffset " + newCardsOffset + " stepSize " + stepSize);
 
     if (numExistingCards > 0) {
       var oldOffset = (constants.CARD_AREA_WIDTH - (numExistingCards * stepSize))/2;
       var dx = offset - oldOffset;
-      console.debug("oldOffset " + oldOffset + " dx " + dx);
       var existingCards = this.repository.getElementsByCategory('playerCards');
       _.each(existingCards, function(c) {
         c.translate(dx, 0);
@@ -513,8 +501,8 @@ View.prototype = {
   drawPlayerMove: function(playerMove) {
     var category = "playerMoves";
 
-    var player = playerMove.getPlayer();
-    var card = playerMove.getCard();
+    var player = playerMove.get('player')();
+    var card = playerMove.get('card');
     var playerIndex = player.get('index'); 
 
     var startX = constants.PLAYER_X_ARR[playerIndex];
@@ -574,7 +562,7 @@ View.prototype = {
 
     cardImage.click(function(event) {
         console.log("DEBUG in cardImage clickEventHandler");
-        self.game.handleCardClicked(card);
+        game.handleCardClicked(card);
     });
 
     cardImage.id = this.getCardId(card, category);

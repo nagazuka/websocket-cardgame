@@ -9,8 +9,6 @@ var CardList = Backbone.Collection.extend({
   model: Card
 });
 
-window.cards = new CardList();
-
 window.Player = Backbone.Model.extend({
   isHuman: function() {
     return this.get('isHuman');
@@ -21,17 +19,14 @@ var PlayerList = Backbone.Collection.extend({
   model: Player
 });
 
-window.players = new PlayerList();
-
-
-var PlayerMove = Backbone.Model.extend({
+window.PlayerMove = Backbone.Model.extend({
 });
 
-var PlayerMoveList = Backbone.Collection.extend({
+var PlayerMoves = Backbone.Collection.extend({
   model: PlayerMove
 });
 
-window.playerMoves = new PlayerMoveList();
+
 
 var Game = Backbone.Model.extend({
 
@@ -40,7 +35,6 @@ var Game = Backbone.Model.extend({
     handler : null,
     cards : [],
     players : [],
-    playerMoves : [],
     playingOrder : [],
     selectedCard : null,
     playerName : "Anoniem",
@@ -67,12 +61,12 @@ var Game = Backbone.Model.extend({
   },
 
   chooseTrump: function fn_chooseTrump (card) {
-    this.trumpSuit = card.suit;
-    this.handler.sendMessage({'command' : 'chooseTrump', 'suit': card.suit, 'playerId' : this.humanPlayer.id});
+    this.trumpSuit = card.get('suit');
+    this.handler.sendMessage({'command' : 'chooseTrump', 'suit': card.get('suit'), 'playerId' : this.get('humanPlayer').get('id')});
   },
   
   makeMove: function fn_makeMove (card) {
-    this.handler.sendMessage({'command' : 'makeMove', 'rank' : card.rank, 'suit': card.suit, 'playerIndex' : 0, 'playerId' : this.humanPlayer.id});
+    this.handler.sendMessage({'command' : 'makeMove', 'rank' : card.get('rank'), 'suit': card.get('suit'), 'playerIndex' : 0, 'playerId' :this.get('humanPlayer').get('id')});
     this.selectedCard = card;
     this.setCardClickHandler(this.noAction);
   },
@@ -116,7 +110,7 @@ var Game = Backbone.Model.extend({
   },
 
   getPlayerById: function(id) {
-    var player = _.find(this.players, function (p) { return p.id == id;});
+    var player = _.find(this.get('players'), function (p) { return p.get('id') == id;});
     return player;
   },
 
@@ -156,17 +150,16 @@ var Game = Backbone.Model.extend({
 
   clearMoves: function(moves) {
     this.view.clearPlayerMoves();
-    this.playerMoves.length = 0;
+    //window.playerMoveList.reset();
   },
   
-  addAndDrawMoves : function(moves) {
+  addAndDrawMoves : function(newMoves) {
     var self = this;
-    var existingMoves = this.playerMoves;
-    var currentStep = existingMoves.length;
+    var currentStep = window.playerMoveList.length;
 
-    _.each(moves, function(move, index, list) {
+    _.each(newMoves, function(move, index, list) {
       if (move.sequenceNumber > currentStep) {
-        self.playerMoves.push(move);
+        window.playerMoveList.add(move);
         self.view.drawPlayerMove(move);
       }
     });
@@ -196,9 +189,9 @@ var Game = Backbone.Model.extend({
     this.sendReady();
   },
 
-  handleAskMove: function (playerMoves) {
+  handleAskMove: function (newMoves) {
     this.clearMoves();
-    this.addAndDrawMoves(playerMoves);
+    this.addAndDrawMoves(newMoves);
 
     this.drawText(messages[conf.lang].yourTurn, "");
     this.setCardClickHandler(this.makeMove);
@@ -209,14 +202,14 @@ var Game = Backbone.Model.extend({
     this.setCardClickHandler(this.makeMove);
   },
 
-  handleHandPlayed: function (playerMoves, winningPlayerId, scores) {
+  handleHandPlayed: function (newMoves, winningPlayerId, scores) {
     this.removeSelectedCard();
     this.clearError();
 
-    this.addAndDrawMoves(playerMoves);
+    this.addAndDrawMoves(newMoves);
 
     var winningPlayer = this.getPlayerById(winningPlayerId);
-    if (winningPlayer.id == this.humanPlayer.id) {
+    if (winningPlayer.get('id') == this.get('humanPlayer').get('id')) {
       this.drawText(messages[conf.lang].youWinHand, messages[conf.lang].clickToAdvance);
     } else {
       this.drawText(winningPlayer.name + messages[conf.lang].otherWinsHand, messages[conf.lang].clickToAdvance);
@@ -277,6 +270,9 @@ var Game = Backbone.Model.extend({
 
 });
 
+window.playerList = new PlayerList([]);
+window.cardList = new CardList([]);
+window.playerMoveList = new PlayerMoves([]);
 window.game = new Game();
 
 })(window, jQuery);
