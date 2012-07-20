@@ -150,15 +150,14 @@ var Game = Backbone.Model.extend({
 
   clearMoves: function(moves) {
     this.view.clearPlayerMoves();
-    //window.playerMoveList.reset();
+    window.playerMoveList.reset();
   },
   
   addAndDrawMoves : function(newMoves) {
     var self = this;
     var currentStep = window.playerMoveList.length;
-
     _.each(newMoves, function(move, index, list) {
-      if (move.sequenceNumber > currentStep) {
+      if (move.get('seqNo') > currentStep) {
         window.playerMoveList.add(move);
         self.view.drawPlayerMove(move);
       }

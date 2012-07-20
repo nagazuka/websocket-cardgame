@@ -260,7 +260,6 @@ View.prototype = {
 
   drawSubText: function(subscript, x, y) {
     var self = this;
-    console.debug("drawSubText: " + subscript);
 
     var subText = this.repository.findElement("subText","text");
     if (subText) {
@@ -290,12 +289,10 @@ View.prototype = {
   countNewLines: function(content) {
     var matches = content.match(/\n/);
     var newLineCount = matches === null ? 1 : matches.length+1;
-    console.debug("content [" + content + "] has newLineCount [" + newLineCount + "]");
     return newLineCount;
   },
 
   drawText: function(content, subscript) {
-    //TODO: move to constants
     var x = constants.WIDTH * 0.78;
     var y = constants.HEIGHT * 0.7;
 
@@ -303,14 +300,12 @@ View.prototype = {
 
     var newLineCount = this.countNewLines(content);
     var subY = y + (newLineCount*36);
-    console.debug("subY"+ subY);
     this.drawSubText(subscript, x, subY);
   },
 
   
 
   drawInvalidText: function(content) {
-    //TODO: move to constants
     var x = constants.WIDTH * 0.2;
     var y = constants.HEIGHT * 0.7;
 
@@ -501,7 +496,7 @@ View.prototype = {
   drawPlayerMove: function(playerMove) {
     var category = "playerMoves";
 
-    var player = playerMove.get('player')();
+    var player = playerMove.get('player');
     var card = playerMove.get('card');
     var playerIndex = player.get('index'); 
 
