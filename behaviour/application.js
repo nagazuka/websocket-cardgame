@@ -1,3 +1,7 @@
+'use strict';
+
+(function(window, $, undefined) {
+
 function hasRequiredFeatures() {
   var res = true;
   if (!("WebSocket" in window)) {
@@ -56,22 +60,9 @@ Application.prototype = {
     window.game.setView(this.view);
     window.game.setMessageHandler(this.messageHandler);
 
-    this.view.setGame(window.game);
-    
     window.game.setPlayerTeam("Team Suriname");
     window.game.setCpuTeam("Team Nederland");
 
-    var playerName = this.getStoredValue('playerName');
-
-    if (playerName != null) {
-      window.game.setPlayerName(playerName);
-    } else {
-        this.view.askPlayerName( function(p) {
-          window.game.setPlayerName(p);
-          self.storeValue('playerName', p);
-        });
-    }
-    
     this.view.preload();
   },
 
@@ -87,13 +78,13 @@ Application.prototype = {
   }
 
 };
+    
+initConsole();
+if (hasRequiredFeatures()) {
+  var application = new Application();
+  application.init();
+} else {
+  showBrowserLinks();
+}
 
-$(document).ready(function() {
-    initConsole();
-    if (hasRequiredFeatures()) {
-      var application = new Application();
-      application.init();
-    } else {
-      showBrowserLinks();
-    }
-});
+})(window, jQuery);

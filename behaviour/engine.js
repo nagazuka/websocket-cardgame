@@ -12,6 +12,9 @@ var CardList = Backbone.Collection.extend({
 window.cards = new CardList();
 
 window.Player = Backbone.Model.extend({
+  isHuman: function() {
+    return this.get('isHuman');
+  }
 });
 
 var PlayerList = Backbone.Collection.extend({
@@ -40,7 +43,7 @@ var Game = Backbone.Model.extend({
     playerMoves : [],
     playingOrder : [],
     selectedCard : null,
-    playerName : null,
+    playerName : "Anoniem",
     playerTeam : null,
     cpuTeam : null
   },
@@ -52,11 +55,11 @@ var Game = Backbone.Model.extend({
   },
 
   start: function() {
-    this.handler.sendMessage({'command' : 'startGame', 'playerName' : this.playerName, 'playerTeam': this.playerTeam, 'opponentTeam': this.cpuTeam});
+    this.handler.sendMessage({'command' : 'startGame', 'playerName' : this.get('playerName'), 'playerTeam': this.playerTeam, 'opponentTeam': this.cpuTeam});
   },
 
   nextGame: function() {
-    this.handler.sendMessage({'command' : 'nextGame', 'playerName' : this.playerName, 'playerTeam': this.playerTeam, 'opponentTeam': this.cpuTeam});
+    this.handler.sendMessage({'command' : 'nextGame', 'playerName' : this.get('playerName'), 'playerTeam': this.playerTeam, 'opponentTeam': this.cpuTeam});
   },
 
   askFirstCards: function fn_askFirstCards () {
@@ -105,11 +108,10 @@ var Game = Backbone.Model.extend({
   },
   
   addPlayer: function(player) {
-    if (player.isHuman) {
-      this.set('humanPlayer') = player;
+    if (player.isHuman()) {
+      this.set({'humanPlayer': player});
     }
     this.get('players').push(player);
-    //this.players.push(player);
   },
 
   getPlayerById: function(id) {
@@ -254,12 +256,14 @@ var Game = Backbone.Model.extend({
   },
   
   setPlayerName: function(playerName) {
+    var pName;
     if (playerName != null && playerName != '') {
-      this.playerName = playerName;
+      pName = playerName;
     } else {
       var code = "" + (Math.floor(Math.random() * 2500) + 1);
-      this.playerName = messages[conf.lang].playerPrefix + code;
+      pName = messages[conf.lang].playerPrefix + code;
     }
+    this.set({'playerName': pName});
   },
 
   setView: function(view) {
