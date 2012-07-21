@@ -132,25 +132,6 @@ View.prototype = {
       loader.start();
     },
 
-    askPlayerName: function(callback) {
-      var self = this;
-
-      $('#welcomeModal').modal('show');
-      $('#closePlayerName').click(function(event) {
-        event.preventDefault();
-        callback('');
-        $('#welcomeModal').modal('hide');
-        self.showSplash();
-      });
-      $('#formPlayerName').submit(function(event) {
-        event.preventDefault();
-        var playerName =  $('#inputPlayerName').val();
-        callback(playerName);
-        $('#welcomeModal').modal('hide');
-        self.showSplash();
-      });
-    },
-
     drawProgressOverlay: function() {
       $('#canvas').hide();
       $('#progressOverlay').show();
@@ -167,29 +148,6 @@ View.prototype = {
     clearProgressOverlay: function() {
       $('#progressOverlay').hide();
       $('#canvas').show();
-    },
-
-    showSplash: function() {
-      if (!this.splashVisible) {
-        this.splashVisible = true;
-        console.debug("Drawing new splash");
-
-        var bg = this.getCanvas().rect(0, 0, constants.WIDTH, constants.HEIGHT);
-        bg.attr({fill: '45-#000-#555'});
-        this.repository.addElement(bg, "splashBackground", "splash");
-
-        var logoText = this.getCanvas().text(constants.WIDTH/2, constants.HEIGHT/2, messages[conf.lang].gameTitle);
-        logoText.attr({'fill' : '#fff', 'font-size' : '32', 'font-family' : conf.font, 'font-weight' : 'bold','stroke-width' : '1'});
-        this.repository.addElement(logoText, "logoText", "splash");
-
-        var subText = this.getCanvas().text(constants.WIDTH/2, 40 + constants.HEIGHT/2, messages[conf.lang].clickToStart);
-        subText.attr({'fill' : '#fff', 'font-size' : '24', 'font-family' : conf.font, 'font-weight' : 'bold','stroke-width' : '1'});
-        this.repository.addElement(subText, "subText", "splash");
-
-        this.waitForStartGame();
-      } else {
-        console.debug("Splash already visible, not drawing");
-      }
     },
 
     drawBackground: function() {
@@ -248,7 +206,7 @@ View.prototype = {
 
       loader.addCompletionListener(function() {
           self.clearProgressOverlay();
-          self.showSplash();
+          game.init();
       });
 
       loader.addProgressListener(function(e) {
@@ -442,7 +400,6 @@ View.prototype = {
       deckEl.hide();
 
       compositeAnimation.push({'element': deckEl, 'attr': {x: endX, y: endY}, 'time': constants.PLAYER_CARD_ANIMATE_TIME, 'callback': deckEl.remove});
-      //self.queueAnimate(deckEl, {x: endX, y: endY}, constants.PLAYER_CARD_ANIMATE_TIME, deckEl.remove);
     });
     self.queueCompositeAnimation(compositeAnimation);
   },
@@ -611,11 +568,6 @@ View.prototype = {
     });
   },
   
-  waitForStartGame: function() {
-    var callback = 'init';
-    this.waitForEvent(callback);  
-  },
-
   waitForNextHand: function() {
     var callback = 'sendReady';
     this.waitForEvent(callback);  
