@@ -1,5 +1,3 @@
-var WEB_SOCKET_SWF_LOCATION = "behaviour/lib/WebSocketMain.swf";
-
 function MessageHandler() {
 }
 
