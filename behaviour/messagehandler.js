@@ -5,8 +5,12 @@ MessageHandler.prototype = {
 
   connect: function() {
     var self = this;
- 
-    this.ws = new WebSocket(conf.network.wsURL);
+
+    if ("WebSocket" in window) { 
+      this.ws = new WebSocket(conf.network.wsURL);
+    } else if ("MozWebSocket" in window) {
+      this.ws = new MozWebSocket(conf.network.wsURL);
+    }
    
     this.ws.onopen = function() {
         game.start();

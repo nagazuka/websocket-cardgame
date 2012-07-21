@@ -4,7 +4,7 @@
 
 function hasRequiredFeatures() {
   var res = true;
-  if (!("WebSocket" in window)) {
+  if (!("WebSocket" in window) && !("MozWebSocket" in window)) {
     res = false;
     console.error("No WebSocket support detected");
   }
