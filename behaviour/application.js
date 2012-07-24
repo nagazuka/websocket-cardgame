@@ -52,18 +52,32 @@ function Application() {
 
 Application.prototype = {
   init: function() {
-    var self = this;
+    window.playerList = new PlayerList([]);
+    window.playerCardList = new CardList([]);
+    window.playerMoveList = new PlayerMoves([]);
+    window.game = new Game();
 
-    this.view = new View();
-    this.messageHandler = new MessageHandler();
+    var view = new View();
+    var messageHandler = new MessageHandler();
     
-    window.game.setView(this.view);
-    window.game.setMessageHandler(this.messageHandler);
+    game.on('deal:firstCards', view.drawFirstCards, view);
+    game.on('deal:restOfCards', view.drawRestOfCards, view);
+    game.on('trump:chosen', view.drawTrumpSuit, view);
+    game.on('game:init', view.drawBackground, view);
+    game.on('game:init', messageHandler.connect, messageHandler);
+    game.on('game:askMove', view.clearMoves, view);
+    game.on('game:askMove', playerMoveList.reset, playerMoveList);
+    game.on('game:next', view.clearGame, view);
+    game.on('game:next', playerCardList.reset, playerCardList);
+    game.on('game:next', playerMoveList.reset, playerMoveList);
+    
+    window.game.setView(view);
+    window.game.setMessageHandler(messageHandler);
 
     window.game.setPlayerTeam("Team Suriname");
     window.game.setCpuTeam("Team Nederland");
 
-    this.view.preload();
+    view.preload();
   },
 
   getStoredValue: function(key) {  

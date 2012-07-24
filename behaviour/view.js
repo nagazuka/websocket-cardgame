@@ -207,6 +207,7 @@ View.prototype = {
       loader.addCompletionListener(function() {
           self.clearProgressOverlay();
           game.init();
+          game.trigger("game:init");
       });
 
       loader.addProgressListener(function(e) {
@@ -416,14 +417,13 @@ View.prototype = {
       }
   },
 
-  drawPlayerCards: function(cards, playingOrder) {
-    var self = this;
-
-    if (playerCardList.length == 0) {
-      return;
-    } else if (playerCardList.length == 5) {
+  drawFirstCards: function(playingOrder) {
+      this.drawDeck();
       this.drawDealCards(playerCardList, playingOrder, 5);
-    } else {
+      this.drawText(messages[conf.lang].chooseTrumpHeading, "");
+  },
+
+  drawRestOfCards: function(playingOrder) {
       var i;
       var offset = 5;
       var step = 4;
@@ -433,9 +433,9 @@ View.prototype = {
         var currentCards = playerCardList.subList(start, end);
         this.drawDealCards(currentCards, playingOrder, 4);
       }
-    }
+      this.clearDeck();
   },
-  
+
   queueText: function(obj, text) {
     var task = new TextTask(obj, text);
     this.taskQueue.addTask(task);
@@ -490,6 +490,16 @@ View.prototype = {
     var id = this.getCardId(card,'playerCards');
     var cardImage = this.repository.removeElementFromCategory(id, 'playerCards');
     cardImage.remove();
+  },
+
+  clearGame: function() {
+    this.clearPlayerCards();
+    this.clearTrumpSuit();
+    this.clearPlayerMoves();
+  },
+
+  clearMoves: function() {
+    this.clearPlayerMoves();
   },
 
   clearPlayerCards: function() {

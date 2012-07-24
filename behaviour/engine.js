@@ -5,16 +5,23 @@
 window.Card = Backbone.Model.extend({
 });
 
-var CardList = Backbone.Collection.extend({
+window.CardList = Backbone.Collection.extend({
   model: Card,
 
   subList: function(start, end) {
     var slicedArr = _.toArray(this).slice(start,end);
     return new CardList(slicedArr);
+  },
+
+  addCards: function(newCards) {
+    var self = this;
+    _.each(newCards, function(card) {
+      self.add(card);
+    });
   }
 });
 
-CardList.prototype.add = function(card) {
+window.CardList.prototype.add = function(card) {
   var isDupe = this.any(function(_card) { 
     return _card.get('rank') === card.get('rank') 
       && _card.get('suit') === card.get('suit');
@@ -32,26 +39,24 @@ window.Player = Backbone.Model.extend({
   }
 });
 
-var PlayerList = Backbone.Collection.extend({
+window.PlayerList = Backbone.Collection.extend({
   model: Player
 });
 
 window.PlayerMove = Backbone.Model.extend({
 });
 
-var PlayerMoves = Backbone.Collection.extend({
+window.PlayerMoves = Backbone.Collection.extend({
   model: PlayerMove
 });
 
 
 
-var Game = Backbone.Model.extend({
+window.Game = Backbone.Model.extend({
 
   defaults: {
     view : null,
     handler : null,
-    cards : [],
-    players : [],
     playingOrder : [],
     selectedCard : null,
     playerName : "Anoniem",
@@ -60,8 +65,6 @@ var Game = Backbone.Model.extend({
   },
 
   init: function() {
-    this.handler.connect();
-    this.view.drawBackground();
     this.initScores();
   },
 
@@ -96,14 +99,6 @@ var Game = Backbone.Model.extend({
     this.handler.sendMessage({'command' : 'isReady'});
   },
 
-  addCards: function(newCards) {
-    console.debug("Before addCards cards size: " + playerCardList.length);
-    _.each(newCards, function(card) {
-      playerCardList.add(card);
-    });
-    console.debug("Before addCards cards size: " + playerCardList.length);
-  },
-
   sortCards: function() {
     var grouped = _.groupBy(this.get('cards'), 'suit'); 
     _.each(grouped, function(cardList, index, list) {
@@ -136,15 +131,6 @@ var Game = Backbone.Model.extend({
     this.set('cards', _.without(allCards, card));
    },
 
-  clearCards: function() {
-    this.view.clearPlayerCards();
-    this.set('cards', []);
-  },
-
-  drawTrumpSuit: function(trumpSuit) {
-    this.view.drawTrumpSuit(this.trumpSuit);
-  },
-  
   drawText: function(text, subscript) {
     this.view.drawText(text, subscript);
   },
@@ -161,11 +147,6 @@ var Game = Backbone.Model.extend({
     this.view.drawPlayer(player);
   },
 
-  clearMoves: function(moves) {
-    this.view.clearPlayerMoves();
-    window.playerMoveList.reset();
-  },
-  
   addAndDrawMoves : function(newMoves) {
     var self = this;
     var currentStep = window.playerMoveList.length;
@@ -175,6 +156,7 @@ var Game = Backbone.Model.extend({
         self.view.drawPlayerMove(move);
       }
     });
+    this.drawText(messages[conf.lang].yourTurn, "");
   },
   
   initScores: function() {
@@ -186,26 +168,21 @@ var Game = Backbone.Model.extend({
   },
 
   handleFirstCards: function(cards) {
-    this.addCards(cards);
-    this.view.drawDeck();
-    this.view.drawPlayerCards(this.get('cards'), this.playingOrder);
-    this.drawText(messages[conf.lang].chooseTrumpHeading, "");
+    playerCardList.addCards(cards);
+    this.trigger('deal:firstCards', this.playingOrder);
     this.setCardClickHandler(this.chooseTrump);
   },
 
   handleAllCards: function(cards, trumpSuit) {
-    this.drawTrumpSuit(trumpSuit);
-    this.addCards(cards);
-    this.view.drawPlayerCards(this.get('cards'), this.playingOrder);
-    this.view.clearDeck();
+    playerCardList.addCards(cards);
+    this.trigger('trump:chosen', trumpSuit);
+    this.trigger('deal:restOfCards',this.playingOrder);
     this.sendReady();
   },
 
   handleAskMove: function (newMoves) {
-    this.clearMoves();
+    this.trigger('game:askMove');
     this.addAndDrawMoves(newMoves);
-
-    this.drawText(messages[conf.lang].yourTurn, "");
     this.setCardClickHandler(this.makeMove);
   },
   
@@ -238,9 +215,7 @@ var Game = Backbone.Model.extend({
   },
 
   handleNextGame: function(cards) {
-    this.clearCards();
-    this.clearMoves();
-    this.view.clearTrumpSuit();
+    this.trigger("game:next");
     this.askFirstCards();
   },
 
@@ -282,9 +257,5 @@ var Game = Backbone.Model.extend({
 
 });
 
-window.playerList = new PlayerList([]);
-window.playerCardList = new CardList([]);
-window.playerMoveList = new PlayerMoves([]);
-window.game = new Game();
 
 })(window, jQuery);
