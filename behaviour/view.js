@@ -368,14 +368,15 @@ View.prototype = {
     }
 
     if (numCards > 0) {
+    console.debug(" NotLooping" + cards.length);
 
     var compositeAnimation = [];
-      _.each(cards, function(card, i) {
+    cards.each(function(card, i) {
+        console.debug("Looping");
         var startX = constants.DECK_X;
         var startY = constants.DECK_Y;
         var endX = (i * stepSize) + newCardsOffset;
         var endY = constants.CARD_AREA_Y + constants.CARD_AREA_PADDING;
-
         var cardId = self.getCardId(card, category);
         var cardImage = self.drawCard(card, startX, startY, constants.CARD_WIDTH, constants.CARD_HEIGHT, category);
         cardImage.hide();
@@ -418,10 +419,10 @@ View.prototype = {
   drawPlayerCards: function(cards, playingOrder) {
     var self = this;
 
-    if (cards.length == 0) {
+    if (playerCardList.length == 0) {
       return;
-    } else if (cards.length == 5) {
-      this.drawDealCards(cards, playingOrder, 5);
+    } else if (playerCardList.length == 5) {
+      this.drawDealCards(playerCardList, playingOrder, 5);
     } else {
       var i;
       var offset = 5;
@@ -429,7 +430,7 @@ View.prototype = {
       for (i=0; i < 2; i++) {
         var start = offset + i * step;
         var end = start + step; 
-        var currentCards = cards.slice(start, end);
+        var currentCards = playerCardList.subList(start, end);
         this.drawDealCards(currentCards, playingOrder, 4);
       }
     }
@@ -499,6 +500,8 @@ View.prototype = {
 
   drawCard: function(card, x, y, width, height, category) {
     var self = this;
+
+    console.debug("Drawing card " + card.get('rank') + " " + card.get('suit'));
     var cardImage = this.getCanvas().image(this.getCardImageFile(card.get('rank'), card.get('suit')), x, y, width, height);
 
     cardImage.mouseover(function(event) {

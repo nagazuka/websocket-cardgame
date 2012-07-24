@@ -6,8 +6,25 @@ window.Card = Backbone.Model.extend({
 });
 
 var CardList = Backbone.Collection.extend({
-  model: Card
+  model: Card,
+
+  subList: function(start, end) {
+    var slicedArr = _.toArray(this).slice(start,end);
+    return new CardList(slicedArr);
+  }
 });
+
+CardList.prototype.add = function(card) {
+  var isDupe = this.any(function(_card) { 
+    return _card.get('rank') === card.get('rank') 
+      && _card.get('suit') === card.get('suit');
+  });
+  if (isDupe) {
+    return false;
+  }
+  Backbone.Collection.prototype.add.call(this, card);
+};
+    
 
 window.Player = Backbone.Model.extend({
   isHuman: function() {
@@ -72,7 +89,7 @@ var Game = Backbone.Model.extend({
   },
 
   noAction: function fn_noAction (card) {
-    this.view.drawText('Nu even niet :-)\nChill for a bit amigo...');
+    this.view.drawText('Nu even niet :-)\nChill for a bit amigo...','');
   },
 
   sendReady: function() {
@@ -80,26 +97,21 @@ var Game = Backbone.Model.extend({
   },
 
   addCards: function(newCards) {
-    var cards = this.get('cards');
-    console.debug("Before addCards cards size: " + cards.length);
-    cards = cards.concat(newCards);
-    console.debug("Before addCards cards size: " + cards.length);
-    //TODO: why the unique?
-    cards = _.uniq(cards, false, function(c) {
-      return c.get('suit') + '_' + c.get('rank');
+    console.debug("Before addCards cards size: " + playerCardList.length);
+    _.each(newCards, function(card) {
+      playerCardList.add(card);
     });
-    this.set({'cards': cards});
-    console.debug("After addCards cards size: " + this.get('cards').length);
+    console.debug("Before addCards cards size: " + playerCardList.length);
   },
 
   sortCards: function() {
-    var grouped = _.groupBy(this.cards, 'suit'); 
+    var grouped = _.groupBy(this.get('cards'), 'suit'); 
     _.each(grouped, function(cardList, index, list) {
       var sorted = _.sortBy(cardList, function(c) { return c.rank; });
       list[index] = sorted; 
     });
     var flattened = _.flatten(grouped);
-    this.cards = flattened;
+    this.set('cards', flattened);
   },
   
   addPlayer: function(player) {
@@ -120,12 +132,13 @@ var Game = Backbone.Model.extend({
 
   removeCard: function(card) {
     this.view.removePlayerCard(card);
-    this.cards = _.without(this.cards, card);
+    var allCards = this.get('cards');
+    this.set('cards', _.without(allCards, card));
    },
 
   clearCards: function() {
     this.view.clearPlayerCards();
-    this.cards.length = 0;
+    this.set('cards', []);
   },
 
   drawTrumpSuit: function(trumpSuit) {
@@ -270,7 +283,7 @@ var Game = Backbone.Model.extend({
 });
 
 window.playerList = new PlayerList([]);
-window.cardList = new CardList([]);
+window.playerCardList = new CardList([]);
 window.playerMoveList = new PlayerMoves([]);
 window.game = new Game();
 
