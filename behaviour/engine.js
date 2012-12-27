@@ -131,7 +131,7 @@ var Game = Backbone.Model.extend({
 
   clearCards: function() {
     this.view.clearPlayerCards();
-    this.cards.length = 0;
+    this.set({'cards':[]});
   },
 
   drawTrumpSuit: function(trumpSuit) {
@@ -156,7 +156,7 @@ var Game = Backbone.Model.extend({
 
   clearMoves: function(moves) {
     this.view.clearPlayerMoves();
-    this.get('playerMoves').length = 0;
+    this.set({'playerMoves': []});
   },
   
   addAndDrawMoves : function(moves) {
@@ -221,7 +221,7 @@ var Game = Backbone.Model.extend({
     if (winningPlayer.id == this.get('humanPlayer').id) {
       this.drawText(messages[conf.lang].youWinHand, messages[conf.lang].clickToAdvance);
     } else {
-      this.drawText(winningPlayer.name + messages[conf.lang].otherWinsHand, messages[conf.lang].clickToAdvance);
+      this.drawText(winningPlayer.get('name') + messages[conf.lang].otherWinsHand, messages[conf.lang].clickToAdvance);
     }
     
     this.updateScores(scores);
