@@ -513,8 +513,8 @@ View.prototype = {
   drawPlayerMove: function(playerMove) {
     var category = "playerMoves";
 
-    var player = playerMove.getPlayer();
-    var card = playerMove.getCard();
+    var player = playerMove.get('player');
+    var card = playerMove.get('card');
     var playerIndex = player.get('index'); 
 
     var startX = constants.PLAYER_X_ARR[playerIndex];
@@ -541,7 +541,7 @@ View.prototype = {
   },
 
   getCardId: function(card, category) {
-    var id = category + "_" + card.rank + "_" + card.suit;
+    var id = category + "_" + card.get('rank') + "_" + card.get('suit');
     return id;
   },
 
