@@ -559,7 +559,7 @@ View.prototype = {
 
   drawCard: function(card, x, y, width, height, category) {
     var self = this;
-    var cardImage = this.getCanvas().image(this.getCardImageFile(card.rank, card.suit), x, y, width, height);
+    var cardImage = this.getCanvas().image(this.getCardImageFile(card.get('rank'), card.get('suit')), x, y, width, height);
 
     cardImage.mouseover(function(event) {
         this.translate(0,-1*constants.CARD_HEIGHT);

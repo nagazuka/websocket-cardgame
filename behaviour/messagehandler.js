@@ -55,7 +55,8 @@ MessageHandler.prototype = {
     var playerList = response.players;
     game.playingOrder = response.playingOrder;
     _.each(response.players, function (p) {
-      var player = new Player({'id': p.id, 'index': p.index, 'name': p.name, 'ísHuman': p.isHuman, 'team': p.team});
+      console.debug('p: ' + p.isHuman);
+      var player = new Player({'id': p.id, 'index': p.index, 'name': p.name, 'isHuman': p.isHuman, 'team': p.team});
       game.addPlayer(player);
       game.drawPlayer(player);
     });
@@ -116,12 +117,14 @@ MessageHandler.prototype = {
         var card = new Card(jsonCard['rank'], jsonCard['suit']);
         var player = game.getPlayerById(move['playerId']);
         
-        moves.push(new PlayerMove(player, card, seqNo));
+        moves.push(new PlayerMove({'player': player, 'card': card, 'sequenceNumber': seqNo}));
     });
     return moves;
   },
 
   transformCards : function (cards) {
-    return _.map(cards, function (c) { return  new Card(c.rank, c.suit); });
+    return _.map(cards, function (c) { 
+      return new Card({'rank': c.rank, 'suit': c.suit});
+    });
   }
 };

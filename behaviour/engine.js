@@ -5,11 +5,11 @@
 window.Card = Backbone.Model.extend({
 });
 
-var CardList = Backbone.Collection.extend({
-  model: Card
-});
+//var CardList = Backbone.Collection.extend({
+//  model: Card
+//});
 
-window.cards = new CardList();
+//window.cards = new CardList();
 
 window.Player = Backbone.Model.extend({
 });
@@ -18,17 +18,17 @@ var PlayerList = Backbone.Collection.extend({
   model: Player
 });
 
-window.players = new PlayerList();
+//window.players = new PlayerList();
 
 
-var PlayerMove = Backbone.Model.extend({
+window.PlayerMove = Backbone.Model.extend({
 });
 
 var PlayerMoveList = Backbone.Collection.extend({
   model: PlayerMove
 });
 
-window.playerMoves = new PlayerMoveList();
+//window.playerMoves = new PlayerMoveList();
 
 var Game = Backbone.Model.extend({
 
@@ -64,12 +64,12 @@ var Game = Backbone.Model.extend({
   },
 
   chooseTrump: function fn_chooseTrump (card) {
-    this.trumpSuit = card.suit;
-    this.handler.sendMessage({'command' : 'chooseTrump', 'suit': card.suit, 'playerId' : this.humanPlayer.id});
+    this.set({'trumpSuit': card.get('suit')});
+    this.handler.sendMessage({'command' : 'chooseTrump', 'suit': card.get('suit'), 'playerId' : this.get('humanPlayer').id});
   },
   
   makeMove: function fn_makeMove (card) {
-    this.handler.sendMessage({'command' : 'makeMove', 'rank' : card.rank, 'suit': card.suit, 'playerIndex' : 0, 'playerId' : this.humanPlayer.id});
+    this.handler.sendMessage({'command' : 'makeMove', 'rank' : card.get('rank'), 'suit': card.get('suit'), 'playerIndex' : 0, 'playerId' : this.get('humanPlayer').id});
     this.selectedCard = card;
     this.setCardClickHandler(this.noAction);
   },
@@ -84,12 +84,14 @@ var Game = Backbone.Model.extend({
 
   addCards: function(newCards) {
     var cards = this.get('cards');
-    console.debug("Before addCards cards size: " + cards.length);
-    cards = cards.concat(newCards);
+    console.debug("Before addCards cards size: " + this.get('cards').length);
+    cards = this.get('cards').concat(newCards);
+    console.debug("After concat cards size: " + cards.length);
     //TODO: why the unique?
     cards = _.uniq(cards, false, function(c) {
-      return c.suit + '_' + c.rank;
+      return c.get('suit') + '_' + c.get('rank');
     });
+    console.debug("After uniq cards size: " + cards.length);
     this.set({'cards': cards});
     console.debug("After addCards cards size: " + this.get('cards').length);
   },
@@ -105,15 +107,16 @@ var Game = Backbone.Model.extend({
   },
   
   addPlayer: function(player) {
-    if (player.isHuman) {
-      this.set('humanPlayer') = player;
+    console.debug('player.isHuman ' + player.isHuman);
+    if (player.get('isHuman')) {
+      this.set({'humanPlayer': player});
     }
     this.get('players').push(player);
     //this.players.push(player);
   },
 
   getPlayerById: function(id) {
-    var player = _.find(this.players, function (p) { return p.id == id;});
+    var player = _.find(this.get('players'), function (p) { return p.id == id;});
     return player;
   },
 
@@ -132,7 +135,7 @@ var Game = Backbone.Model.extend({
   },
 
   drawTrumpSuit: function(trumpSuit) {
-    this.view.drawTrumpSuit(this.trumpSuit);
+    this.view.drawTrumpSuit(this.get('trumpSuit'));
   },
   
   drawText: function(text, subscript) {
@@ -153,12 +156,12 @@ var Game = Backbone.Model.extend({
 
   clearMoves: function(moves) {
     this.view.clearPlayerMoves();
-    this.playerMoves.length = 0;
+    this.get('playerMoves').length = 0;
   },
   
   addAndDrawMoves : function(moves) {
     var self = this;
-    var existingMoves = this.playerMoves;
+    var existingMoves = this.get('playerMoves');
     var currentStep = existingMoves.length;
 
     _.each(moves, function(move, index, list) {
@@ -213,7 +216,7 @@ var Game = Backbone.Model.extend({
     this.addAndDrawMoves(playerMoves);
 
     var winningPlayer = this.getPlayerById(winningPlayerId);
-    if (winningPlayer.id == this.humanPlayer.id) {
+    if (winningPlayer.id == this.get('humanPlayer').id) {
       this.drawText(messages[conf.lang].youWinHand, messages[conf.lang].clickToAdvance);
     } else {
       this.drawText(winningPlayer.name + messages[conf.lang].otherWinsHand, messages[conf.lang].clickToAdvance);
