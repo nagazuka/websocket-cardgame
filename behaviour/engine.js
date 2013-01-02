@@ -30,7 +30,7 @@ window.PlayerMoveList = Backbone.Collection.extend({
 
 //window.playerMoves = new PlayerMoveList();
 
-var Game = Backbone.Model.extend({
+window.Game = Backbone.Model.extend({
 
   defaults: {
     view : null,
@@ -276,7 +276,5 @@ var Game = Backbone.Model.extend({
   }
 
 });
-
-window.game = new Game();
 
 })(window, jQuery);

@@ -44,6 +44,8 @@ function initConsole() {
      }
    } else if (console && !console.debug) {
      console.debug = function() {};
+   } else if (console && !console.error) {
+     console.error = function() {};
    }
 }
 
@@ -55,7 +57,7 @@ Application.prototype = {
     window.playerList = new PlayerList([]);
     window.playerCardList = new CardList([]);
     window.playerMoveList = new PlayerMoveList([]);
-    //window.game = new Game();
+    window.game = new Game();
 
     var view = new View();
     var messageHandler = new MessageHandler();
@@ -74,7 +76,7 @@ Application.prototype = {
     window.game.setView(view);
     window.game.setMessageHandler(messageHandler);
 
-    window.game.setPlayerName("Bouta");
+    window.game.setPlayerName("");
     window.game.setPlayerTeam("Team Suriname");
     window.game.setCpuTeam("Team Nederland");
 
