@@ -1,6 +1,10 @@
+'use strict';
+
+(function(window, $, undefined) {
+
 function hasRequiredFeatures() {
   var res = true;
-  if (!("WebSocket" in window)) {
+  if (!("WebSocket" in window) && !("MozWebSocket" in window)) {
     res = false;
     console.error("No WebSocket support detected");
   }
@@ -48,31 +52,33 @@ function Application() {
 
 Application.prototype = {
   init: function() {
-    var self = this;
+    window.playerList = new PlayerList([]);
+    window.playerCardList = new CardList([]);
+    window.playerMoveList = new PlayerMoveList([]);
+    //window.game = new Game();
 
-    this.view = new View();
-    this.messageHandler = new MessageHandler();
+    var view = new View();
+    var messageHandler = new MessageHandler();
     
-    window.game.setView(this.view);
-    window.game.setMessageHandler(this.messageHandler);
+    game.on('deal:firstCards', view.drawFirstCards, view);
+    game.on('deal:restOfCards', view.drawRestOfCards, view);
+    game.on('trump:chosen', view.drawTrumpSuit, view);
+    game.on('game:init', view.drawBackground, view);
+    game.on('game:init', messageHandler.connect, messageHandler);
+    game.on('game:askMove', view.clearMoves, view);
+    game.on('game:askMove', playerMoveList.reset, playerMoveList);
+    game.on('game:next', view.clearGame, view);
+    game.on('game:next', playerCardList.reset, playerCardList);
+    game.on('game:next', playerMoveList.reset, playerMoveList);
+    
+    window.game.setView(view);
+    window.game.setMessageHandler(messageHandler);
 
-    this.view.setGame(window.game);
-    
+    window.game.setPlayerName("Bouta");
     window.game.setPlayerTeam("Team Suriname");
     window.game.setCpuTeam("Team Nederland");
 
-    var playerName = this.getStoredValue('playerName');
-
-    if (playerName != null) {
-      window.game.setPlayerName(playerName);
-    } else {
-        this.view.askPlayerName( function(p) {
-          window.game.setPlayerName(p);
-          self.storeValue('playerName', p);
-        });
-    }
-    
-    this.view.preload();
+    view.preload();
   },
 
   getStoredValue: function(key) {  
@@ -87,13 +93,13 @@ Application.prototype = {
   }
 
 };
+    
+initConsole();
+if (hasRequiredFeatures()) {
+  var application = new Application();
+  application.init();
+} else {
+  showBrowserLinks();
+}
 
-$(document).ready(function() {
-    initConsole();
-    if (hasRequiredFeatures()) {
-      var application = new Application();
-      application.init();
-    } else {
-      showBrowserLinks();
-    }
-});
+})(window, jQuery);

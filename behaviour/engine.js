@@ -5,16 +5,16 @@
 window.Card = Backbone.Model.extend({
 });
 
-//var CardList = Backbone.Collection.extend({
-//  model: Card
-//});
+window.CardList = Backbone.Collection.extend({
+  model: Card
+});
 
 //window.cards = new CardList();
 
 window.Player = Backbone.Model.extend({
 });
 
-var PlayerList = Backbone.Collection.extend({
+window.PlayerList = Backbone.Collection.extend({
   model: Player
 });
 
@@ -24,7 +24,7 @@ var PlayerList = Backbone.Collection.extend({
 window.PlayerMove = Backbone.Model.extend({
 });
 
-var PlayerMoveList = Backbone.Collection.extend({
+window.PlayerMoveList = Backbone.Collection.extend({
   model: PlayerMove
 });
 

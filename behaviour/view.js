@@ -574,7 +574,7 @@ View.prototype = {
 
     cardImage.click(function(event) {
         console.log("DEBUG in cardImage clickEventHandler");
-        self.game.handleCardClicked(card);
+        window.game.handleCardClicked(card);
     });
 
     cardImage.id = this.getCardId(card, category);
@@ -613,14 +613,14 @@ View.prototype = {
     console.debug("Animating overlay");
     this.queueAnimate(overlay, {opacity: '0'}, 100, function() {
       var timeoutId = setTimeout(function() {
-        self.game[callback]();
+        window.game[callback]();
         console.debug("Timeout kicked in"); 
         overlay.remove();
       }, 5000);
 
       overlay.mouseup(function(event) {
         clearTimeout(timeoutId);
-        self.game[callback]();
+        window.game[callback]();
         console.debug("Removing overlay"); 
         overlay.remove();
       }); 
