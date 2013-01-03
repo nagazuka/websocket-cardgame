@@ -105,15 +105,54 @@ CompositeAnimationTask.prototype.run = function() {
           if (currAnim.callback) {
             currAnim.callback.apply(this);
             self.finishedAnimCount += 1;
-            //console.debug("finishedAnimCount updated by ["+i+"] to ["+self.finishedAnimCount+"]" + " limit ["+self.animCount+"]");
             if (self.finishedAnimCount == self.animCount) {
-              //console.debug("finishing composite anim by ["+i+"]" );
               self.finish();
             }
           }
         };
         var animation = Raphael.animation(currAnim.attr, currAnim.time, ">", compositeCallback);
         currAnim.element.show().stop().animate(animation);
+      }
+};
+
+function AnimationWithTask(animationList) {
+  this.animationList = animationList;
+  this.type = "AnimationWithTask";
+  this.animCount = animationList.length;
+  this.finishedAnimCount = 0;
+};
+
+AnimationWithTask.prototype = new AsyncTask;
+AnimationWithTask.prototype.run = function() {
+      console.debug("Running multi animation task");
+      var self = this;
+
+      var i;
+      var firstAnim;
+      var animation;
+      var element;
+      for (i in self.animationList) {
+        var currAnim = self.animationList[i];
+
+        if (i == 0) {
+          var firstAnimCallback = function () {
+            if (currAnim.callback) {
+              currAnim.callback.apply(this);
+            }
+            self.finish();
+          };
+          console.debug("Running first animation");
+          animation = Raphael.animation(currAnim.attr, currAnim.time, ">", firstAnimCallback);
+          element = currAnim.element.show().stop().animate(animation);
+        } else {
+          var animCallback = function () {
+            if (currAnim.callback) {
+              currAnim.callback.apply(this);
+            }
+          };
+          console.debug("Running other animations");
+          currAnim.element.show().stop().animateWith(element, animation, currAnim.attr, currAnim.time, ">", animCallback);
+        }
       }
 };
 
@@ -316,7 +355,6 @@ View.prototype = {
 
     var newLineCount = this.countNewLines(content);
     var subY = y + (newLineCount*36);
-    console.debug("subY"+ subY);
     this.drawSubText(subscript, x, subY);
   },
 
@@ -334,17 +372,14 @@ View.prototype = {
       this.invalidText.attr({'fill' : '#f00', 'font-size' : '22', 'font-family' : conf.font, 'font-weight' : 'bold','stroke-width' : '1'});
     }
     this.invalidText.hide();
-    console.debug("Draw invalid text");
     this.queueAnimate(this.invalidText, {'opacity': 1}, 100); 
   },
 
   drawError: function(heading, message) {
-    console.debug("Drawing invalid text: " + heading);
     this.drawInvalidText(heading);
   },
 
   clearError: function() {
-    console.debug("Clearing invalid text");
     this.drawInvalidText("");
   },
 
@@ -363,13 +398,16 @@ View.prototype = {
   },
 
   drawDeck: function() {
+    console.debug("Drawing deck");
     var image = this.getDeckImageFile();
     var deck = this.getCanvas().image(image, constants.DECK_X, constants.DECK_Y, constants.DECK_WIDTH, constants.DECK_HEIGHT);
     this.repository.addElement(deck, "tableDeck", "deck");
   },
 
   clearDeck: function() {
+    console.debug("Clearing deck");
     this.clearAllFromCategory("deck");
+    //this.repository.findElement("tableDeck").remove();
   },
 
   clearAllFromCategory: function(category) {
@@ -471,13 +509,13 @@ View.prototype = {
     }); 
 
     var self = this;
-    //var compositeAnimation = [];
+    var endY = constants.CARD_AREA_Y + constants.CARD_AREA_PADDING;
+    var compositeAnimation = [];
     _.each(sortedCards, function(c, i) {
-        var endY = constants.CARD_AREA_Y + constants.CARD_AREA_PADDING;
-        self.queueAnimate(c, {x: Number(xPositions[i])}, constants.PLAYER_CARD_ANIMATE_TIME);
-        //compositeAnimation.push({'element': c, 'attr': {x: xPositions[i], y: endY}, 'time': constants.PLAYER_CARD_ANIMATE_TIME});
+        //self.queueAnimate(c, {x: Number(xPositions[i])}, constants.PLAYER_CARD_ANIMATE_TIME);
+        compositeAnimation.push({'element': c, 'attr': {x: xPositions[i], y: endY}, 'time': constants.PLAYER_CARD_ANIMATE_TIME});
     });
-    //self.queueCompositeAnimation(compositeAnimation);
+    self.queueMultiAnimation(compositeAnimation);
     //this.repository.setElementsByCategory('playerCards', sortedCards);
   },
   
@@ -491,13 +529,12 @@ View.prototype = {
     var self = this;
     var compositeAnimation = [];
 
-    _.times(num, function() {
+    _.times(num, function(i) {
       var deckEl = self.getCanvas().image(deckImage, startX, startY, constants.DECK_WIDTH, constants.DECK_HEIGHT);
       deckEl.hide();
-
-      compositeAnimation.push({'element': deckEl, 'attr': {x: endX, y: endY}, 'time': constants.PLAYER_CARD_ANIMATE_TIME, 'callback': deckEl.remove});
+      compositeAnimation.push({'element': deckEl, 'attr': {x: endX + i, y: endY + i}, 'time': constants.PLAYER_CARD_ANIMATE_TIME, 'callback': deckEl.remove});
     });
-    self.queueCompositeAnimation(compositeAnimation);
+    self.queueMultiAnimation(compositeAnimation);
   },
 
   drawDealCards: function(cards, playingOrder, num) {
@@ -540,6 +577,11 @@ View.prototype = {
 
   queueAnimate: function(obj, attr, time, callback) {
     var task = new AnimationTask(obj, attr, time, callback);
+    this.taskQueue.addTask(task);
+  },
+  
+  queueMultiAnimation: function(animationList) {
+    var task = new AnimationWithTask(animationList);
     this.taskQueue.addTask(task);
   },
 
