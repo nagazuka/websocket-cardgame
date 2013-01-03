@@ -60,9 +60,20 @@ function TextTask(element, text) {
 
 TextTask.prototype = new AsyncTask;
 TextTask.prototype.run = function() {
-        //this.element.hide();
         this.element.attr({'text': this.text});
         this.element.attr({'opacity': '1','fill': '#fff'});
+        this.finish();
+};
+
+function RemoveTask(element) {
+    this.element = element;
+    this.type = "RemoveTask";
+};
+
+RemoveTask.prototype = new AsyncTask;
+RemoveTask.prototype.run = function() {
+        this.element.hide();
+        this.element.remove();
         this.finish();
 };
 
@@ -407,13 +418,15 @@ View.prototype = {
   clearDeck: function() {
     console.debug("Clearing deck");
     this.clearAllFromCategory("deck");
-    //this.repository.findElement("tableDeck").remove();
   },
 
   clearAllFromCategory: function(category) {
+    var self = this;
+
     var list = this.repository.getElementsByCategory(category);
     _.each(list, function(el) {
-      el.remove();
+      self.queueRemove(el);
+      //el.remove();
     });
     this.repository.clearCategory(category);
   },
@@ -551,7 +564,7 @@ View.prototype = {
       return;
     } else if (cards.length == 5) {
       this.drawDealCards(cards, playingOrder, 5);
-      //this.sortHumanPlayerCards();
+      this.sortHumanPlayerCards();
     } else {
       var i;
       var offset = 5;
@@ -568,6 +581,11 @@ View.prototype = {
   
   queueText: function(obj, text) {
     var task = new TextTask(obj, text);
+    this.taskQueue.addTask(task);
+  },
+
+  queueRemove: function(obj) {
+    var task = new RemoveTask(obj);
     this.taskQueue.addTask(task);
   },
 
