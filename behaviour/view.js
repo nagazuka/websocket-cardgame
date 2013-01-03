@@ -472,15 +472,13 @@ View.prototype = {
     var endY = constants.CARD_AREA_Y + constants.CARD_AREA_PADDING;
 
     if (numExistingCards > 0) {
-      //var compositeAnimation = [];
-      //var dx = xPositions[0] - xPositionsOld[0];
+      var compositeAnimation = [];
       var existingCards = this.repository.getElementsByCategory('playerCards');
       _.each(existingCards, function(c, i) {
-        //c.translate(dx, 0);
-        self.queueAnimate(c, {x: xPositions[i], y: endY}, 0);
-        //compositeAnimation.push({'element': c, 'attr': {x: xPositions[i], y: endY}, 'time': constants.PLAYER_CARD_ANIMATE_TIME});
+        //self.queueAnimate(c, {x: xPositions[i], y: endY}, 0);
+        compositeAnimation.push({'element': c, 'attr': {x: xPositions[i], y: endY}, 'time': constants.PLAYER_CARD_ANIMATE_TIME});
       });
-      //self.queueCompositeAnimation(compositeAnimation);
+      self.queueMultiAnimation(compositeAnimation);
     }
 
     if (numCards > 0) {
@@ -512,11 +510,9 @@ View.prototype = {
     var endY = constants.CARD_AREA_Y + constants.CARD_AREA_PADDING;
     var compositeAnimation = [];
     _.each(sortedCards, function(c, i) {
-        //self.queueAnimate(c, {x: Number(xPositions[i])}, constants.PLAYER_CARD_ANIMATE_TIME);
         compositeAnimation.push({'element': c, 'attr': {x: xPositions[i], y: endY}, 'time': constants.PLAYER_CARD_ANIMATE_TIME});
     });
     self.queueMultiAnimation(compositeAnimation);
-    //this.repository.setElementsByCategory('playerCards', sortedCards);
   },
   
   drawOtherPlayerCards: function(playerIndex, num) {
