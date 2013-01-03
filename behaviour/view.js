@@ -8,6 +8,11 @@ Repository.prototype = {
   getElementsByCategory: function(category) {
       return this[category];
   },
+  
+  setElementsByCategory: function(category, elements) {
+      this.createIfEmpty(category);
+      this[category] = elements;
+  },
 
   getCategorySize: function(category) {
     if (this.hasOwnProperty(category)) {
@@ -45,6 +50,7 @@ Repository.prototype = {
     element.data("id", id);
     this[category].push(element);
   }
+
 };
 function TextTask(element, text) {
     this.element = element;
@@ -404,37 +410,43 @@ View.prototype = {
     }
   },
 
+  getCardOffsets: function(numCards) {
+    var stepSize = constants.CARD_WIDTH + constants.CARD_PADDING;
+    var offset = (constants.CARD_AREA_WIDTH - (numCards * stepSize))/2;
+
+    var xPositions = _.map(_.range(0, numCards), function(i) {
+      return (i * stepSize) + offset;
+    });
+    
+    return xPositions;
+  },
+
   drawHumanPlayerCards: function(cards) {
     var self = this;
     var category = "playerCards";
 
     var numExistingCards = this.repository.getCategorySize('playerCards');
     var numCards = cards.length + numExistingCards;
-    console.debug("numExistingCards " + numExistingCards + " numCards " + numCards);
-    var stepSize = constants.CARD_WIDTH + constants.CARD_PADDING;
-    var offset = (constants.CARD_AREA_WIDTH - (numCards * stepSize))/2;
-    var newCardsOffset = offset + (numExistingCards * stepSize);
-    console.debug("offset " + offset + " newCardsOffset " + newCardsOffset + " stepSize " + stepSize);
+    
+    var xPositionsOld = this.getCardOffsets(numExistingCards);
+    var xPositions = this.getCardOffsets(numCards);
+    
+    var endY = constants.CARD_AREA_Y + constants.CARD_AREA_PADDING;
 
     if (numExistingCards > 0) {
-      var oldOffset = (constants.CARD_AREA_WIDTH - (numExistingCards * stepSize))/2;
-      var dx = offset - oldOffset;
-      console.debug("oldOffset " + oldOffset + " dx " + dx);
+      var dx = xPositions[0] - xPositionsOld[0];
       var existingCards = this.repository.getElementsByCategory('playerCards');
-      _.each(existingCards, function(c) {
-        c.translate(dx, 0);
+      _.each(existingCards, function(c, i) {
+        //c.translate(dx, 0);
+        self.queueAnimate(c, {x: xPositions[i], y: endY}, constants.PLAYER_CARD_ANIMATE_TIME);
       });
     }
 
     if (numCards > 0) {
-
-    var compositeAnimation = [];
       _.each(cards, function(card, i) {
         var startX = constants.DECK_X;
         var startY = constants.DECK_Y;
-        var endX = (i * stepSize) + newCardsOffset;
-        var endY = constants.CARD_AREA_Y + constants.CARD_AREA_PADDING;
-
+        var endX = xPositions[i+numExistingCards];
         var cardId = self.getCardId(card, category);
         var cardImage = self.drawCard(card, startX, startY, constants.CARD_WIDTH, constants.CARD_HEIGHT, category);
         cardImage.hide();
@@ -442,6 +454,29 @@ View.prototype = {
         self.repository.addElement(cardImage, cardId, category);
       });
     }
+  },
+
+  sortHumanPlayerCards: function() {
+    var existingCards = this.repository.getElementsByCategory('playerCards');
+    var numExistingCards = existingCards.length;
+
+    var xPositions = this.getCardOffsets(numExistingCards);
+    var endY = constants.CARD_AREA_Y + constants.CARD_AREA_PADDING;
+
+    var sortedCards = _.sortBy(existingCards, function(card) {
+        return card.data('id');
+    }); 
+    //console.debug("numExistingCards %d sortedCards.length %d", numExistingCards, sortedCards.length);
+
+    var self = this;
+    var compositeAnimation = [];
+    _.each(sortedCards, function(c, i) {
+        var endY = constants.CARD_AREA_Y + constants.CARD_AREA_PADDING;
+        //self.queueAnimate(c, {x: Number(xPositions[i])}, constants.PLAYER_CARD_ANIMATE_TIME);
+        compositeAnimation.push({'element': c, 'attr': {x: xPositions[i], y: endY}, 'time': constants.PLAYER_CARD_ANIMATE_TIME});
+    });
+    self.queueCompositeAnimation(compositeAnimation);
+    this.repository.setElementsByCategory('playerCards', sortedCards);
   },
   
   drawOtherPlayerCards: function(playerIndex, num) {
@@ -459,7 +494,6 @@ View.prototype = {
       deckEl.hide();
 
       compositeAnimation.push({'element': deckEl, 'attr': {x: endX, y: endY}, 'time': constants.PLAYER_CARD_ANIMATE_TIME, 'callback': deckEl.remove});
-      //self.queueAnimate(deckEl, {x: endX, y: endY}, constants.PLAYER_CARD_ANIMATE_TIME, deckEl.remove);
     });
     self.queueCompositeAnimation(compositeAnimation);
   },
@@ -482,6 +516,7 @@ View.prototype = {
       return;
     } else if (cards.length == 5) {
       this.drawDealCards(cards, playingOrder, 5);
+      //this.sortHumanPlayerCards();
     } else {
       var i;
       var offset = 5;
@@ -492,6 +527,7 @@ View.prototype = {
         var currentCards = cards.slice(start, end);
         this.drawDealCards(currentCards, playingOrder, 4);
       }
+      this.sortHumanPlayerCards();
     }
   },
   
@@ -541,7 +577,7 @@ View.prototype = {
   },
 
   getCardId: function(card, category) {
-    var id = category + "_" + card.get('rank') + "_" + card.get('suit');
+    var id = category + "_" + card.get('suit') + "_" + card.get('rank');
     return id;
   },
 
