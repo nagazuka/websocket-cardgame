@@ -434,12 +434,15 @@ View.prototype = {
     var endY = constants.CARD_AREA_Y + constants.CARD_AREA_PADDING;
 
     if (numExistingCards > 0) {
-      var dx = xPositions[0] - xPositionsOld[0];
+      //var compositeAnimation = [];
+      //var dx = xPositions[0] - xPositionsOld[0];
       var existingCards = this.repository.getElementsByCategory('playerCards');
       _.each(existingCards, function(c, i) {
         //c.translate(dx, 0);
-        self.queueAnimate(c, {x: xPositions[i], y: endY}, constants.PLAYER_CARD_ANIMATE_TIME);
+        self.queueAnimate(c, {x: xPositions[i], y: endY}, 0);
+        //compositeAnimation.push({'element': c, 'attr': {x: xPositions[i], y: endY}, 'time': constants.PLAYER_CARD_ANIMATE_TIME});
       });
+      //self.queueCompositeAnimation(compositeAnimation);
     }
 
     if (numCards > 0) {
@@ -466,17 +469,16 @@ View.prototype = {
     var sortedCards = _.sortBy(existingCards, function(card) {
         return card.data('id');
     }); 
-    //console.debug("numExistingCards %d sortedCards.length %d", numExistingCards, sortedCards.length);
 
     var self = this;
-    var compositeAnimation = [];
+    //var compositeAnimation = [];
     _.each(sortedCards, function(c, i) {
         var endY = constants.CARD_AREA_Y + constants.CARD_AREA_PADDING;
-        //self.queueAnimate(c, {x: Number(xPositions[i])}, constants.PLAYER_CARD_ANIMATE_TIME);
-        compositeAnimation.push({'element': c, 'attr': {x: xPositions[i], y: endY}, 'time': constants.PLAYER_CARD_ANIMATE_TIME});
+        self.queueAnimate(c, {x: Number(xPositions[i])}, constants.PLAYER_CARD_ANIMATE_TIME);
+        //compositeAnimation.push({'element': c, 'attr': {x: xPositions[i], y: endY}, 'time': constants.PLAYER_CARD_ANIMATE_TIME});
     });
-    self.queueCompositeAnimation(compositeAnimation);
-    this.repository.setElementsByCategory('playerCards', sortedCards);
+    //self.queueCompositeAnimation(compositeAnimation);
+    //this.repository.setElementsByCategory('playerCards', sortedCards);
   },
   
   drawOtherPlayerCards: function(playerIndex, num) {
@@ -577,10 +579,13 @@ View.prototype = {
   },
 
   getCardId: function(card, category) {
-    var id = category + "_" + card.get('suit') + "_" + card.get('rank');
+    var suit = card.get('suit');
+    suit = constants.SUIT_ORDER[suit] + suit;
+    var rank =  _.str.pad(card.get('rank'), 2);
+    var id = category + "_" + suit + "_" + rank;
     return id;
   },
-
+  
   removePlayerCard: function(card) {
     var id = this.getCardId(card,'playerCards');
     var cardImage = this.repository.removeElementFromCategory(id, 'playerCards');
