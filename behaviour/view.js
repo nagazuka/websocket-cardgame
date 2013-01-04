@@ -8,6 +8,11 @@ Repository.prototype = {
   getElementsByCategory: function(category) {
       return this[category];
   },
+  
+  setElementsByCategory: function(category, elements) {
+      this.createIfEmpty(category);
+      this[category] = elements;
+  },
 
   getCategorySize: function(category) {
     if (this.hasOwnProperty(category)) {
@@ -45,6 +50,7 @@ Repository.prototype = {
     element.data("id", id);
     this[category].push(element);
   }
+
 };
 function TextTask(element, text) {
     this.element = element;
@@ -54,9 +60,20 @@ function TextTask(element, text) {
 
 TextTask.prototype = new AsyncTask;
 TextTask.prototype.run = function() {
-        //this.element.hide();
         this.element.attr({'text': this.text});
         this.element.attr({'opacity': '1','fill': '#fff'});
+        this.finish();
+};
+
+function RemoveTask(element) {
+    this.element = element;
+    this.type = "RemoveTask";
+};
+
+RemoveTask.prototype = new AsyncTask;
+RemoveTask.prototype.run = function() {
+        this.element.hide();
+        this.element.remove();
         this.finish();
 };
 
@@ -99,15 +116,54 @@ CompositeAnimationTask.prototype.run = function() {
           if (currAnim.callback) {
             currAnim.callback.apply(this);
             self.finishedAnimCount += 1;
-            //console.debug("finishedAnimCount updated by ["+i+"] to ["+self.finishedAnimCount+"]" + " limit ["+self.animCount+"]");
             if (self.finishedAnimCount == self.animCount) {
-              //console.debug("finishing composite anim by ["+i+"]" );
               self.finish();
             }
           }
         };
         var animation = Raphael.animation(currAnim.attr, currAnim.time, ">", compositeCallback);
         currAnim.element.show().stop().animate(animation);
+      }
+};
+
+function AnimationWithTask(animationList) {
+  this.animationList = animationList;
+  this.type = "AnimationWithTask";
+  this.animCount = animationList.length;
+  this.finishedAnimCount = 0;
+};
+
+AnimationWithTask.prototype = new AsyncTask;
+AnimationWithTask.prototype.run = function() {
+      console.debug("Running multi animation task");
+      var self = this;
+
+      var i;
+      var firstAnim;
+      var animation;
+      var element;
+      for (i in self.animationList) {
+        var currAnim = self.animationList[i];
+
+        if (i == 0) {
+          var firstAnimCallback = function () {
+            if (currAnim.callback) {
+              currAnim.callback.apply(this);
+            }
+            self.finish();
+          };
+          console.debug("Running first animation");
+          animation = Raphael.animation(currAnim.attr, currAnim.time, ">", firstAnimCallback);
+          element = currAnim.element.show().stop().animate(animation);
+        } else {
+          var animCallback = function () {
+            if (currAnim.callback) {
+              currAnim.callback.apply(this);
+            }
+          };
+          console.debug("Running other animations");
+          currAnim.element.show().stop().animateWith(element, animation, currAnim.attr, currAnim.time, ">", animCallback);
+        }
       }
 };
 
@@ -310,7 +366,6 @@ View.prototype = {
 
     var newLineCount = this.countNewLines(content);
     var subY = y + (newLineCount*36);
-    console.debug("subY"+ subY);
     this.drawSubText(subscript, x, subY);
   },
 
@@ -328,17 +383,14 @@ View.prototype = {
       this.invalidText.attr({'fill' : '#f00', 'font-size' : '22', 'font-family' : conf.font, 'font-weight' : 'bold','stroke-width' : '1'});
     }
     this.invalidText.hide();
-    console.debug("Draw invalid text");
     this.queueAnimate(this.invalidText, {'opacity': 1}, 100); 
   },
 
   drawError: function(heading, message) {
-    console.debug("Drawing invalid text: " + heading);
     this.drawInvalidText(heading);
   },
 
   clearError: function() {
-    console.debug("Clearing invalid text");
     this.drawInvalidText("");
   },
 
@@ -357,19 +409,24 @@ View.prototype = {
   },
 
   drawDeck: function() {
+    console.debug("Drawing deck");
     var image = this.getDeckImageFile();
     var deck = this.getCanvas().image(image, constants.DECK_X, constants.DECK_Y, constants.DECK_WIDTH, constants.DECK_HEIGHT);
     this.repository.addElement(deck, "tableDeck", "deck");
   },
 
   clearDeck: function() {
+    console.debug("Clearing deck");
     this.clearAllFromCategory("deck");
   },
 
   clearAllFromCategory: function(category) {
+    var self = this;
+
     var list = this.repository.getElementsByCategory(category);
     _.each(list, function(el) {
-      el.remove();
+      self.queueRemove(el);
+      //el.remove();
     });
     this.repository.clearCategory(category);
   },
@@ -404,37 +461,44 @@ View.prototype = {
     }
   },
 
+  getCardOffsets: function(numCards) {
+    var stepSize = constants.CARD_WIDTH + constants.CARD_PADDING;
+    var offset = (constants.CARD_AREA_WIDTH - (numCards * stepSize))/2;
+
+    var xPositions = _.map(_.range(0, numCards), function(i) {
+      return (i * stepSize) + offset;
+    });
+    
+    return xPositions;
+  },
+
   drawHumanPlayerCards: function(cards) {
     var self = this;
     var category = "playerCards";
 
     var numExistingCards = this.repository.getCategorySize('playerCards');
     var numCards = cards.length + numExistingCards;
-    console.debug("numExistingCards " + numExistingCards + " numCards " + numCards);
-    var stepSize = constants.CARD_WIDTH + constants.CARD_PADDING;
-    var offset = (constants.CARD_AREA_WIDTH - (numCards * stepSize))/2;
-    var newCardsOffset = offset + (numExistingCards * stepSize);
-    console.debug("offset " + offset + " newCardsOffset " + newCardsOffset + " stepSize " + stepSize);
+    
+    var xPositionsOld = this.getCardOffsets(numExistingCards);
+    var xPositions = this.getCardOffsets(numCards);
+    
+    var endY = constants.CARD_AREA_Y + constants.CARD_AREA_PADDING;
 
     if (numExistingCards > 0) {
-      var oldOffset = (constants.CARD_AREA_WIDTH - (numExistingCards * stepSize))/2;
-      var dx = offset - oldOffset;
-      console.debug("oldOffset " + oldOffset + " dx " + dx);
+      var compositeAnimation = [];
       var existingCards = this.repository.getElementsByCategory('playerCards');
-      _.each(existingCards, function(c) {
-        c.translate(dx, 0);
+      _.each(existingCards, function(c, i) {
+        //self.queueAnimate(c, {x: xPositions[i], y: endY}, 0);
+        compositeAnimation.push({'element': c, 'attr': {x: xPositions[i], y: endY}, 'time': constants.PLAYER_CARD_ANIMATE_TIME});
       });
+      self.queueMultiAnimation(compositeAnimation);
     }
 
     if (numCards > 0) {
-
-    var compositeAnimation = [];
       _.each(cards, function(card, i) {
         var startX = constants.DECK_X;
         var startY = constants.DECK_Y;
-        var endX = (i * stepSize) + newCardsOffset;
-        var endY = constants.CARD_AREA_Y + constants.CARD_AREA_PADDING;
-
+        var endX = xPositions[i+numExistingCards];
         var cardId = self.getCardId(card, category);
         var cardImage = self.drawCard(card, startX, startY, constants.CARD_WIDTH, constants.CARD_HEIGHT, category);
         cardImage.hide();
@@ -442,6 +506,26 @@ View.prototype = {
         self.repository.addElement(cardImage, cardId, category);
       });
     }
+  },
+
+  sortHumanPlayerCards: function() {
+    var existingCards = this.repository.getElementsByCategory('playerCards');
+    var numExistingCards = existingCards.length;
+
+    var xPositions = this.getCardOffsets(numExistingCards);
+    var endY = constants.CARD_AREA_Y + constants.CARD_AREA_PADDING;
+
+    var sortedCards = _.sortBy(existingCards, function(card) {
+        return card.data('id');
+    }); 
+
+    var self = this;
+    var endY = constants.CARD_AREA_Y + constants.CARD_AREA_PADDING;
+    var compositeAnimation = [];
+    _.each(sortedCards, function(c, i) {
+        compositeAnimation.push({'element': c, 'attr': {x: xPositions[i], y: endY}, 'time': constants.PLAYER_CARD_ANIMATE_TIME});
+    });
+    self.queueMultiAnimation(compositeAnimation);
   },
   
   drawOtherPlayerCards: function(playerIndex, num) {
@@ -454,14 +538,12 @@ View.prototype = {
     var self = this;
     var compositeAnimation = [];
 
-    _.times(num, function() {
+    _.times(num, function(i) {
       var deckEl = self.getCanvas().image(deckImage, startX, startY, constants.DECK_WIDTH, constants.DECK_HEIGHT);
       deckEl.hide();
-
-      compositeAnimation.push({'element': deckEl, 'attr': {x: endX, y: endY}, 'time': constants.PLAYER_CARD_ANIMATE_TIME, 'callback': deckEl.remove});
-      //self.queueAnimate(deckEl, {x: endX, y: endY}, constants.PLAYER_CARD_ANIMATE_TIME, deckEl.remove);
+      compositeAnimation.push({'element': deckEl, 'attr': {x: endX + i, y: endY + i}, 'time': constants.PLAYER_CARD_ANIMATE_TIME, 'callback': deckEl.remove});
     });
-    self.queueCompositeAnimation(compositeAnimation);
+    self.queueMultiAnimation(compositeAnimation);
   },
 
   drawDealCards: function(cards, playingOrder, num) {
@@ -482,6 +564,7 @@ View.prototype = {
       return;
     } else if (cards.length == 5) {
       this.drawDealCards(cards, playingOrder, 5);
+      this.sortHumanPlayerCards();
     } else {
       var i;
       var offset = 5;
@@ -492,6 +575,7 @@ View.prototype = {
         var currentCards = cards.slice(start, end);
         this.drawDealCards(currentCards, playingOrder, 4);
       }
+      this.sortHumanPlayerCards();
     }
   },
   
@@ -500,8 +584,18 @@ View.prototype = {
     this.taskQueue.addTask(task);
   },
 
+  queueRemove: function(obj) {
+    var task = new RemoveTask(obj);
+    this.taskQueue.addTask(task);
+  },
+
   queueAnimate: function(obj, attr, time, callback) {
     var task = new AnimationTask(obj, attr, time, callback);
+    this.taskQueue.addTask(task);
+  },
+  
+  queueMultiAnimation: function(animationList) {
+    var task = new AnimationWithTask(animationList);
     this.taskQueue.addTask(task);
   },
 
@@ -513,9 +607,9 @@ View.prototype = {
   drawPlayerMove: function(playerMove) {
     var category = "playerMoves";
 
-    var player = playerMove.getPlayer();
-    var card = playerMove.getCard();
-    var playerIndex = player.getIndex(); 
+    var player = playerMove.get('player');
+    var card = playerMove.get('card');
+    var playerIndex = player.get('index'); 
 
     var startX = constants.PLAYER_X_ARR[playerIndex];
     var startY = constants.PLAYER_Y_ARR[playerIndex];
@@ -541,10 +635,13 @@ View.prototype = {
   },
 
   getCardId: function(card, category) {
-    var id = category + "_" + card.rank + "_" + card.suit;
+    var suit = card.get('suit');
+    suit = constants.SUIT_ORDER[suit] + suit;
+    var rank =  _.str.pad(card.get('rank'), 2);
+    var id = category + "_" + suit + "_" + rank;
     return id;
   },
-
+  
   removePlayerCard: function(card) {
     var id = this.getCardId(card,'playerCards');
     var cardImage = this.repository.removeElementFromCategory(id, 'playerCards');
@@ -559,7 +656,7 @@ View.prototype = {
 
   drawCard: function(card, x, y, width, height, category) {
     var self = this;
-    var cardImage = this.getCanvas().image(this.getCardImageFile(card.rank, card.suit), x, y, width, height);
+    var cardImage = this.getCanvas().image(this.getCardImageFile(card.get('rank'), card.get('suit')), x, y, width, height);
 
     cardImage.mouseover(function(event) {
         this.translate(0,-1*constants.CARD_HEIGHT);
@@ -574,7 +671,7 @@ View.prototype = {
 
     cardImage.click(function(event) {
         console.log("DEBUG in cardImage clickEventHandler");
-        self.game.handleCardClicked(card);
+        window.game.handleCardClicked(card);
     });
 
     cardImage.id = this.getCardId(card, category);
@@ -583,22 +680,22 @@ View.prototype = {
 
   drawPlayer: function(player) {
     var canvas = this.getCanvas();
-    var playerX = constants.PLAYER_X_ARR[player.getIndex()];
-    var playerY = constants.PLAYER_Y_ARR[player.getIndex()];
+    var playerX = constants.PLAYER_X_ARR[player.get('index')];
+    var playerY = constants.PLAYER_Y_ARR[player.get('index')];
 
     var flagX = playerX - 0.25*constants.TEAM_FLAG_SIZE;
     var flagY = playerY - 0.25*constants.TEAM_FLAG_SIZE;
 
-    var textX  = constants.TEXT_X_ARR[player.getIndex()];
-    var textY = constants.TEXT_Y_ARR[player.getIndex()];
+    var textX  = constants.TEXT_X_ARR[player.get('index')];
+    var textY = constants.TEXT_Y_ARR[player.get('index')];
 
-    var teamName = player.getTeamName();
+    var teamName = player.get('team');
     var teamImage = this.getTeamImageFile(teamName);
     var teamFlag = canvas.image(teamImage, flagX, flagY,  constants.TEAM_FLAG_SIZE, constants.TEAM_FLAG_SIZE);
 
     var playerImage = canvas.image(this.getPlayerImageFile(), playerX, playerY, constants.PLAYER_SIZE, constants.PLAYER_SIZE);
 
-    var playerName = player.getName();
+    var playerName = player.get('name');
     var nameTxt = canvas.text(textX, textY , playerName);
     nameTxt.attr({'fill' : '#fff', 'font-size' : '14', 'font-family' : conf.font, 'font-weight' : 'bold', 'fill-opacity' : '50%'});
   },
@@ -613,14 +710,14 @@ View.prototype = {
     console.debug("Animating overlay");
     this.queueAnimate(overlay, {opacity: '0'}, 100, function() {
       var timeoutId = setTimeout(function() {
-        self.game[callback]();
+        window.game[callback]();
         console.debug("Timeout kicked in"); 
         overlay.remove();
       }, 5000);
 
       overlay.mouseup(function(event) {
         clearTimeout(timeoutId);
-        self.game[callback]();
+        window.game[callback]();
         console.debug("Removing overlay"); 
         overlay.remove();
       }); 

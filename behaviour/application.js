@@ -1,6 +1,10 @@
+'use strict';
+
+(function(window, $, undefined) {
+
 function hasRequiredFeatures() {
   var res = true;
-  if (!("WebSocket" in window)) {
+  if (!("WebSocket" in window) && !("MozWebSocket" in window)) {
     res = false;
     console.error("No WebSocket support detected");
   }
@@ -40,6 +44,8 @@ function initConsole() {
      }
    } else if (console && !console.debug) {
      console.debug = function() {};
+   } else if (console && !console.error) {
+     console.error = function() {};
    }
 }
 
@@ -48,33 +54,33 @@ function Application() {
 
 Application.prototype = {
   init: function() {
-    var self = this;
+    window.playerList = new PlayerList([]);
+    window.playerCardList = new CardList([]);
+    window.playerMoveList = new PlayerMoveList([]);
+    window.game = new Game();
 
-    this.game = new Game();
-    this.view = new View();
-    this.messageHandler = new MessageHandler();
+    var view = new View();
+    var messageHandler = new MessageHandler();
     
-    this.game.setView(this.view);
-    this.game.setMessageHandler(this.messageHandler);
-
-    this.view.setGame(this.game);
-    this.messageHandler.setGame(this.game);
+    game.on('deal:firstCards', view.drawFirstCards, view);
+    game.on('deal:restOfCards', view.drawRestOfCards, view);
+    game.on('trump:chosen', view.drawTrumpSuit, view);
+    game.on('game:init', view.drawBackground, view);
+    game.on('game:init', messageHandler.connect, messageHandler);
+    game.on('game:askMove', view.clearMoves, view);
+    game.on('game:askMove', playerMoveList.reset, playerMoveList);
+    game.on('game:next', view.clearGame, view);
+    game.on('game:next', playerCardList.reset, playerCardList);
+    game.on('game:next', playerMoveList.reset, playerMoveList);
     
-    this.game.setPlayerTeam("Team Suriname");
-    this.game.setCpuTeam("Team Nederland");
+    window.game.setView(view);
+    window.game.setMessageHandler(messageHandler);
 
-    var playerName = this.getStoredValue('playerName');
+    window.game.setPlayerName("");
+    window.game.setPlayerTeam("Team Suriname");
+    window.game.setCpuTeam("Team Nederland");
 
-    if (playerName != null) {
-      this.game.setPlayerName(playerName);
-    } else {
-        this.view.askPlayerName( function(p) {
-          self.game.setPlayerName(p);
-          self.storeValue('playerName', p);
-        });
-    }
-    
-    this.view.preload();
+    view.preload();
   },
 
   getStoredValue: function(key) {  
@@ -89,13 +95,13 @@ Application.prototype = {
   }
 
 };
+    
+initConsole();
+if (hasRequiredFeatures()) {
+  var application = new Application();
+  application.init();
+} else {
+  showBrowserLinks();
+}
 
-$(document).ready(function() {
-    initConsole();
-    if (hasRequiredFeatures()) {
-      var application = new Application();
-      application.init();
-    } else {
-      showBrowserLinks();
-    }
-});
+})(window, jQuery);

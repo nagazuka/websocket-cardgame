@@ -37,6 +37,8 @@ svg {
 
 body {
   font-family: "Ubuntu", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  background-image: url(../images/bright_squares.png);
+  background-repeat: repeat;
 }
 
 p {

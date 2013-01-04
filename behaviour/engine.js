@@ -1,20 +1,49 @@
 'use strict';
 
-function Game() {
-    this.view = null;
-    this.handler = null;
+(function(window, $, undefined) {
 
-    this.cards = [];
-    this.players = [];
-    this.playerMoves = [];
-    this.playingOrder = [];
-    this.selectedCard = null;
-    this.playerName = null;
-    this.playerTeam = null;
-    this.cpuTeam = null;
-}
+window.Card = Backbone.Model.extend({
+});
 
-Game.prototype = {
+window.CardList = Backbone.Collection.extend({
+  model: Card
+});
+
+//window.cards = new CardList();
+
+window.Player = Backbone.Model.extend({
+});
+
+window.PlayerList = Backbone.Collection.extend({
+  model: Player
+});
+
+//window.players = new PlayerList();
+
+
+window.PlayerMove = Backbone.Model.extend({
+});
+
+window.PlayerMoveList = Backbone.Collection.extend({
+  model: PlayerMove
+});
+
+//window.playerMoves = new PlayerMoveList();
+
+window.Game = Backbone.Model.extend({
+
+  defaults: {
+    view : null,
+    handler : null,
+    cards : [],
+    players : [],
+    playerMoves : [],
+    playingOrder : [],
+    selectedCard : null,
+    playerName : null,
+    playerTeam : null,
+    cpuTeam : null
+  },
 
   init: function() {
     this.handler.connect();
@@ -31,16 +60,16 @@ Game.prototype = {
   },
 
   askFirstCards: function fn_askFirstCards () {
-    this.handler.sendMessage({ 'command' : 'dealFirstCards', 'playerId' : this.humanPlayer.id});
+    this.handler.sendMessage({ 'command' : 'dealFirstCards', 'playerId' : this.get('humanPlayer').get('id')});
   },
 
   chooseTrump: function fn_chooseTrump (card) {
-    this.trumpSuit = card.suit;
-    this.handler.sendMessage({'command' : 'chooseTrump', 'suit': card.suit, 'playerId' : this.humanPlayer.id});
+    this.set({'trumpSuit': card.get('suit')});
+    this.handler.sendMessage({'command' : 'chooseTrump', 'suit': card.get('suit'), 'playerId' : this.get('humanPlayer').id});
   },
   
   makeMove: function fn_makeMove (card) {
-    this.handler.sendMessage({'command' : 'makeMove', 'rank' : card.rank, 'suit': card.suit, 'playerIndex' : 0, 'playerId' : this.humanPlayer.id});
+    this.handler.sendMessage({'command' : 'makeMove', 'rank' : card.get('rank'), 'suit': card.get('suit'), 'playerIndex' : 0, 'playerId' : this.get('humanPlayer').id});
     this.selectedCard = card;
     this.setCardClickHandler(this.noAction);
   },
@@ -54,13 +83,17 @@ Game.prototype = {
   },
 
   addCards: function(newCards) {
-    console.debug("Before addCards cards size: " + this.cards.length);
-    this.cards = this.cards.concat(newCards);
-    this.cards = _.uniq(this.cards, false, function(c) {
-      return c.suit + '_' + c.rank;
+    var cards = this.get('cards');
+    console.debug("Before addCards cards size: " + this.get('cards').length);
+    cards = this.get('cards').concat(newCards);
+    console.debug("After concat cards size: " + cards.length);
+    //TODO: why the unique?
+    cards = _.uniq(cards, false, function(c) {
+      return c.get('suit') + '_' + c.get('rank');
     });
-    console.debug("After addCards cards size: " + this.cards.length);
-    //this.sortCards();
+    console.debug("After uniq cards size: " + cards.length);
+    this.set({'cards': cards});
+    console.debug("After addCards cards size: " + this.get('cards').length);
   },
 
   sortCards: function() {
@@ -74,14 +107,16 @@ Game.prototype = {
   },
   
   addPlayer: function(player) {
-    if (player.isHuman) {
-      this.humanPlayer = player;
+    console.debug('player.isHuman ' + player.isHuman);
+    if (player.get('isHuman')) {
+      this.set({'humanPlayer': player});
     }
-    this.players.push(player);
+    this.get('players').push(player);
+    //this.players.push(player);
   },
 
   getPlayerById: function(id) {
-    var player = _.find(this.players, function (p) { return p.id == id;});
+    var player = _.find(this.get('players'), function (p) { return p.id == id;});
     return player;
   },
 
@@ -96,11 +131,11 @@ Game.prototype = {
 
   clearCards: function() {
     this.view.clearPlayerCards();
-    this.cards.length = 0;
+    this.set({'cards':[]});
   },
 
   drawTrumpSuit: function(trumpSuit) {
-    this.view.drawTrumpSuit(this.trumpSuit);
+    this.view.drawTrumpSuit(this.get('trumpSuit'));
   },
   
   drawText: function(text, subscript) {
@@ -121,17 +156,19 @@ Game.prototype = {
 
   clearMoves: function(moves) {
     this.view.clearPlayerMoves();
-    this.playerMoves.length = 0;
+    this.set({'playerMoves': []});
   },
   
   addAndDrawMoves : function(moves) {
+    console.debug('addAndDrawMoves');
     var self = this;
-    var existingMoves = this.playerMoves;
+    var existingMoves = this.get('playerMoves');
     var currentStep = existingMoves.length;
+    console.debug('addAndDrawMoves currentStep %d', currentStep);
 
     _.each(moves, function(move, index, list) {
-      if (move.sequenceNumber > currentStep) {
-        self.playerMoves.push(move);
+      if (move.get('sequenceNumber') > currentStep) {
+        self.get('playerMoves').push(move);
         self.view.drawPlayerMove(move);
       }
     });
@@ -148,7 +185,7 @@ Game.prototype = {
   handleFirstCards: function(cards) {
     this.addCards(cards);
     this.view.drawDeck();
-    this.view.drawPlayerCards(this.cards, this.playingOrder);
+    this.view.drawPlayerCards(this.get('cards'), this.playingOrder);
     this.drawText(messages[conf.lang].chooseTrumpHeading, "");
     this.setCardClickHandler(this.chooseTrump);
   },
@@ -156,7 +193,7 @@ Game.prototype = {
   handleAllCards: function(cards, trumpSuit) {
     this.drawTrumpSuit(trumpSuit);
     this.addCards(cards);
-    this.view.drawPlayerCards(this.cards, this.playingOrder);
+    this.view.drawPlayerCards(this.get('cards'), this.playingOrder);
     this.view.clearDeck();
     this.sendReady();
   },
@@ -181,10 +218,10 @@ Game.prototype = {
     this.addAndDrawMoves(playerMoves);
 
     var winningPlayer = this.getPlayerById(winningPlayerId);
-    if (winningPlayer.id == this.humanPlayer.id) {
+    if (winningPlayer.id == this.get('humanPlayer').id) {
       this.drawText(messages[conf.lang].youWinHand, messages[conf.lang].clickToAdvance);
     } else {
-      this.drawText(winningPlayer.name + messages[conf.lang].otherWinsHand, messages[conf.lang].clickToAdvance);
+      this.drawText(winningPlayer.get('name') + messages[conf.lang].otherWinsHand, messages[conf.lang].clickToAdvance);
     }
     
     this.updateScores(scores);
@@ -237,4 +274,7 @@ Game.prototype = {
   setMessageHandler: function(handler) {
     this.handler = handler;
   }
-};
+
+});
+
+})(window, jQuery);

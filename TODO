@@ -1,12 +1,11 @@
-- sort cards after dealing all cardsa
-- reset scores after next game start 
 - preload and enable choose female avatars
 - background for trump suit
 - surinam and dutch names
+- re enable name change for player
+- add points system for players
+- add sounds to card dealing
 - adjust strategy, loos-card lowest instead of highests
 - adjust strategy, don't make when teammate is making
-- really change playing order in next round
-- slow down other card dealing animation
 - correctly position subtext in-game
 - change splash logo to nice image
 - change splash subtext to nice button
