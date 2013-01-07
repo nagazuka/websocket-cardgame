@@ -223,6 +223,14 @@ class MessageHandler(tornado.websocket.WebSocketHandler):
         logging.info("Websocket closed")
         self.gameServer = None
 
+    def allow_draft76(self):
+        """Allow draft 76, until browsers such as Safari update to RFC 6455.
+        
+        This has been disabled by default in tornado in release 2.2.0, and
+        support will be removed in later versions.
+        """
+        return True
+
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG, 
                         format='%(asctime)s %(levelname)s %(message)s')
