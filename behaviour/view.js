@@ -171,21 +171,6 @@ View.prototype = {
         loader.addImage(teamImageFile);
         loader.addImage(smallTeamImageFile);
       }
-      
-      var suit; 
-      var i;
-      for (suit in constants.SUIT_TRANSLATION_TABLE) {
-        for(i=2; i < 15; i++) {
-          var cardImageFile = this.getCardImageFile(i, suit);
-          loader.addImage(cardImageFile);
-        }
-      }
-
-      var trumpSuit;
-      for (trumpSuit in conf.suitIcons) {
-        var iconImage = this.getSuitImageFile(trumpSuit);
-        loader.addImage(iconImage);
-      }
 
       if (this.loadAllAvatars) {
         var charCode;
@@ -201,9 +186,25 @@ View.prototype = {
           var i;
           for (i=0; i < 4; i++) {
             var playerImage = this.getRandomPlayerImageFile();
+            console.debug("Preloading player image [%s] for index %d", playerImage, i);
             this.playerImages.push(playerImage);
             loader.addImage(playerImage);
           }
+      }
+      
+      var suit; 
+      var i;
+      for (suit in constants.SUIT_TRANSLATION_TABLE) {
+        for(i=2; i < 15; i++) {
+          var cardImageFile = this.getCardImageFile(i, suit);
+          loader.addImage(cardImageFile);
+        }
+      }
+
+      var trumpSuit;
+      for (trumpSuit in conf.suitIcons) {
+        var iconImage = this.getSuitImageFile(trumpSuit);
+        loader.addImage(iconImage);
       }
 
       loader.addCompletionListener(function() {
@@ -642,8 +643,10 @@ View.prototype = {
     return conf.cardsDirectory + 'simple_' + constants.SUIT_TRANSLATION_TABLE[suit] + '_' + constants.RANK_TRANSLATION_TABLE[rank] + '.png';
   },
   
-  getPlayerImageFile: function(index) {
-    return this.playerImages[index];
+  getPlayerImageFile: function(index) { 
+    var playerImage = this.playerImages[index];
+    console.debug("Returning preloaded player image [%s] for index %d", playerImage, index);
+    return playerImage;
   },
   
   getRandomPlayerImageFile: function() {
