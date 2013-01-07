@@ -107,12 +107,27 @@ window.Game = Backbone.Model.extend({
   },
   
   addPlayer: function(player) {
-    console.debug('player.isHuman ' + player.isHuman);
     if (player.get('isHuman')) {
       this.set({'humanPlayer': player});
+      player.set({'name': this.playerName});
+    } else {
+      var team = player.get('team');
+      var playerName = this.getRandomPlayerName(team);
+      player.set({'name': playerName});
     }
     this.get('players').push(player);
-    //this.players.push(player);
+  },
+
+  getRandomPlayerName: function(team) {
+    var nameList;
+    if (team == 'Team Nederland') {
+      nameList = names.MALE_NL;
+    } else if (team == 'Team Suriname') {
+      nameList = names.MALE_SU;
+    }
+    var  num = nameList.length;
+    var index = Math.floor(Math.random() * num);
+    return nameList[index];
   },
 
   getPlayerById: function(id) {
