@@ -4,6 +4,9 @@
  * External configuration file. 
  */ 
 var conf = {
+  GOOGLE_ANALYTICS_CODE : 'UA-642674-4',
+  FACEBOOK_APPID : '256384804442526',
+
   lang: 'nl',
 
   font: 'Ubuntu',	

@@ -1,6 +1,5 @@
+- fix choose trump error in new games
 - preload and enable choose female avatars
-- surinam and dutch names
-- preload only selected avatars initially
 - background for trump suit
 - re enable name change for player
 - add points system for players
