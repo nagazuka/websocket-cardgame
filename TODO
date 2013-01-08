@@ -1,5 +1,6 @@
-- fix choose trump error in new games
 - choose trump screen with suits
+- show timer for other player's move
+- display big notifications for trump choice or kap
 - adjust strategy, loos-card lowest instead of highests
 - adjust strategy, don't make when teammate is making
 - re enable name change for player
