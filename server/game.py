@@ -83,6 +83,28 @@ class CardGame:
         self.setPlayingOrder()
 
         self.state = "ORDER_DECIDED"
+    
+    def decideTrump(self):
+        for player in self.getPlayersInOrder():
+          cards = player.getCards()
+          return CardGame.pickBestSuit(cards)
+    
+    @staticmethod
+    def pickBestSuit(cards):
+        suits = set([c.suit for c in cards])
+
+        counts = {}
+        for suit in suits:
+          value = sum([c.rank for c in cards if c.suit == suit]) 
+          counts[suit] = value
+
+        logging.debug("counts %s", counts)
+        trump = max(counts, key=counts.get)
+        logging.debug("trump %s", trump)
+        return trump
+
+    def getTrumpSuit(self):
+        return self.trumpSuit
 
     def dealFirstCards(self):
         for player in self.getPlayersInOrder():

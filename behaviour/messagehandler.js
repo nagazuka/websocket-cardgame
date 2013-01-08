@@ -53,6 +53,7 @@ MessageHandler.prototype = {
   startGame: function (response) {
     var self = this;
     var playerList = response.players;
+    //TODO send as method paramter
     game.playingOrder = response.playingOrder;
     _.each(response.players, function (p) {
       console.debug('p: ' + p.isHuman);
@@ -64,6 +65,8 @@ MessageHandler.prototype = {
   },
 
   nextGame: function(response) {
+    //TODO send as method paramter
+    game.playingOrder = response.playingOrder;
     game.handleNextGame();
   },
 

@@ -1,11 +1,10 @@
 - fix choose trump error in new games
-- preload and enable choose female avatars
-- background for trump suit
+- choose trump screen with suits
+- adjust strategy, loos-card lowest instead of highests
+- adjust strategy, don't make when teammate is making
 - re enable name change for player
 - add points system for players
 - add sounds to card dealing
-- adjust strategy, loos-card lowest instead of highests
-- adjust strategy, don't make when teammate is making
 - correctly position subtext in-game
 - change splash logo to nice image
 - change splash subtext to nice button
@@ -21,3 +20,4 @@
 - minify css and jss with yui-compressor
 - make canvas full-width
 - add acks and retries for websocket messages
+- background for trump suit

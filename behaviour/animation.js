@@ -9,7 +9,7 @@ function TextTask(element, text) {
 TextTask.prototype = new AsyncTask;
 TextTask.prototype.run = function() {
         this.element.attr({'text': this.text});
-        this.element.attr({'opacity': '1','fill': '#fff'});
+        this.element.attr({'opacity': '1','fill': '//gcfff'});
         this.finish();
 };
 
@@ -83,7 +83,7 @@ function AnimationWithTask(animationList) {
 
 AnimationWithTask.prototype = new AsyncTask;
 AnimationWithTask.prototype.run = function() {
-      console.debug("Running multi animation task");
+      //gcconsole.debug("Running multi animation task");
       var self = this;
 
       var i;
@@ -100,7 +100,7 @@ AnimationWithTask.prototype.run = function() {
             }
             self.finish();
           };
-          console.debug("Running first animation");
+          //gcconsole.debug("Running first animation");
           animation = Raphael.animation(currAnim.attr, currAnim.time, ">", firstAnimCallback);
           element = currAnim.element.show().stop().animate(animation);
         } else {
@@ -109,7 +109,7 @@ AnimationWithTask.prototype.run = function() {
               currAnim.callback.apply(this);
             }
           };
-          console.debug("Running other animations");
+          //gcconsole.debug("Running other animations");
           currAnim.element.show().stop().animateWith(element, animation, currAnim.attr, currAnim.time, ">", animCallback);
         }
       }

@@ -28,6 +28,13 @@ class GameServer:
         p4 = Player(4, "Jimi Hendrix", team2Name)
         return [p1, p3, p2, p4]
 
+    def setHumanPlayerFirst(self):
+        self.cardGame.startingPlayerIndex = 0
+        self.cardGame.setPlayingOrder()
+
+    def isHumanPlayerFirst(self):
+        return self.cardGame.startingPlayerIndex == 0
+
     def startGame(self, req):
         jsonResponse = {'response': 'startGame'}
         try:
@@ -42,8 +49,9 @@ class GameServer:
 
             #self.cardGame.decideOrder()
             # override to set humanplayer as first
-            self.cardGame.startingPlayerIndex = 0
-            self.cardGame.setPlayingOrder()
+            self.setHumanPlayerFirst()
+            #self.cardGame.startingPlayerIndex = 0
+            #self.cardGame.setPlayingOrder()
 
             playersList = []
             i = 0
@@ -67,6 +75,7 @@ class GameServer:
     def nextGame(self, req):
         jsonResponse = {'response': 'nextGame'}
         try:
+            jsonResponse['playingOrder'] = self.cardGame.getOrder()
             jsonResponse['resultCode'] = 'SUCCESS'
 
             self.cardGame.clearGame()
@@ -88,6 +97,14 @@ class GameServer:
 
             response['cards'] = [{'rank': card.rank, 'suit': card.suit}
                            for card in firstCards]
+
+            if not self.isHumanPlayerFirst():
+              logging.debug("Deciding trump for first player")
+              trumpSuit = self.cardGame.decideTrump()
+              self.cardGame.chooseTrump(trumpSuit)
+            else:
+              logging.debug("Human player first, no need to decide trump")
+
         except Exception as ex:
             self.writer.sendError(ex)
             raise
@@ -97,8 +114,13 @@ class GameServer:
     def chooseTrump(self, request):
         response = {'response': 'allCards'}
         try:
-            trumpSuit = request['suit']
-            self.cardGame.chooseTrump(trumpSuit)
+            trumpSuit = None
+            if 'suit' in request:
+              trumpSuit = request['suit']
+              self.cardGame.chooseTrump(trumpSuit)
+            else:
+              trumpSuit = self.cardGame.getTrumpSuit()
+
             self.cardGame.dealCards()
 
             player = self.cardGame.getPlayerById(request['playerId'])

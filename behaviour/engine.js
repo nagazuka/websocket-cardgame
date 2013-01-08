@@ -64,8 +64,12 @@ window.Game = Backbone.Model.extend({
   },
 
   chooseTrump: function fn_chooseTrump (card) {
-    this.set({'trumpSuit': card.get('suit')});
+    //this.set({'trumpSuit': card.get('suit')});
     this.handler.sendMessage({'command' : 'chooseTrump', 'suit': card.get('suit'), 'playerId' : this.get('humanPlayer').id});
+  },
+
+  chooseFakeTrump: function fn_chooseTrump () {
+    this.handler.sendMessage({'command' : 'chooseTrump', 'playerId' : this.get('humanPlayer').id});
   },
   
   makeMove: function fn_makeMove (card) {
@@ -75,7 +79,7 @@ window.Game = Backbone.Model.extend({
   },
 
   noAction: function fn_noAction (card) {
-    this.view.drawText('Nu even niet :-)\nChill for a bit amigo...');
+    this.view.drawText('Even geduld...');
   },
 
   sendReady: function() {
@@ -201,11 +205,21 @@ window.Game = Backbone.Model.extend({
     this.addCards(cards);
     this.view.drawDeck();
     this.view.drawPlayerCards(this.get('cards'), this.playingOrder);
-    this.drawText(messages[conf.lang].chooseTrumpHeading, "");
-    this.setCardClickHandler(this.chooseTrump);
+
+    var humanPlayer = this.get('humanPlayer');
+    console.debug("this.playingOrder[0] %d humanPlayer id %d humanPlayer index %d", this.playingOrder[0], this.get('humanPlayer').get('id'), this.get('humanPlayer').get('index'));
+
+    if (this.playingOrder[0] == humanPlayer.get('index')) {
+      this.drawText(messages[conf.lang].chooseTrumpHeading, "");
+      this.setCardClickHandler(this.chooseTrump);
+    } else {
+      this.setCardClickHandler(this.noAction);
+      this.chooseFakeTrump();
+    }
   },
 
   handleAllCards: function(cards, trumpSuit) {
+    this.set({'trumpSuit': trumpSuit});
     this.drawTrumpSuit(trumpSuit);
     this.addCards(cards);
     this.view.drawPlayerCards(this.get('cards'), this.playingOrder);
