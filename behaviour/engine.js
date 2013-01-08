@@ -79,7 +79,7 @@ window.Game = Backbone.Model.extend({
   },
 
   noAction: function fn_noAction (card) {
-    this.view.drawText('Even geduld...');
+    this.view.drawText('Even geduld...', '');
   },
 
   sendReady: function() {
