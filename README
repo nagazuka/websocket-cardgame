@@ -1,13 +1,9 @@
 Websocket CardGame
 =======
+
+IMPORTANT: This repository is no longer actively maintained. I have ported the game from Tornado to Node.js: https://github.com/nagazuka/node-cardgame
+
 Websocket CardGame is an open source HTML5 card game, implementing the TroefCall card game from Surinam, built with Raphael.js, HTML5 WebSockets and the Tornado Web Framework.
 
 Websocket CardGame is licensed under the Apache Licence, Version 2.0
 (http://www.apache.org/licenses/LICENSE-2.0.html).
-
-Live Demo
-=======
-
-A live demo can be viewed on http://www.troefcallonline.nl 
-
-It is a work in progress, expect it to change frequently.
